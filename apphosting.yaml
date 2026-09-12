@@ -64,6 +64,15 @@ env:
   - variable: AUDIT_HASH_SALT
     secret: AUDIT_HASH_SALT
     availability: [RUNTIME]
+  - variable: INSTAGRAM_ACCESS_TOKEN
+    secret: INSTAGRAM_ACCESS_TOKEN
+    availability: [RUNTIME]
+  - variable: YOUTUBE_CHANNEL_ID
+    value: UCLfb6AjYG8bfWNe8wLytV7w
+    availability: [RUNTIME]
+  - variable: NEXT_PUBLIC_INSTAGRAM_PROFILE_URL
+    value: https://www.instagram.com/voltenvroom/
+    availability: [BUILD, RUNTIME]
 
 # Optional. Once the actual Mobilox image host is known, set an explicit
 # allowlist to make remote-image ingestion fail closed for unknown hosts.

@@ -6,6 +6,7 @@ import { FeaturedInventoryRail } from "@/components/FeaturedInventoryRail";
 import { FloatingContactDock } from "@/components/FloatingContactDock";
 import { Header } from "@/components/Header";
 import { HomepageSocialVideos } from "@/components/HomepageSocialVideos";
+import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VehicleCard } from "@/components/VehicleCard";
 import { eur } from "@/lib/format";
@@ -72,6 +73,8 @@ export default async function HomePage() {
       <div id="uitgelicht"><FeaturedInventoryRail vehicles={featuredVehicles} /></div>
 
       <HomepageSocialVideos />
+
+      <HomepageSocialFeed />
 
       <section className="proofBar proofBarRefresh" aria-label="Drie zekerheden van Volt & Vroom"><div className="container proofGrid proofGridPromises">
         {promises.map(item => <div className="proofPromise" key={item.title}><Image src={item.icon} alt="" width={34} height={34} /><div><strong>{item.title}</strong><span>{item.text}</span></div></div>)}
