@@ -13,7 +13,10 @@ import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
 import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
 
-export const revalidate = 60;
+// De homepage toont dezelfde live Firestore-voorraad als /voorraad.
+// Forceer dynamische rendering zodat een tijdens de build lege voorraad niet
+// als statische homepage in de App Hosting-cache blijft hangen.
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const assurances = [
