@@ -3,6 +3,8 @@ const exactPublicRoutes = new Set([
   "/api/merchant-feed",
   "/api/leads",
   "/api/rdw/vehicle",
+  "/api/trade-ins",
+  "/api/trade-ins/lookup",
   "/api/public/social-videos",
   "/api/auth/session",
   "/api/auth/logout",
