@@ -157,6 +157,7 @@ export function TradeInForm({
         </li>;
       })}
     </ol>
+    <style>{`.${styles.progress} li::after { display: none; }`}</style>
 
     <section className={styles.step} hidden={step !== 1}>
       <div className={styles.stepHeading}><span>Stap 1 van 3</span><h2>Welke auto wilt u inruilen?</h2><p>Vul het kenteken en de actuele kilometerstand in. We halen de openbare voertuiggegevens op bij RDW.</p></div>
