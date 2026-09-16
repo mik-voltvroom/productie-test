@@ -1,0 +1,123 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card {
+  min-width: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 16px 44px rgba(13,17,23,.07);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--ice-strong);
+  box-shadow: 0 22px 54px rgba(13,17,23,.11);
+}
+
+.card:focus-visible {
+  border-color: var(--electric);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 1.72 / 1;
+  overflow: hidden;
+  background: var(--soft);
+}
+
+.media img {
+  object-fit: cover;
+  transition: transform .35s ease;
+}
+
+.card:hover .media img {
+  transform: scale(1.025);
+}
+
+.body {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  align-content: start;
+  padding: 0 22px 24px;
+}
+
+.icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin: -29px 0 14px;
+  border: 1px solid rgba(230,234,240,.95);
+  border-radius: 50%;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 8px 24px rgba(13,17,23,.1);
+}
+
+.icon img {
+  width: 30px;
+  height: 30px;
+}
+
+.body h3 {
+  margin: 0 0 10px;
+  font-size: clamp(1.05rem,1.35vw,1.28rem);
+  line-height: 1.2;
+  letter-spacing: -.025em;
+}
+
+.body p {
+  margin: 0;
+  color: var(--graphite);
+  font-size: .88rem;
+  line-height: 1.58;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  color: var(--electric);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.action span {
+  font-size: 1rem;
+  transition: transform .2s ease;
+}
+
+.card:hover .action span {
+  transform: translateX(3px);
+}
+
+@media (max-width: 1280px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .grid { grid-template-columns: 1fr; }
+  .media { aspect-ratio: 1.9 / 1; }
+  .body { padding: 0 22px 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .media img,
+  .action span { transition: none; }
+}

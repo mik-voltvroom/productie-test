@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { AnimatedProcessSteps } from "@/components/AnimatedProcessSteps";
+import { AssuranceShowcase } from "@/components/AssuranceShowcase";
 import { ContactForm } from "@/components/ContactForm";
 import { FeaturedInventoryRail } from "@/components/FeaturedInventoryRail";
 import { FloatingContactDock } from "@/components/FloatingContactDock";
@@ -18,14 +19,6 @@ import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository
 // als statische homepage in de App Hosting-cache blijft hangen.
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
-
-const assurances = [
-  { icon: "/brand/icons/historie.svg", title: "Aantoonbare historie", text: "Onderhoud, kilometerstand, eigenaarsinformatie en relevante voertuiggegevens worden vóór verkoop gecontroleerd." },
-  { icon: "/brand/icons/accugezondheid.svg", title: "Accu waar relevant", text: "Bij hybride en elektrische auto’s leggen we beschikbare hoogvolt- en SOH-data begrijpelijk uit, zonder er meer van te maken dan de meting zegt." },
-  { icon: "/brand/icons/onderhoud.svg", title: "Technisch geselecteerd", text: "Leeftijd, kilometerstand, onderhoud, uitvoering en technisch risico worden als één geheel beoordeeld." },
-  { icon: "/brand/icons/praktijkverbruik.svg", title: "Advies uit de praktijk", text: "We kijken naar uw ritten, laadmogelijkheden en gebruik. Zo krijgt u advies dat aansluit op uw dagelijkse gebruik." },
-  { icon: "/brand/icons/elektrisch.svg", title: "Energie voor thuis", text: "Laadpalen, energiecontracten en thuisbatterijen. Plaatsing waar mogelijk binnen 14 dagen." },
-];
 
 const promises = [
   { icon: "/brand/icons/historie.svg", title: "Historie gecontroleerd", text: "Onderhoud, kilometerstand en bekende voertuiggegevens worden vóór publicatie beoordeeld." },
@@ -83,10 +76,15 @@ export default async function HomePage() {
         {promises.map(item => <div className="proofPromise" key={item.title}><Image src={item.icon} alt="" width={34} height={34} /><div><strong>{item.title}</strong><span>{item.text}</span></div></div>)}
       </div></section>
 
-      <section id="waarom" className="section container introSection">
-        <div className="sectionHeading splitHeading"><div><p className="eyebrow">De Volt &amp; Vroom-norm</p><h2>De juiste aandrijflijn. Aantoonbaar de juiste auto.</h2></div><p className="sectionIntro">Een goede occasion is meer dan een nette foto en een kilometerstand. Daarom maken we historie, techniek, onderhoud en beschikbare accudata onderdeel van de presentatie.</p></div>
-        <div className="assuranceGrid">{assurances.map(item => <article className="assuranceCard" key={item.title}><Image src={item.icon} alt="" width={46} height={46} /><div><h3>{item.title}</h3><p>{item.text}</p></div></article>)}</div>
+      <section id="waarom" className="section assuranceSection">
+        <div className="assuranceContainer">
+          <div className="assuranceHeading"><p className="eyebrow">Onze aanpak</p><h2>Zorgeloos rijden. Vandaag én morgen.</h2><p>Van historie tot laden: wij regelen het, zodat u met vertrouwen de weg op gaat.</p></div>
+          <AssuranceShowcase />
+          <p className="assuranceTagline">Meer dan auto’s. Een slimmere manier van rijden.</p>
+        </div>
+        <div className="container">
         <div className="carcheckStatement"><div><p className="eyebrow">Volt &amp; Vroom controle</p><h3>Een vast protocol. Controleerbare bevindingen.</h3></div><p>Per auto leggen we relevante controlepunten en bevindingen vast. De beschikbare gegevens en bevindingen blijven belangrijker dan één badge of totaalscore.</p><a className="textButton" href="/vv-verified">Bekijk onze controleaanpak <span aria-hidden="true">→</span></a></div>
+        </div>
       </section>
 
       <section className="choiceSection" aria-labelledby="keuze-title"><div className="container choiceGrid">

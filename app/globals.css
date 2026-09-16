@@ -69,6 +69,14 @@ h1 { max-width:850px; margin:18px 0 26px; font-size:clamp(3.25rem,6.4vw,6.4rem);
 .assuranceCard div { display:grid; gap:6px; }
 .assuranceCard strong { font-family:var(--font-manrope),sans-serif; font-size:1rem; }
 .assuranceCard span { color:var(--graphite); font-size:.85rem; line-height:1.45; }
+.assuranceSection { overflow:hidden; background:linear-gradient(180deg,#f8fbfe 0%,#fff 72%); }
+.assuranceContainer { width:min(1600px,calc(100% - 40px)); margin:0 auto; }
+.assuranceHeading { max-width:980px; margin:0 auto 38px; text-align:center; }
+.assuranceHeading h2 { max-width:none; margin:10px 0 12px; }
+.assuranceHeading>p:last-child { margin:0; color:var(--graphite); font-size:clamp(1rem,1.5vw,1.2rem); }
+.assuranceTagline { display:flex; align-items:center; justify-content:center; gap:18px; margin:28px 0 48px; color:#84909d; font-size:.7rem; font-weight:800; letter-spacing:.16em; text-align:center; text-transform:uppercase; }
+.assuranceTagline::before,.assuranceTagline::after { content:""; width:92px; height:1px; background:#cfd8e2; }
+.assuranceSection .carcheckStatement { margin-top:0; }
 .vehicleGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin-top:36px; }
 .vehicle { overflow:hidden; padding:0; }
 .vehicleMedia { position:relative; background:var(--soft); }
@@ -93,7 +101,7 @@ footer { padding:42px 0; border-top:1px solid var(--border); background:var(--pa
 .footerInner { display:flex; justify-content:space-between; gap:20px; }
 .footerInner span:first-child { color:var(--ink); font-family:var(--font-manrope),sans-serif; font-weight:650; letter-spacing:.1em; }
 @media(max-width:980px){.hero{grid-template-columns:1fr;gap:52px}.heroCopy{max-width:760px}.assuranceGrid{grid-template-columns:1fr 1fr}.navlinks{display:none}.heroVisual{padding-left:0}.heroProof{left:18px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.container{width:min(100% - 28px,1180px)}.nav{min-height:72px}.brandLogo span{font-size:.82rem}.nav>.button{padding:0 13px;font-size:.78rem}.hero{min-height:auto;padding:64px 0 76px}.hero h1{font-size:clamp(3rem,15vw,4.5rem)}.heroCard,.heroCard img{min-height:410px;height:410px}.heroVisual{padding-bottom:46px}.heroProof{right:14px;left:14px;min-width:0}.section{padding:72px 0}.assuranceGrid{grid-template-columns:1fr}.assuranceCard{min-height:0}.vehicleMedia img{height:240px}.vehicleHeading{display:grid}.price{font-size:1.3rem}.contactCard{grid-template-columns:1fr;gap:20px;padding:30px 24px}.footerInner{display:grid}}
+@media(max-width:640px){.container{width:min(100% - 28px,1180px)}.nav{min-height:72px}.brandLogo span{font-size:.82rem}.nav>.button{padding:0 13px;font-size:.78rem}.hero{min-height:auto;padding:64px 0 76px}.hero h1{font-size:clamp(3rem,15vw,4.5rem)}.heroCard,.heroCard img{min-height:410px;height:410px}.heroVisual{padding-bottom:46px}.heroProof{right:14px;left:14px;min-width:0}.section{padding:72px 0}.assuranceContainer{width:min(100% - 28px,1600px)}.assuranceHeading{margin-bottom:28px}.assuranceTagline::before,.assuranceTagline::after{width:28px}.assuranceGrid{grid-template-columns:1fr}.assuranceCard{min-height:0}.vehicleMedia img{height:240px}.vehicleHeading{display:grid}.price{font-size:1.3rem}.contactCard{grid-template-columns:1fr;gap:20px;padding:30px 24px}.footerInner{display:grid}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button{transition:none}}
 /* VVOS operational layer */
 .dashboardHeader{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
