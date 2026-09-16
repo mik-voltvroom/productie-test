@@ -1,0 +1,63 @@
+.more {
+  position: relative;
+}
+
+.more summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.more summary::-webkit-details-marker {
+  display: none;
+}
+
+.more summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.more[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.more summary:hover,
+.more[open] summary {
+  color: var(--ink);
+}
+
+.moreMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  min-width: 220px;
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 18px 48px rgba(13,17,23,.12);
+}
+
+.moreMenu a {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+}
+
+.moreMenu a:hover {
+  border: 0;
+  background: var(--ice);
+}
