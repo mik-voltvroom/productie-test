@@ -48,7 +48,7 @@ export function ContactForm({ vehicles }: { vehicles: { id: string; label: strin
       formElement.reset();
     } else {
       setState("error");
-      setFeedback("Versturen lukt nu niet. Bel 050 211 3883 of mail naar mik@voltvroom.nl.");
+      setFeedback("Versturen lukt nu niet. Bel 0619163531 of mail naar sales@voltvroom.nl.");
     }
   }
 

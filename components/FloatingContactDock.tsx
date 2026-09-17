@@ -17,7 +17,7 @@ export function FloatingContactDock() {
 
   return (
     <aside className="floatingContactDock" aria-label="Snel contact">
-      <a className="contactAction contactActionPhone" href="tel:+31502113883" data-vv-event="phone_click" aria-label="Bel Volt & Vroom">
+      <a className="contactAction contactActionPhone" href="tel:+31619163531" data-vv-event="phone_click" aria-label="Bel Volt & Vroom">
         <span className="dockIcon"><PhoneIcon /></span><span>Bel</span>
       </a>
       <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht">
