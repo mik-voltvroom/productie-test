@@ -16,6 +16,10 @@ export const defaultVehicleCommercial: VehicleCommercial = {
   priceHistory: [],
 };
 
+export function isIconVehicle(vehicle: Pick<Vehicle, "collection">): boolean {
+  return vehicle.collection === "icons";
+}
+
 function nonNegativeInteger(value: unknown, field: string, fallback: number): number {
   if (value === undefined) return fallback;
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {

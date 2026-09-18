@@ -67,6 +67,7 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
           <label>Aandrijving<select value={vehicle.driveType} onChange={e => set("driveType", e.target.value as DriveType)}><option value="full-hybrid">Full hybrid</option><option value="plug-in-hybrid">Plug-in hybrid</option><option value="electric">Elektrisch</option><option value="combustion">Benzine / diesel</option></select></label>
           <label>Carrosserie<input value={vehicle.bodyStyle} onChange={e => set("bodyStyle", e.target.value)} /></label>
           <label>Kleur<input value={vehicle.color} onChange={e => set("color", e.target.value)} /></label>
+          <label>Collectie<select value={vehicle.collection ?? "standard"} onChange={e => set("collection", e.target.value === "icons" ? "icons" : undefined)}><option value="standard">Reguliere voorraad</option><option value="icons">Volt &amp; Vroom Icons</option></select></label>
           <label>Kenteken<input value={vehicle.licensePlate ?? ""} onChange={e => set("licensePlate", e.target.value.toUpperCase())} /></label>
           <label>VIN<input value={vehicle.vin ?? ""} onChange={e => set("vin", e.target.value.toUpperCase())} /></label>
           <label>Accugezondheid %<input type="number" min="0" max="100" value={vehicle.batteryHealthPercent ?? 0} onChange={e => set("batteryHealthPercent", Number(e.target.value))} /></label>

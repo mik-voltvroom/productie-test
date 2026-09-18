@@ -132,13 +132,30 @@ describe("publieke Volt & Vroom website", () => {
   it("biedt afzonderlijke landingspagina's, FAQ's en een gevalideerde keuzehulp", () => {
     expect(read("app/hybride/page.tsx")).toContain("Hybride wanneer dat slimmer is");
     expect(read("app/elektrisch/page.tsx")).toContain("Elektrisch wanneer het klopt");
-    expect(read("app/icons/page.tsx")).toContain("Meer karakter. Dezelfde standaard");
+    expect(read("app/icons/page.tsx")).toContain("Meer karakter.");
+    expect(read("app/icons/page.tsx")).toContain("Dezelfde standaard.");
     expect(read("components/SegmentPage.tsx")).toContain("Veelgestelde vragen");
     const match = read("components/MatchForm.tsx");
     expect(match).toContain('fetch("/api/leads"');
     expect(match).toContain('name="consent"');
     expect(match).toContain('name="website"');
     expect(match).toContain("getRecommendation");
+  });
+
+  it("publiceert de Icons-visie en koppelt die aan de actuele Icons-voorraad", () => {
+    const icons = read("app/icons/page.tsx");
+    const inventory = read("app/voorraad/page.tsx");
+    const vehicleForm = read("components/dashboard/VehicleForm.tsx");
+
+    expect(icons).toContain("Onze visie");
+    expect(icons).toContain("Bijzonder is pas waardevol wanneer het verhaal klopt");
+    expect(icons).toContain("listPublicVehicles(100)");
+    expect(icons).toContain("filter(isIconVehicle)");
+    expect(icons).toContain('/voorraad?collectie=icons');
+    expect(inventory).toContain('collectie === "icons"');
+    expect(inventory).toContain("allVehicles.filter(isIconVehicle)");
+    expect(vehicleForm).toContain('value="icons"');
+    expect(vehicleForm).toContain("Volt &amp; Vroom Icons");
   });
 
   it("publiceert VV Verified, contact en technische SEO", () => {
