@@ -96,6 +96,20 @@ describe("publieke Volt & Vroom website", () => {
     expect(card).toContain('src="/brand/vv-symbol.svg"');
   });
 
+  it("toont geen kenteken in publieke voertuigadvertenties", () => {
+    const publicVehicleSurfaces = [
+      read("app/voorraad/page.tsx"),
+      read("app/voorraad/[slug]/page.tsx"),
+      read("components/VehicleCard.tsx"),
+      read("components/FeaturedInventoryRail.tsx"),
+    ];
+
+    for (const source of publicVehicleSurfaces) {
+      expect(source).not.toContain("vehicle.licensePlate");
+      expect(source).not.toMatch(/Kenteken\s*\{/i);
+    }
+  });
+
   it("biedt een veilige en volledige inruilroute", () => {
     const page = read("app/inruilen/page.tsx");
     const form = read("components/TradeInForm.tsx");

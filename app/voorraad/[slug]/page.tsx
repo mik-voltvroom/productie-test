@@ -93,7 +93,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
             <div><span>Aandrijving</span><strong>{publicDriveType}</strong></div>
             {vehicle.transmission ? <div><span>Transmissie</span><strong>{vehicle.transmission}</strong></div> : null}
           </div>
-          <div className={styles.ctaStack}><a className={styles.primary} href="#afspraak">Plan een proefrit</a><Link className={styles.secondary} href={tradeInHref}>Bereken inruilindicatie</Link>{vehicle.licensePlate ? <span className={styles.microTrust}>Kenteken {vehicle.licensePlate}</span> : null}</div>
+          <div className={styles.ctaStack}><a className={styles.primary} href="#afspraak">Plan een proefrit</a><Link className={styles.secondary} href={tradeInHref}>Bereken inruilindicatie</Link></div>
         </aside>
       </section>
       <section className={styles.story}>
