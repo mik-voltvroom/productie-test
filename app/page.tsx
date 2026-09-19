@@ -13,6 +13,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
 import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
+import { isVvOfferVehicle } from "@/lib/vehicle/business";
 
 // De homepage toont dezelfde live Firestore-voorraad als /voorraad.
 // Forceer dynamische rendering zodat een tijdens de build lege voorraad niet
@@ -27,7 +28,7 @@ const promises = [
 ];
 
 export default async function HomePage() {
-  const vehicles = await listPublicVehicles(8);
+  const vehicles = (await listPublicVehicles(100)).filter(isVvOfferVehicle).slice(0, 8);
   const featuredVehicles = vehicles.slice(0, 6);
   const latestVehicle = vehicles[0];
   const contactVehicles = vehicles.map(vehicle => ({ id: vehicle.id, label: `${vehicle.brand} ${vehicle.model} ${vehicle.trim}` }));

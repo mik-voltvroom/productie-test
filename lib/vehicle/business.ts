@@ -16,8 +16,19 @@ export const defaultVehicleCommercial: VehicleCommercial = {
   priceHistory: [],
 };
 
-export function isIconVehicle(vehicle: Pick<Vehicle, "collection">): boolean {
-  return vehicle.collection === "icons";
+export type VehicleCategory = "vv-offer" | "icons";
+
+export function vehicleCategory(vehicle: Pick<Vehicle, "driveType">): VehicleCategory {
+  // driveType is de genormaliseerde brandstofindeling uit handmatige invoer en Hexon.
+  return vehicle.driveType === "combustion" ? "icons" : "vv-offer";
+}
+
+export function isIconVehicle(vehicle: Pick<Vehicle, "driveType">): boolean {
+  return vehicleCategory(vehicle) === "icons";
+}
+
+export function isVvOfferVehicle(vehicle: Pick<Vehicle, "driveType">): boolean {
+  return vehicleCategory(vehicle) === "vv-offer";
 }
 
 function nonNegativeInteger(value: unknown, field: string, fallback: number): number {

@@ -74,7 +74,6 @@ export interface Vehicle {
   images: string[];
   highlights: string[];
   description?: string;
-  collection?: "icons";
   status: VehicleStatus;
   reservedDealId?: string;
   reservedAt?: string;

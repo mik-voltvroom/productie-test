@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
 import { centsToEuros } from "@/lib/money";
-import { isIconVehicle } from "@/lib/vehicle/business";
+import { isIconVehicle, isVvOfferVehicle } from "@/lib/vehicle/business";
 
 const money = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const number = new Intl.NumberFormat("nl-NL");
@@ -13,7 +13,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
   const { collectie } = await searchParams;
   const isIconsCollection = collectie === "icons";
   const allVehicles = await listPublicVehicles(100);
-  const vehicles = isIconsCollection ? allVehicles.filter(isIconVehicle) : allVehicles;
+  const vehicles = allVehicles.filter(isIconsCollection ? isIconVehicle : isVvOfferVehicle);
 
   return <div style={{ minHeight: "100vh", background: "#f7f9fa", color: "#111820" }}>
     <Header />
@@ -27,10 +27,10 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, borderTop: "1px solid #dfe5e8", paddingTop: 18, marginBottom: 28 }}>
         <span style={{ color: "#64717c" }}>{vehicles.length} {vehicles.length === 1 ? "auto" : "auto’s"} beschikbaar</span>
-        {isIconsCollection ? <Link href="/voorraad" style={{ fontSize: 13, color: "#64717c", textDecoration: "none" }}>Bekijk volledige voorraad →</Link> : <span style={{ fontSize: 13, color: "#64717c" }}>Live uit Volt & Vroom voorraad</span>}
+        {isIconsCollection ? <Link href="/voorraad" style={{ fontSize: 13, color: "#64717c", textDecoration: "none" }}>Bekijk elektrisch en hybride →</Link> : <Link href="/voorraad?collectie=icons" style={{ fontSize: 13, color: "#64717c", textDecoration: "none" }}>Bekijk Icons →</Link>}
       </div>
 
-      {vehicles.length === 0 ? <div style={{ background: "white", borderRadius: 18, padding: 48, border: "1px solid #e4e9ec" }}><h2 style={{ marginTop: 0 }}>{isIconsCollection ? "Nieuwe Icons-selectie onderweg." : "Nieuwe selectie onderweg."}</h2><p style={{ color: "#64717c", marginBottom: 0 }}>{isIconsCollection ? "Op dit moment staat er geen auto online die als Volt & Vroom Icon is geselecteerd." : "Er staan momenteel geen beschikbare voertuigen gepubliceerd."}</p></div> :
+      {vehicles.length === 0 ? <div style={{ background: "white", borderRadius: 18, padding: 48, border: "1px solid #e4e9ec" }}><h2 style={{ marginTop: 0 }}>{isIconsCollection ? "Nieuwe Icons-selectie onderweg." : "Nieuwe selectie onderweg."}</h2><p style={{ color: "#64717c", marginBottom: 0 }}>{isIconsCollection ? "Op dit moment staat er geen beschikbare benzine-, diesel- of LPG-auto online." : "Er staan momenteel geen beschikbare elektrische of hybride voertuigen gepubliceerd."}</p></div> :
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
         {vehicles.map(vehicle => <Link key={vehicle.id} href={`/voorraad/${encodeURIComponent(vehicle.slug)}`} style={{ textDecoration: "none", color: "inherit", background: "white", borderRadius: 18, overflow: "hidden", border: isIconsCollection ? "1px solid #e6c6b5" : "1px solid #e4e9ec", display: "block" }}>
           <div style={{ aspectRatio: "4 / 3", background: "#edf1f3", overflow: "hidden", position: "relative" }}>

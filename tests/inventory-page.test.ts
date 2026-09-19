@@ -10,6 +10,7 @@ describe("publieke voorraadpagina", () => {
 
     expect(inventoryPage).toContain('@/lib/repositories/public-vehicle-repository');
     expect(inventoryPage).toContain("listPublicVehicles(100)");
+    expect(inventoryPage).toContain("isIconsCollection ? isIconVehicle : isVvOfferVehicle");
     expect(inventoryPage).toContain("vehicle.images[0]");
     expect(inventoryPage).toContain("centsToEuros(vehicle.priceCents)");
     expect(inventoryPage).toContain("vehicle.slug");

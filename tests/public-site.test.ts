@@ -37,7 +37,8 @@ describe("publieke Volt & Vroom website", () => {
   it("toont uitsluitend repository-backed publiceerbare voorraad", () => {
     const homepage = read("app/page.tsx");
     const repository = read("lib/repositories/public-vehicle-repository.ts");
-    expect(homepage).toContain("listPublicVehicles(8)");
+    expect(homepage).toContain("listPublicVehicles(100)");
+    expect(homepage).toContain("filter(isVvOfferVehicle)");
     expect(homepage).toContain("<FeaturedInventoryRail vehicles={featuredVehicles}");
     expect(homepage).toContain("<VehicleCard vehicle={vehicle}");
     expect(repository).toContain('vehicle.status === "available"');
@@ -146,6 +147,7 @@ describe("publieke Volt & Vroom website", () => {
     const icons = read("app/icons/page.tsx");
     const inventory = read("app/voorraad/page.tsx");
     const vehicleForm = read("components/dashboard/VehicleForm.tsx");
+    const homepage = read("app/page.tsx");
 
     expect(icons).toContain("Onze visie");
     expect(icons).toContain("Bijzonder is pas waardevol wanneer het verhaal klopt");
@@ -153,9 +155,10 @@ describe("publieke Volt & Vroom website", () => {
     expect(icons).toContain("filter(isIconVehicle)");
     expect(icons).toContain('/voorraad?collectie=icons');
     expect(inventory).toContain('collectie === "icons"');
-    expect(inventory).toContain("allVehicles.filter(isIconVehicle)");
-    expect(vehicleForm).toContain('value="icons"');
-    expect(vehicleForm).toContain("Volt &amp; Vroom Icons");
+    expect(inventory).toContain("allVehicles.filter(isIconsCollection ? isIconVehicle : isVvOfferVehicle)");
+    expect(homepage).toContain("filter(isVvOfferVehicle)");
+    expect(vehicleForm).not.toContain("Collectie<select");
+    expect(vehicleForm).not.toContain('value="icons"');
   });
 
   it("publiceert VV Verified, contact en technische SEO", () => {
