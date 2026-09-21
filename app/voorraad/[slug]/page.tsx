@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -34,6 +35,22 @@ function publicDescription(description: string | undefined, vehicleName: string)
 
 export function generateStaticParams() {
   return [];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const vehicle = await getPublicVehicleBySlug((await params).slug);
+  if (!vehicle) return { title: "Auto niet beschikbaar | Volt & Vroom", robots: { index: false, follow: true } };
+  const name = `${vehicle.brand} ${vehicle.model}`;
+  const title = `${name}${vehicle.year ? ` ${vehicle.year}` : ""} | Volt & Vroom`;
+  const facts = [vehicle.trim, vehicle.mileageKm !== undefined ? `${numberFormat.format(vehicle.mileageKm)} km` : "", vehicle.priceCents > 0 ? eur.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"].filter(Boolean).join(" · ");
+  const description = `${name}: ${facts}. Bekijk deze occasion bij Volt & Vroom in Groningen en plan een proefrit.`;
+  const url = `/voorraad/${encodeURIComponent(vehicle.slug)}`;
+  const images = vehicle.images[0] ? [{ url: vehicle.images[0], alt: name }] : [];
+  return {
+    title, description, alternates: { canonical: url },
+    openGraph: { title, description, url, type: "website", images },
+    twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map(image => image.url) },
+  };
 }
 
 export default async function VehiclePage({ params }: { params: Promise<{ slug: string }> }) {
