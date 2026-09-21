@@ -9,6 +9,7 @@ import { MarginPanel } from "./MarginPanel";
 import { centsToEuros, eurosToCents } from "@/lib/money";
 import { CommercialPanel } from "./CommercialPanel";
 import { defaultVehicleCommercial, recordVehiclePrice } from "@/lib/vehicle/business";
+import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 
 const now = () => new Date().toISOString();
 const id = () => `VV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -26,8 +27,54 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
   const errors = useMemo(() => validateVehicle(vehicle), [vehicle]);
+  const publicImages = useMemo(() => getPublicVehicleImages(vehicle), [vehicle]);
+  const publicImageSet = useMemo(() => new Set(publicImages), [publicImages]);
   const completeness = Math.max(0, Math.round(((10 - Math.min(errors.length, 10)) / 10) * 100));
   const set = <K extends keyof Vehicle>(key: K, value: Vehicle[K]) => setVehicle(v => ({ ...v, [key]: value }));
+
+  function updatePhotoSelection(imageUrl: string, online: boolean) {
+    setVehicle(current => {
+      const selected = new Set(getPublicVehicleImages(current));
+      if (online) selected.add(imageUrl); else selected.delete(imageUrl);
+      return {
+        ...current,
+        publication: {
+          ...(current.publication ?? { channels: { website: false, merchant: false, google_ads: false, meta: false }, completenessPercent: 0, validationErrors: [] }),
+          publicImageUrls: current.images.filter(image => selected.has(image)),
+        },
+      };
+    });
+  }
+
+  function addInternalImage(value: string) {
+    const imageUrl = value.trim();
+    if (!imageUrl) return;
+    setVehicle(current => {
+      if (current.images.includes(imageUrl)) return current;
+      return {
+        ...current,
+        images: [...current.images, imageUrl],
+        publication: {
+          ...(current.publication ?? { channels: { website: false, merchant: false, google_ads: false, meta: false }, completenessPercent: 0, validationErrors: [] }),
+          publicImageUrls: getPublicVehicleImages(current),
+        },
+      };
+    });
+  }
+
+  function removeImage(index: number) {
+    setVehicle(current => {
+      const images = current.images.filter((_, imageIndex) => imageIndex !== index);
+      const selected = new Set(getPublicVehicleImages(current));
+      return {
+        ...current,
+        images,
+        publication: current.publication && Object.prototype.hasOwnProperty.call(current.publication, "publicImageUrls")
+          ? { ...current.publication, publicImageUrls: images.filter(image => selected.has(image)) }
+          : current.publication,
+      };
+    });
+  }
 
   async function save(nextStatus?: VehicleStatus) {
     const finalStatus = nextStatus ?? vehicle.status;
@@ -45,7 +92,7 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
       slug: vehicle.slug || slugify(`${vehicle.brand}-${vehicle.model}-${vehicle.trim}-${vehicle.year}`),
       status: finalStatus,
       commercial,
-      publication: { ...(vehicle.publication ?? { channels: { website:false, merchant:false, google_ads:false, meta:false }, completenessPercent:0, validationErrors:[] }), completenessPercent: completeness, validationErrors: errors, channels: { ...(vehicle.publication?.channels ?? { website:false, merchant:false, google_ads:false, meta:false }), website: finalStatus === "available" && errors.length === 0 } },
+      publication: { ...(vehicle.publication ?? { channels: { website:false, merchant:false, google_ads:false, meta:false }, completenessPercent:0, validationErrors:[] }), publicImageUrls: getPublicVehicleImages(vehicle), completenessPercent: completeness, lastValidatedAt: savedAt, validationErrors: errors, channels: { ...(vehicle.publication?.channels ?? { website:false, merchant:false, google_ads:false, meta:false }), website: finalStatus === "available" && errors.length === 0 } },
       updatedAt: savedAt
     };
     await saveVehicle(next); setVehicle(next); setSaved(true); setTimeout(() => setSaved(false), 1800);
@@ -81,11 +128,23 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
       </section>
 
       <section className="panel">
-        <div className="panelHeader"><div><p className="eyebrow">Beeldbank</p><h2>Voertuigfoto’s</h2></div><span>{vehicle.images.length} foto’s</span></div>
-        <div className="imageInput"><input placeholder="Plak een afbeeldings-URL" value={imageUrl} onChange={e => setImageUrl(e.target.value)} /><button type="button" className="button secondary" onClick={() => { if (imageUrl) { set("images", [...vehicle.images, imageUrl]); setImageUrl(""); } }}>Toevoegen</button></div>
-        <div className="uploadRow"><label className="uploadButton">Foto uploaden<input type="file" accept="image/*" onChange={async e => { const file=e.target.files?.[0]; if(!file)return; setUploadError(""); try { const url=await uploadVehicleImage(vehicle.id,file,setUploadProgress); set("images",[...vehicle.images,url]); setUploadProgress(0); } catch(error) { setUploadError(error instanceof Error ? error.message : "Upload mislukt"); } }} /></label>{uploadProgress > 0 && <span>{uploadProgress}%</span>}{uploadError && <span className="formError">{uploadError}</span>}</div>
-        <div className="photoGrid">{vehicle.images.map((src, index) => <figure key={`${src}-${index}`}><img src={src} alt={`Voertuigfoto ${index + 1}`} /><button type="button" onClick={() => set("images", vehicle.images.filter((_, i) => i !== index))}>Verwijder</button>{index === 0 && <span>Hoofdfoto</span>}</figure>)}</div>
-        <p className="helper">URL-invoer werkt altijd. Bestandsupload gebruikt Firebase Storage zodra de koppeling actief is.</p>
+        <div className="panelHeader"><div><p className="eyebrow">Beeldbank</p><h2>Voertuigfoto’s</h2></div><span>{publicImages.length} online · {vehicle.images.length - publicImages.length} intern</span></div>
+        <div className="imageInput"><input placeholder="Plak een afbeeldings-URL" value={imageUrl} onChange={e => setImageUrl(e.target.value)} /><button type="button" className="button secondary" onClick={() => { addInternalImage(imageUrl); setImageUrl(""); }}>Toevoegen</button></div>
+        <div className="uploadRow"><label className="uploadButton">Foto uploaden<input type="file" accept="image/*" onChange={async e => { const file=e.target.files?.[0]; if(!file)return; setUploadError(""); try { const url=await uploadVehicleImage(vehicle.id,file,setUploadProgress); addInternalImage(url); setUploadProgress(0); } catch(error) { setUploadError(error instanceof Error ? error.message : "Upload mislukt"); } }} /></label>{uploadProgress > 0 && <span>{uploadProgress}%</span>}{uploadError && <span className="formError">{uploadError}</span>}</div>
+        <div className="photoGrid">{vehicle.images.map((src, index) => {
+          const online = publicImageSet.has(src);
+          const isMainPhoto = online && publicImages[0] === src;
+          return <figure className={online ? "photoOnline" : "photoInternal"} key={`${src}-${index}`}>
+            <img src={src} alt={`Voertuigfoto ${index + 1}`} />
+            {isMainPhoto ? <span className="photoMainBadge">Hoofdfoto online</span> : null}
+            <div className="photoControls">
+              <label><input type="checkbox" checked={online} onChange={event => updatePhotoSelection(src, event.target.checked)} /><span>Online tonen</span></label>
+              <button className="photoRemove" type="button" onClick={() => removeImage(index)}>Verwijder</button>
+            </div>
+            <span className={`photoVisibilityBadge ${online ? "isOnline" : "isInternal"}`}>{online ? "Online" : "Alleen intern"}</span>
+          </figure>;
+        })}</div>
+        <p className="helper">Nieuwe foto’s blijven eerst alleen intern. Vink ‘Online tonen’ aan om een foto op de website en in advertentiefeeds te gebruiken. De eerste online foto is de hoofdfoto.</p>
       </section>
 
       <MarginPanel priceCents={vehicle.priceCents} costs={vehicle.costs ?? emptyCosts} targetMarginCents={vehicle.commercial?.targetMarginCents} onChange={costs => set("costs", costs)} />

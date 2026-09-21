@@ -56,8 +56,8 @@ describe("production data boundaries", () => {
 
   it("binds Hexon credentials through staging Secret Manager references", () => {
     const config = readFileSync(resolve(process.cwd(), "apphosting.yaml"), "utf8");
-    expect(config).toContain("variable: HEXON_SYNC_USERNAME\n    secret: HEXON_SYNC_USERNAME");
-    expect(config).toContain("variable: HEXON_SYNC_PASSWORD\n    secret: HEXON_SYNC_PASSWORD");
+    expect(config).toMatch(/variable: HEXON_SYNC_USERNAME\r?\n    secret: HEXON_SYNC_USERNAME/);
+    expect(config).toMatch(/variable: HEXON_SYNC_PASSWORD\r?\n    secret: HEXON_SYNC_PASSWORD/);
     expect(config).not.toMatch(/HEXON_SYNC_(?:USERNAME|PASSWORD):\s*[^\n]+/);
   });
 

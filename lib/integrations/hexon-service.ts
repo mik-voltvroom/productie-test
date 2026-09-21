@@ -5,7 +5,8 @@ import { parseHexonMutation } from "@/lib/integrations/hexon";
 import { persistHexonImages } from "@/lib/integrations/hexon-images";
 import { recordVehiclePrice } from "@/lib/vehicle/business";
 import { vehicleIdentityKeys } from "@/lib/vehicle/identity";
-import type { Vehicle } from "@/types";
+import { preservePublicImageSelection } from "@/lib/vehicle/photos";
+import type { Vehicle, VehiclePublication } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
 const HEXON_PROCESSOR_VERSION = "2";
@@ -187,6 +188,23 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
         archivedDuplicates += 1;
       }
       const currentData = current.data();
+      const publicImageUrls = preservePublicImageSelection(
+        currentData?.publication as VehiclePublication | undefined,
+        mutation.vehicle.images,
+      );
+      const publication: VehiclePublication = {
+        ...(mutation.vehicle.publication as VehiclePublication),
+        ...(publicImageUrls !== undefined ? { publicImageUrls } : {}),
+      };
+      if (publicImageUrls !== undefined && publicImageUrls.length === 0) {
+        publication.channels = { ...publication.channels, website: false };
+        publication.validationErrors = [
+          ...new Set([
+            ...(publication.validationErrors ?? []),
+            "Selecteer minimaal één foto voor online publicatie",
+          ]),
+        ];
+      }
       const commercial = recordVehiclePrice(
         currentData?.commercial,
         mutation.vehicle.priceCents,
@@ -195,6 +213,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
       );
       transaction.set(vehicleRef, {
         ...mutation.vehicle,
+        publication,
         createdAt: currentData?.createdAt ?? now,
         commercial: {
           ...commercial,

@@ -1,5 +1,6 @@
 import type { Vehicle } from "@/types";
 import { centsToEuros } from "@/lib/money";
+import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 
 const escapeXml = (value: unknown) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -10,14 +11,15 @@ const escapeXml = (value: unknown) => String(value ?? "")
 
 export function createVehicleFeed(vehicles: Vehicle[], baseUrl: string): string {
   const items = vehicles
-    .filter((vehicle) => vehicle.status === "available")
-    .map((vehicle) => `
+    .map((vehicle) => ({ vehicle, publicImages: getPublicVehicleImages(vehicle) }))
+    .filter(({ vehicle, publicImages }) => vehicle.status === "available" && publicImages.length > 0)
+    .map(({ vehicle, publicImages }) => `
       <item>
         <g:id>${escapeXml(vehicle.id)}</g:id>
         <title>${escapeXml(`${vehicle.brand} ${vehicle.model} ${vehicle.trim}`)}</title>
         <description>${escapeXml(`${vehicle.year} · ${vehicle.mileageKm} km · ${vehicle.driveType}`)}</description>
         <link>${escapeXml(`${baseUrl}/voorraad/${vehicle.slug}`)}</link>
-        <g:image_link>${escapeXml(vehicle.images[0])}</g:image_link>
+        <g:image_link>${escapeXml(publicImages[0])}</g:image_link>
         <g:availability>in_stock</g:availability>
         <g:condition>used</g:condition>
         <g:price>${centsToEuros(vehicle.priceCents).toFixed(2)} EUR</g:price>

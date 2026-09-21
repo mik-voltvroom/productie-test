@@ -15,6 +15,12 @@ export interface VehicleCosts {
 
 export interface VehiclePublication {
   channels: Record<PublishChannel, boolean>;
+  /**
+   * Explicit ordered selection of photos that may leave VVOS. When this field
+   * is absent, legacy vehicles keep publishing their complete `images` list.
+   * An empty array deliberately keeps every photo internal.
+   */
+  publicImageUrls?: string[];
   completenessPercent: number;
   lastValidatedAt?: string;
   validationErrors: string[];

@@ -4,12 +4,18 @@ import { adminDb } from "@/lib/firebase-admin";
 import { vehicles as demoVehicles } from "@/lib/sample-data";
 import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import { deduplicateVehiclesByIdentity } from "@/lib/vehicle/identity";
+import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import type { Vehicle } from "@/types";
 
 function isPublishedOnWebsite(vehicle: Vehicle): boolean {
   return vehicle.status === "available"
     && vehicle.publication?.channels.website === true
-    && (vehicle.publication.validationErrors?.length ?? 0) === 0;
+    && (vehicle.publication.validationErrors?.length ?? 0) === 0
+    && getPublicVehicleImages(vehicle).length > 0;
+}
+
+function publicProjection(vehicle: Vehicle): Vehicle {
+  return { ...vehicle, images: getPublicVehicleImages(vehicle) };
 }
 
 function newestFirst(left: Vehicle, right: Vehicle): number {
@@ -18,7 +24,7 @@ function newestFirst(left: Vehicle, right: Vehicle): number {
 
 export async function listPublicVehicles(limit = 12): Promise<Vehicle[]> {
   if (process.env.VVOS_DATA_MODE !== "firebase") {
-    return deduplicateVehiclesByIdentity(demoVehicles.filter(vehicle => vehicle.status === "available").sort(newestFirst)).slice(0, limit);
+    return deduplicateVehiclesByIdentity(demoVehicles.filter(vehicle => vehicle.status === "available").map(publicProjection).sort(newestFirst)).slice(0, limit);
   }
   if (!adminDb) return [];
 
@@ -33,7 +39,7 @@ export async function listPublicVehicles(limit = 12): Promise<Vehicle[]> {
   for (const document of snapshot.docs) {
     try {
       const vehicle = normalizeVehicleDocument(document.id, document.data());
-      if (isPublishedOnWebsite(vehicle)) vehicles.push(vehicle);
+      if (isPublishedOnWebsite(vehicle)) vehicles.push(publicProjection(vehicle));
     } catch (error) {
       console.error("Public vehicle skipped", document.id, error instanceof Error ? error.message : "unknown error");
     }

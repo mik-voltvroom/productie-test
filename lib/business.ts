@@ -1,4 +1,5 @@
 import type { Vehicle, VehicleCosts } from "@/types";
+import { getPublicVehicleImages, hasExplicitPublicImageSelection } from "@/lib/vehicle/photos";
 
 export const emptyCosts: VehicleCosts = {
   purchasePriceCents: 0,
@@ -37,6 +38,9 @@ export function validateVehicle(vehicle: Partial<Vehicle>): string[] {
   if (!vehicle.mileageKm && vehicle.mileageKm !== 0) errors.push("Kilometerstand ontbreekt");
   if (!vehicle.priceCents) errors.push("Verkoopprijs ontbreekt");
   if (!vehicle.images?.length) errors.push("Minimaal één foto is verplicht");
+  else if (hasExplicitPublicImageSelection(vehicle.publication) && getPublicVehicleImages(vehicle as Vehicle).length === 0) {
+    errors.push("Selecteer minimaal één foto voor online publicatie");
+  }
   if (!vehicle.locationCode) errors.push("Vestigingscode ontbreekt");
   if (vehicle.driveType !== "electric" && !vehicle.consumptionPer100Km) errors.push("Praktijkverbruik ontbreekt");
   if (["full-hybrid", "plug-in-hybrid"].includes(vehicle.driveType ?? "") && !vehicle.batteryHealthPercent) {

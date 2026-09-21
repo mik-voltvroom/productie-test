@@ -38,6 +38,13 @@ function list(value: unknown): string[] {
   return [];
 }
 
+function publicImages(vehicle: FirestoreVehicle, images: string[]): string[] {
+  const publication = vehicle.publication as RawMap | undefined;
+  if (!publication || !Object.prototype.hasOwnProperty.call(publication, "publicImageUrls")) return images;
+  const selected = new Set(list(publication.publicImageUrls));
+  return images.filter(image => selected.has(image));
+}
+
 function rawValue(vehicle: FirestoreVehicle, key: string) {
   return vehicle.raw?.[key];
 }
@@ -69,7 +76,7 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
   const id = text(vehicle.id) ?? "";
   const canonicalImages = list(vehicle.images);
   const legacyImages = list(vehicle.imageUrls).length ? list(vehicle.imageUrls) : list(rawValue(vehicle, "afbeeldingen"));
-  const imageUrls = canonicalImages.length ? canonicalImages : legacyImages;
+  const imageUrls = publicImages(vehicle, canonicalImages.length ? canonicalImages : legacyImages);
   const status = text(vehicle.status);
   const sold = status === "sold" || bool(vehicle.sold) === true || bool(rawValue(vehicle, "verkocht")) === true;
   const reserved = status === "reserved" || bool(vehicle.reserved) === true || bool(rawValue(vehicle, "gereserveerd")) === true;

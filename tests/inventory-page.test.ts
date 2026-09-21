@@ -16,4 +16,18 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryPage).toContain("vehicle.slug");
     expect(inventoryPage).not.toContain('@/lib/public-vehicles');
   });
+
+  it("scheidt online advertentiefoto's van interne dossierfoto's", () => {
+    const form = read("components/dashboard/VehicleForm.tsx");
+    const repository = read("lib/repositories/public-vehicle-repository.ts");
+    const merchant = read("lib/merchant.ts");
+    const hexon = read("lib/integrations/hexon-service.ts");
+
+    expect(form).toContain("Online tonen");
+    expect(form).toContain("Alleen intern");
+    expect(form).toContain("Nieuwe foto’s blijven eerst alleen intern");
+    expect(repository).toContain("getPublicVehicleImages");
+    expect(merchant).toContain("getPublicVehicleImages");
+    expect(hexon).toContain("preservePublicImageSelection");
+  });
 });
