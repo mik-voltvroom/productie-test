@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
@@ -8,6 +9,16 @@ const money = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR
 const number = new Intl.NumberFormat("nl-NL");
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ collectie?: string }> }): Promise<Metadata> {
+  const isIcons = (await searchParams).collectie === "icons";
+  const title = isIcons ? "Icons voorraad | Volt & Vroom Groningen" : "Hybride en elektrische occasions | Volt & Vroom Groningen";
+  const description = isIcons
+    ? "Bekijk de beschikbare Icons van Volt & Vroom in Groningen: bijzondere occasions met karakter en historie."
+    : "Bekijk de actuele hybride en elektrische occasions van Volt & Vroom in Groningen. Vergelijk prijzen, kilometerstanden en beschikbare voertuiggegevens.";
+  const url = isIcons ? "/voorraad?collectie=icons" : "/voorraad";
+  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, type: "website" }, twitter: { card: "summary", title, description } };
+}
 
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ collectie?: string }> }) {
   const { collectie } = await searchParams;
