@@ -17,7 +17,7 @@ function RouteIcon() {
 
 export function MobileActionBar() {
   const routeHref = "https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving";
-  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31655000911").replace(/\D/g, "");
+  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31611669111").replace(/\D/g, "");
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hallo Volt & Vroom, ik heb een vraag over jullie aanbod.")}`;
   const pathname = usePathname();
   const [formInView, setFormInView] = useState(false);
@@ -38,7 +38,7 @@ export function MobileActionBar() {
   }, [pathname]);
 
   return <div className={`mobileActionBar${formInView ? " isHidden" : ""}`} aria-label="Snelle acties" aria-hidden={formInView || undefined}>
-    <a className="contactAction contactActionPhone" href="tel:+31619163531" data-vv-event="phone_click" aria-label="Bel Volt & Vroom"><PhoneIcon /><span>Bel</span></a>
+    <a className="contactAction contactActionPhone" href="tel:+31611669111" data-vv-event="phone_click" aria-label="Bel Volt & Vroom"><PhoneIcon /><span>Bel</span></a>
     <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht"><WhatsAppIcon /><span>WhatsApp</span></a>
     <a className="contactAction contactActionRoute" href={routeHref} target="_blank" rel="noopener noreferrer" data-vv-event="route_click" aria-label="Plan route naar Volt & Vroom"><RouteIcon /><span>Route</span></a>
   </div>;

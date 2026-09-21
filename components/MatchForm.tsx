@@ -81,6 +81,6 @@ export function MatchForm() {
     <div className="formHoneypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     <label className="consent"><input name="consent" type="checkbox" required /><span>Ik ga ermee akkoord dat Volt &amp; Vroom mijn gegevens gebruikt om de uitslag te tonen en persoonlijk contact op te nemen. Lees het <a href="/privacy">privacybeleid</a>.</span></label>
     <button className="button matchSubmit" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "Profiel wordt beoordeeld…" : "Bekijk mijn indicatie"}</button>
-    {result && <div className={`matchResult ${state}`} aria-live="polite"><span>Uw eerste indicatie</span><h2>{result.title}</h2><p>{result.text} Dit is een eerste richting; wij controleren de keuze persoonlijk op budget, modellen en totale kosten.</p>{state === "success" ? <strong>Uw profiel is ontvangen. Wij nemen persoonlijk contact met u op.</strong> : <strong>Opslaan lukte niet. Bel 0619163531 of mail naar sales@voltvroom.nl.</strong>}</div>}
+    {result && <div className={`matchResult ${state}`} aria-live="polite"><span>Uw eerste indicatie</span><h2>{result.title}</h2><p>{result.text} Dit is een eerste richting; wij controleren de keuze persoonlijk op budget, modellen en totale kosten.</p>{state === "success" ? <strong>Uw profiel is ontvangen. Wij nemen persoonlijk contact met u op.</strong> : <strong>Opslaan lukte niet. Bel 0611669111 of mail naar sales@voltvroom.nl.</strong>}</div>}
   </form>;
 }

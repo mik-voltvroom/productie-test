@@ -154,7 +154,7 @@ export async function POST(request: Request) {
       return Response.json({ ok: false, error: "Inruilaanvragen opslaan is tijdelijk niet beschikbaar." }, { status: 503 });
     }
     return Response.json(
-      { ok: false, error: "De aanvraag kon niet veilig worden opgeslagen. Probeer het opnieuw of bel 0619163531." },
+      { ok: false, error: "De aanvraag kon niet veilig worden opgeslagen. Probeer het opnieuw of bel 0611669111." },
       { status: 500 },
     );
   }

@@ -174,6 +174,34 @@ describe("publieke Volt & Vroom website", () => {
     expect(read("app/page.tsx")).toContain('"@type": "AutoDealer"');
   });
 
+  it("gebruikt het actuele VV-nummer voor bellen, WhatsApp en structured data", () => {
+    const publicContactSources = [
+      read("app/api/trade-ins/route.ts"),
+      read("app/contact/page.tsx"),
+      read("app/page.tsx"),
+      read("app/privacy/page.tsx"),
+      read("components/ContactForm.tsx"),
+      read("components/FloatingContactDock.tsx"),
+      read("components/Header.tsx"),
+      read("components/MatchForm.tsx"),
+      read("components/MobileActionBar.tsx"),
+      read("components/SiteFooter.tsx"),
+      read("components/TradeInForm.tsx"),
+    ];
+
+    for (const source of publicContactSources) {
+      expect(source).not.toContain("0619163531");
+      expect(source).not.toContain("31619163531");
+      expect(source).not.toContain("31655000911");
+    }
+
+    expect(publicContactSources.join("\n")).toContain("0611669111");
+    expect(publicContactSources.join("\n")).toContain("tel:+31611669111");
+    expect(read("components/FloatingContactDock.tsx")).toContain('"31611669111"');
+    expect(read("components/MobileActionBar.tsx")).toContain('"31611669111"');
+    expect(read("apphosting.yaml")).toMatch(/variable: NEXT_PUBLIC_WHATSAPP_NUMBER\s+value: "31611669111"/);
+  });
+
   it("biedt een veilige Google Maps-routeplanner naar de showroom", () => {
     const homepage = read("app/page.tsx");
     const footer = read("components/SiteFooter.tsx");

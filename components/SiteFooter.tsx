@@ -12,7 +12,7 @@ export function SiteFooter() {
       <div><strong>Zekerheid</strong><a href="/vv-verified">VV Verified</a><a href="/inruilen">Auto inruilen</a><a href="/keuzehulp" data-vv-event="match_started">Hybrid &amp; EV Match</a><a href="/contact">Contact &amp; route</a></div>
       <div className="footerContact">
         <strong>Contact</strong>
-        <a href="tel:+31619163531" data-vv-event="phone_click">0619163531</a>
+        <a href="tel:+31611669111" data-vv-event="phone_click">0611669111</a>
         <a href="mailto:sales@voltvroom.nl" data-vv-event="email_click">sales@voltvroom.nl</a>
         <span>Euvelgunnerweg 50</span>
         <span>9723 CW Groningen</span>

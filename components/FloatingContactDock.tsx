@@ -12,12 +12,12 @@ function RouteIcon() {
 
 export function FloatingContactDock() {
   const routeHref = "https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving";
-  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31655000911").replace(/\D/g, "");
+  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31611669111").replace(/\D/g, "");
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hallo Volt & Vroom, ik heb een vraag over jullie aanbod.")}`;
 
   return (
     <aside className="floatingContactDock" aria-label="Snel contact">
-      <a className="contactAction contactActionPhone" href="tel:+31619163531" data-vv-event="phone_click" aria-label="Bel Volt & Vroom">
+      <a className="contactAction contactActionPhone" href="tel:+31611669111" data-vv-event="phone_click" aria-label="Bel Volt & Vroom">
         <span className="dockIcon"><PhoneIcon /></span><span>Bel</span>
       </a>
       <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht">
