@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { adminStorage } from "@/lib/firebase-admin";
 
 const MAX_IMAGE_BYTES = 15_000_000;
-const MAX_IMAGES_PER_VEHICLE = 100;
+export const MAX_IMAGES_PER_VEHICLE = 200;
 const DOWNLOAD_BASE = "https://firebasestorage.googleapis.com/v0/b";
 
 function assertSafeRemoteImageUrl(rawUrl: string): URL {
@@ -95,6 +95,10 @@ export interface PersistedHexonImages {
   failures: Array<{ sourceUrl: string; message: string }>;
 }
 
+export function limitHexonImageUrls(sourceUrls: string[]): string[] {
+  return sourceUrls.slice(0, MAX_IMAGES_PER_VEHICLE);
+}
+
 /**
  * Mobilox incremental image URLs are temporary. Copy them into VVOS-owned
  * Firebase Storage immediately and return durable download URLs. A failed image
@@ -103,7 +107,7 @@ export interface PersistedHexonImages {
  */
 export async function persistHexonImages(externalId: string, sourceUrls: string[]): Promise<PersistedHexonImages> {
   if (!sourceUrls.length) return { images: [], failures: [] };
-  const limited = sourceUrls.slice(0, MAX_IMAGES_PER_VEHICLE);
+  const limited = limitHexonImageUrls(sourceUrls);
   const images: string[] = [];
   const failures: PersistedHexonImages["failures"] = [];
 
