@@ -38,7 +38,7 @@ export function VehicleGallery({ images, name, reserved }: { images: string[]; n
         const end = event.changedTouches[0]; const dx = end.clientX - start.x; const dy = end.clientY - start.y;
         if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) move(dx < 0 ? 1 : -1);
       }} onTouchCancel={() => { touch.current = null; }}>
-        <button ref={opener} type="button" className="open" onClick={() => setExpanded(true)} aria-label={`Vergroot foto ${current + 1} van ${name}`} aria-haspopup="dialog"><img src={images[current]} alt={`${name} — foto ${current + 1} van ${images.length}`} width={1920} height={1280} className="photo" /><span className="hint">Foto vergroten ↗</span></button>
+        <button ref={opener} type="button" className="open" onClick={() => setExpanded(true)} aria-label={`Vergroot foto ${current + 1} van ${name}`} aria-haspopup="dialog"><img src={images[current]} alt={`${name} — foto ${current + 1} van ${images.length}`} width={1920} height={1440} className="photo" /><span className="hint">Foto vergroten ↗</span></button>
         <span className="badge">{reserved ? "Gereserveerd" : "Beschikbaar"}</span>
       </div>
       <div className="controls">
@@ -46,11 +46,11 @@ export function VehicleGallery({ images, name, reserved }: { images: string[]; n
     <span role="status" aria-live="polite" aria-atomic="true">Foto {current + 1} van {images.length}</span>
     {images.length > 1 && <button type="button" onClick={() => move(1)} aria-label="Volgende foto">→</button>}
   </div>
-      {images.length > 1 && <div className="thumbnails" aria-label="Kies een foto">{images.map((src, i) => <button key={`${src}-${i}`} type="button" aria-label={`Toon foto ${i + 1}`} aria-pressed={current === i} onClick={() => setIndex(i)}><img src={src} alt="" width={120} height={80} loading="lazy" /></button>)}</div>}
+      {images.length > 1 && <div className="thumbnails" aria-label="Kies een foto">{images.map((src, i) => <button key={`${src}-${i}`} type="button" aria-label={`Toon foto ${i + 1}`} aria-pressed={current === i} onClick={() => setIndex(i)}><img src={src} alt="" width={120} height={90} loading="lazy" /></button>)}</div>}
       <dialog ref={dialog} aria-label={`Vergrote foto’s van ${name}`} onCancel={() => setExpanded(false)} onClose={() => setExpanded(false)} onClick={event => { if (event.target === event.currentTarget) setExpanded(false); }}>
         <div className="modalContent">
           <button type="button" className="close" autoFocus onClick={() => setExpanded(false)}>Sluiten ×</button>
-          <img src={images[current]} alt={`${name} — foto ${current + 1} van ${images.length}`} width={1920} height={1280} className="largePhoto" />
+          <img src={images[current]} alt={`${name} — foto ${current + 1} van ${images.length}`} width={1920} height={1440} className="largePhoto" />
           <div className="controls">
     {images.length > 1 && <button type="button" onClick={() => move(-1)} aria-label="Vorige foto">←</button>}
     <span role="status" aria-live="polite" aria-atomic="true">Foto {current + 1} van {images.length}</span>
@@ -61,7 +61,7 @@ export function VehicleGallery({ images, name, reserved }: { images: string[]; n
     </> : <div className="empty">Foto’s volgen binnenkort.</div>}
     <style jsx>{`
       .gallery{min-width:0;align-self:start;background:#fff;border:1px solid #dce5eb;border-radius:28px;overflow:hidden;color:#101d28}
-      .stage{position:relative;aspect-ratio:3/2;background:#eaf0f4;touch-action:pan-y}
+      .stage{position:relative;aspect-ratio:4/3;background:#eaf0f4;touch-action:pan-y}
       .open{display:block;width:100%;height:100%;border:0;padding:0;background:transparent;cursor:zoom-in}
       .photo{display:block;width:100%;height:100%;object-fit:contain}
       .badge,.hint{position:absolute;border-radius:999px;padding:9px 13px;font-size:.78rem;font-weight:700;pointer-events:none}
@@ -71,13 +71,13 @@ export function VehicleGallery({ images, name, reserved }: { images: string[]; n
       .controls button{font-size:1.3rem}.close{padding:10px 18px;align-self:flex-end}
       .thumbnails{display:flex;gap:8px;overflow-x:auto;padding:0 14px 14px}
       .thumbnails button{flex:0 0 90px;border:2px solid transparent;border-radius:10px;padding:2px;background:#eaf0f4;cursor:pointer}
-      .thumbnails button[aria-pressed="true"]{border-color:#0a7eb8}.thumbnails img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:6px}
+      .thumbnails button[aria-pressed="true"]{border-color:#0a7eb8}.thumbnails img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:6px}
       button:focus-visible{outline:3px solid #0a7eb8;outline-offset:-3px}
       dialog{max-width:none;max-height:none;width:100vw;height:100dvh;margin:0;padding:16px;border:0;background:rgba(10,20,29,.97);color:#fff}
       dialog::backdrop{background:rgba(10,20,29,.9)}
       .modalContent{height:100%;display:flex;flex-direction:column;gap:12px;max-width:1600px;margin:auto}
       .largePhoto{display:block;min-height:0;flex:1;width:100%;height:100%;object-fit:contain}.modalContent .controls{flex-shrink:0;padding:0}
-      .empty{display:grid;place-items:center;aspect-ratio:3/2;background:#eaf0f4;color:#60717e}
+      .empty{display:grid;place-items:center;aspect-ratio:4/3;background:#eaf0f4;color:#60717e}
       @media(max-width:640px){.gallery{border-radius:24px}.badge{top:10px;left:10px}.hint{bottom:10px;right:10px}.thumbnails button{flex-basis:76px}dialog{padding:12px}}
     `}</style>
   </section>;
