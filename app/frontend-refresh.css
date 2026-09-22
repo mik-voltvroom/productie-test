@@ -141,3 +141,54 @@
   .floatingContactDock{animation:none}
   .floatingContactDock a,.mobileActionBar a{transition:none}
 }
+
+/* Homepage hero: only public VVOS imagery, reserved 4:3 space and two actions. */
+.homepageHero{background:var(--vv-paper)}
+.homepageHero .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;min-height:0;padding:64px 0}
+.homepageHero h1{font-size:clamp(2.5rem,4.6vw,3.7rem);line-height:1.06;letter-spacing:-.05em;margin:16px 0 24px}
+.homepageHero h1 em{color:inherit}
+.homepageHero .heroDescriptor{max-width:32ch;font-size:1.25rem;line-height:1.5;color:var(--vv-ink)}
+.homepageHero .heroEvidence{max-width:42ch;margin:14px 0 0;font-size:.95rem;line-height:1.65;color:var(--vv-graphite)}
+.homepageHero .heroActions{gap:12px;margin-top:28px}
+.homepageHero .heroActions .button{min-height:48px;border-radius:var(--vv-radius-control)!important;padding:0 20px!important;font-size:.95rem!important;box-shadow:none}
+.homepageHero .heroVisual{padding:0;min-width:0}
+.homepageHero .heroVisual::before{display:none}
+.homepageHero .latestHeroVehicle{border-radius:var(--vv-radius-card);box-shadow:0 16px 40px rgba(13,17,23,.06)}
+.homepageHero .latestHeroMedia{aspect-ratio:4/3}
+.homepageHero .latestHeroMedia img{display:block;object-fit:contain;transform:none!important;transition:none}
+.homepageHero .latestHeroInfo{gap:16px;padding:18px 20px;align-items:start}
+.homepageHero .latestHeroInfo h2{font-size:1.25rem;line-height:1.3}
+.homepageHero .latestHeroInfo>strong{font-size:1.1rem}
+.homepageHero .heroEmpty{aspect-ratio:4/3;display:grid;align-content:center;justify-items:center;border:1px solid var(--vv-border);border-radius:var(--vv-radius-card);background:var(--vv-soft);color:var(--vv-graphite)}
+.homepageHero .heroEmpty span{font-family:Manrope,sans-serif;font-size:1.5rem;color:var(--vv-ink)}
+/* Homepage contact remains in the contact section/footer, without covering imagery. */
+body:has(.homepageHero) .mobileActionBar{display:none!important}
+@media(max-width:900px){
+  .homepageHero .hero{grid-template-columns:minmax(0,1fr);gap:32px;padding:40px 0}
+  .homepageHero .heroCopy{max-width:640px}
+  .homepageHero h1{font-size:clamp(2.5rem,7vw,3.7rem)}
+}
+@media(max-width:640px){
+  .homepageHero .hero{gap:28px;padding:28px 0 36px}
+  .homepageHero h1{font-size:clamp(2.2rem,10vw,3.25rem);margin:12px 0 18px}
+  .homepageHero .heroDescriptor{font-size:1.1rem}
+  .homepageHero .heroEvidence{font-size:.875rem}
+  .homepageHero .heroActions{margin-top:22px;gap:10px}
+  .homepageHero .latestHeroInfo{padding:16px}
+}
+
+/* Compact homepage overview; details remain on the linked topic pages. */
+.compactAssurances{padding:32px 0;background:var(--vv-paper);border-bottom:1px solid var(--vv-border)}
+.compactAssurances h2{margin:0 0 16px;font-size:1.35rem;font-weight:500;letter-spacing:-.025em}
+.compactAssurances ul{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.compactAssurances a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;height:100%;padding:14px 16px;border:1px solid var(--vv-border);border-radius:12px;font-size:.9rem;font-weight:600;line-height:1.4;background:var(--vv-soft)}
+.compactAssurances a:hover{border-color:var(--vv-electric);background:var(--vv-ice)}
+.compactAssurances a span{flex-shrink:0;color:var(--vv-graphite)}
+@media(max-width:1000px){.compactAssurances ul{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.compactAssurances{padding:24px 0}.compactAssurances ul{grid-template-columns:1fr;gap:8px}.compactAssurances a{min-height:48px;padding:12px 14px}}
+
+/* Keep homepage anchor headings below the sticky navigation. */
+#waarom.compactAssurances,#uitgelicht,#voorraad{scroll-margin-top:100px}
+.homepageContact .contactFacts{display:flex;flex-wrap:wrap;gap:24px;margin:24px 0}
+.homepageContact .contactFacts a{flex:1 1 220px}
+.homepageContact .button{background:var(--vv-paper);color:var(--vv-ink)}

@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "media-eigenwebsiteincrementeel.export.dv.nl", pathname: "/**" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "placehold.co" },
     ],

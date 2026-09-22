@@ -30,8 +30,8 @@ describe("publieke Volt & Vroom website", () => {
     const homepage = read("app/page.tsx");
     expect(homepage).toContain("Slim rijden.");
     expect(homepage).toContain("Meer genieten.");
-    expect(homepage).toContain("Hybride en elektrische occasions, geselecteerd op historie, techniek en dagelijks gebruik");
-    expect(homepage.indexOf('href="#uitgelicht"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
+    expect(homepage).toContain("Hybride en elektrische occasions in Groningen.");
+    expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
 
   it("toont uitsluitend repository-backed publiceerbare voorraad", () => {
@@ -39,7 +39,6 @@ describe("publieke Volt & Vroom website", () => {
     const repository = read("lib/repositories/public-vehicle-repository.ts");
     expect(homepage).toContain("listPublicVehicles(100)");
     expect(homepage).toContain("filter(isVvOfferVehicle)");
-    expect(homepage).toContain("<FeaturedInventoryRail vehicles={featuredVehicles}");
     expect(homepage).toContain("<VehicleCard vehicle={vehicle}");
     expect(repository).toContain('vehicle.status === "available"');
     expect(repository).toContain('vehicle.publication?.channels.website === true');
@@ -48,10 +47,6 @@ describe("publieke Volt & Vroom website", () => {
 
   it("formuleert de selectienorm controleerbaar en zonder onnodige absolute claims", () => {
     const homepage = read("app/page.tsx");
-    expect(homepage).toContain("Historie gecontroleerd");
-    expect(homepage).toContain("Techniek beoordeeld");
-    expect(homepage).toContain("Accudata indien beschikbaar");
-    expect(homepage).toContain("Volt &amp; Vroom controle");
     expect(homepage).not.toContain("Hybrid Intelligence");
     expect(homepage).not.toContain("Altijd dealeronderhouden");
     expect(homepage).not.toContain("Eén eigenaar");
