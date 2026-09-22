@@ -1,0 +1,135 @@
+name: Merchant landing health
+
+# Read-only production check: follows the actual Mobilox feed links, not a fixed car.
+# A failed run identifies the vehicle and mismatch in Actions. Notification delivery
+# follows each GitHub user's Actions notification settings. No inventory is changed.
+# Disable this workflow to roll back monitoring; this does not change the website.
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merchant-landing-health
+  cancel-in-progress: false
+
+jobs:
+  check-feed-links:
+    if: github.event_name != 'deployment_status' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check live feed, landing pages and offers
+        # Retry the complete snapshot once to tolerate a deployment/import in progress.
+        # No checkout, npm installation, build, credentials or third-party action needed.
+        shell: python
+        run: |
+          import json
+          import time
+          import urllib.parse
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from decimal import Decimal
+          from html.parser import HTMLParser
+
+          FEED = 'https://googlemerchantcenter.export.dv.nl/2edcfcd8-02d8-4703-b1b7-f35f293e5fff-vehicles-nl.xml'
+          HOSTS = {'www.voltvroom.nl', 'voltvroom.nl', 'googlemerchantcenter.export.dv.nl'}
+
+          def validate_url(url):
+              parsed = urllib.parse.urlsplit(url)
+              if parsed.scheme != 'https' or parsed.hostname not in HOSTS or parsed.port not in (None, 443) or parsed.username or parsed.password:
+                  raise ValueError('Unexpected feed or landing host')
+
+          class SafeRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  validate_url(newurl)
+                  return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+          opener = urllib.request.build_opener(SafeRedirect())
+
+          def fetch(url):
+              validate_url(url)
+              request = urllib.request.Request(url, headers={'User-Agent': 'VoltVroom-MerchantHealth/1.0', 'Cache-Control': 'no-cache'})
+              with opener.open(request, timeout=20) as response:
+                  data = response.read(8_000_001)
+                  if response.status != 200 or len(data) > 8_000_000:
+                      raise ValueError('Non-200 response or oversized document')
+                  return data.decode('utf-8'), response.url
+
+          class Schemas(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.active = False
+                  self.buffer = ''
+                  self.items = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script' and dict(attrs).get('type') == 'application/ld+json':
+                      self.active, self.buffer = True, ''
+              def handle_data(self, data):
+                  if self.active:
+                      self.buffer += data
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.active:
+                      self.items.append(json.loads(self.buffer))
+                      self.active = False
+
+          def check():
+              xml, _ = fetch(FEED)
+              items = ET.fromstring(xml).findall('.//item')
+              if not items:
+                  raise ValueError('Feed has no vehicles; check whether empty inventory is intended')
+              if len(items) > 100:
+                  raise ValueError('Feed exceeds current 100-vehicle landing lookup; review pagination')
+              failures = []
+              for item in items:
+                  fields = {node.tag.rsplit('}', 1)[-1]: (node.text or '').strip() for node in item}
+                  vehicle_id = fields.get('id', 'unknown')
+                  try:
+                      store = fields.get('store_code', '')
+                      link = fields.get('link_template') or fields['link']
+                      link = link.replace('{store_code}', urllib.parse.quote(store, safe=''))
+                      html, final_url = fetch(link)
+                      final = urllib.parse.urlsplit(final_url)
+                      if final.hostname not in {'www.voltvroom.nl', 'voltvroom.nl'} or not final.path.startswith('/voorraad/'):
+                          raise ValueError('Feed did not reach a vehicle detail page')
+                      if store and 'store=' in link and urllib.parse.parse_qs(final.query).get('store') != [store]:
+                          raise ValueError('Store attribution was lost')
+                      parser = Schemas()
+                      parser.feed(html)
+                      cars = [x for x in parser.items if isinstance(x, dict) and x.get('@type') == 'Car']
+                      if len(cars) != 1:
+                          raise ValueError('Expected one server-rendered Car schema')
+                      car = cars[0]
+                      offer = car['offers']
+                      amount, currency = fields['price'].split()
+                      if Decimal(str(offer['price'])) != Decimal(amount) or offer['priceCurrency'] != currency:
+                          raise ValueError('Feed and website prices differ')
+                      if offer['availability'] != 'https://schema.org/InStock':
+                          raise ValueError('Advertised vehicle is not available on website')
+                      mileage = item.find('.//{*}mileage/{*}value')
+                      if mileage is not None and Decimal(str(car['mileageFromOdometer']['value'])) != Decimal(mileage.text):
+                          raise ValueError('Feed and website mileage differ')
+                      if not car.get('image'):
+                          raise ValueError('Vehicle has no public images')
+                      print(f'PASS vehicle {vehicle_id}: landing HTTP 200, price and availability match')
+                  except Exception as error:
+                      failures.append(f'vehicle {vehicle_id}: {error}')
+              if failures:
+                  raise ValueError('; '.join(failures))
+
+          for attempt in range(2):
+              try:
+                  check()
+                  break
+              except Exception as error:
+                  if attempt == 0:
+                      print(f'Retrying after 30 seconds: {error}')
+                      time.sleep(30)
+                  else:
+                      raise
