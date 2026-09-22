@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
 import { Header } from "@/components/Header";
 import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
@@ -93,11 +94,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
     <main className={styles.shell}>
       <div className={styles.breadcrumb}><Link href="/voorraad">← Terug naar voorraad</Link><span>Volt & Vroom Selectie · Groningen</span></div>
       <section className={styles.hero}>
-        <div className={styles.visual}>
-          {vehicle.images[0] ? <img src={vehicle.images[0]} alt={`${vehicle.brand} ${vehicle.model} ${vehicle.trim}`} /> : null}
-          <div className={styles.visualTop}><span className={styles.status}><i /> {isReserved ? "Gereserveerd" : "Beschikbaar"}</span>{vehicleFacts.length ? <span className={styles.carcheckBadge}>{dataLabel}</span> : null}</div>
-          <div className={styles.visualBottom}><div><span>Volt & Vroom selectie</span><strong>Zorgvuldig geselecteerd. Transparant gepresenteerd.</strong></div><div><span>Foto’s</span><strong>{String(vehicle.images.length).padStart(2,"0")}</strong></div></div>
-        </div>
+        <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} reserved={isReserved} />
         <aside className={styles.side}>
           <p className={styles.eyebrow}>{publicDriveType}</p>
           <h1>{vehicle.brand}<br />{vehicle.model}</h1>
