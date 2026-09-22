@@ -1,6 +1,6 @@
 import type { Vehicle, VehiclePublication } from "@/types";
 
-type VehiclePhotoSource = Pick<Vehicle, "images" | "publication">;
+type VehiclePhotoSource = Pick<Vehicle, "images" | "publication" | "editorial">;
 
 function uniqueUrls(values: unknown): string[] {
   if (!Array.isArray(values)) return [];
@@ -17,7 +17,7 @@ export function hasExplicitPublicImageSelection(publication: VehiclePublication 
  * selection remain backwards compatible and publish all current photos.
  */
 export function getPublicVehicleImages(vehicle: VehiclePhotoSource): string[] {
-  const images = uniqueUrls(vehicle.images ?? []);
+  const images = uniqueUrls(vehicle.editorial ? vehicle.editorial.photos.filter(photo => !photo.deletedAt).map(photo => photo.url) : vehicle.images ?? []);
   if (!hasExplicitPublicImageSelection(vehicle.publication)) return images;
 
   const selected = new Set(uniqueUrls(vehicle.publication?.publicImageUrls ?? []));

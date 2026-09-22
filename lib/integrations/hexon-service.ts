@@ -5,11 +5,12 @@ import { parseHexonMutation } from "@/lib/integrations/hexon";
 import { persistHexonImages } from "@/lib/integrations/hexon-images";
 import { recordVehiclePrice } from "@/lib/vehicle/business";
 import { vehicleIdentityKeys } from "@/lib/vehicle/identity";
-import { preservePublicImageSelection } from "@/lib/vehicle/photos";
-import type { Vehicle, VehiclePublication } from "@/types";
+import { getPublicVehicleImages, preservePublicImageSelection } from "@/lib/vehicle/photos";
+import { editorialFor, mergeImportedEditorial } from "@/lib/vehicle/editorial";
+import type { Vehicle, VehicleImage, VehiclePublication } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-const HEXON_PROCESSOR_VERSION = "2";
+const HEXON_PROCESSOR_VERSION = "3-editorial";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
@@ -134,9 +135,10 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
   let duplicate = false;
   let archivedDuplicates = 0;
   let imageFailures: Array<{ sourceUrl: string; message: string }> = [];
+  let importedPhotos: VehicleImage[] = [];
 
   const alreadyProcessed = await eventRef.get();
-  if (alreadyProcessed.exists) {
+  if (alreadyProcessed.exists && alreadyProcessed.data()?.result !== "accepted_with_image_warnings") {
     return {
       duplicate: true,
       externalId: mutation.externalId,
@@ -147,9 +149,12 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
   }
 
   if (mutation.action === "upsert" && mutation.vehicle?.images.length) {
-    const persisted = await persistHexonImages(mutation.externalId, mutation.vehicle.images);
+    const beforeDownload = await vehicleRef.get();
+    const prior = beforeDownload.exists ? beforeDownload.data() as Vehicle : undefined;
+    const persisted = await persistHexonImages(mutation.externalId, mutation.vehicle.images, prior ? editorialFor(prior).photos : []);
     imageFailures = persisted.failures;
-    if (persisted.images.length) mutation.vehicle.images = persisted.images;
+    importedPhotos = persisted.photos;
+    mutation.vehicle.images = persisted.images;
   }
 
   const duplicateVehicleRefs = mutation.action === "upsert" && mutation.vehicle
@@ -158,7 +163,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
 
   await adminDb.runTransaction(async transaction => {
     const event = await transaction.get(eventRef);
-    if (event.exists) {
+    if (event.exists && event.data()?.result !== "accepted_with_image_warnings") {
       duplicate = true;
       return;
     }
@@ -188,12 +193,13 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
         archivedDuplicates += 1;
       }
       const currentData = current.data();
+      const mergedVehicle = mergeImportedEditorial(current.exists ? currentData as Vehicle : undefined, mutation.vehicle, importedPhotos);
       const publicImageUrls = preservePublicImageSelection(
-        currentData?.publication as VehiclePublication | undefined,
-        mutation.vehicle.images,
+        current.exists ? { ...currentData?.publication, publicImageUrls: getPublicVehicleImages(currentData as Vehicle) } as VehiclePublication : undefined,
+        mergedVehicle.images,
       );
       const publication: VehiclePublication = {
-        ...(mutation.vehicle.publication as VehiclePublication),
+        ...(currentData?.publication ?? mutation.vehicle.publication) as VehiclePublication,
         ...(publicImageUrls !== undefined ? { publicImageUrls } : {}),
       };
       if (publicImageUrls !== undefined && publicImageUrls.length === 0) {
@@ -212,7 +218,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
         "mobilox-hexon",
       );
       transaction.set(vehicleRef, {
-        ...mutation.vehicle,
+        ...mergedVehicle,
         publication,
         createdAt: currentData?.createdAt ?? now,
         commercial: {
@@ -230,7 +236,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
       }, { merge: true });
     }
 
-    transaction.create(eventRef, {
+    transaction.set(eventRef, {
       provider: "mobilox-hexon",
       type: `vehicle.${mutation.providerAction}`,
       operation: mutation.action,

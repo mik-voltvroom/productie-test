@@ -54,6 +54,31 @@ export interface VehicleSource {
   imageFailures?: number;
 }
 
+export interface VehicleImage {
+  id: string;
+  url: string;
+  source: "mobilox-hexon" | "manual" | "legacy";
+  sourceUrl?: string;
+  contentHash?: string;
+  deletedAt?: string;
+  importedAt: string;
+}
+
+export interface VehicleContent {
+  /** Exact XML field names; never infer that one field is another. */
+  sourceTexts: Record<string, string>;
+  websiteText?: string;
+}
+
+export interface VehicleEditorial {
+  version: 1;
+  revision: number;
+  /** Array order is the editorial order, including retained tombstones. */
+  photos: VehicleImage[];
+  publishedOptionKeys: string[];
+  content: VehicleContent;
+}
+
 export interface Vehicle {
   id: string;
   slug: string;
@@ -78,6 +103,7 @@ export interface Vehicle {
   vin?: string;
   licensePlate?: string;
   images: string[];
+  editorial?: VehicleEditorial;
   highlights: string[];
   description?: string;
   status: VehicleStatus;

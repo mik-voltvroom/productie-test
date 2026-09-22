@@ -1,6 +1,7 @@
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { slugify, validateVehicle } from "@/lib/business";
 import { eurosToCents } from "@/lib/money";
+import { MAX_IMPORTED_PHOTOS } from "@/lib/vehicle/editorial";
 import type { DriveType, Vehicle } from "@/types";
 
 type XmlRecord = Record<string, unknown>;
@@ -294,7 +295,7 @@ function collectHttpsUrls(root: unknown): string[] {
     const candidate = value.trim();
     if (/^https:\/\//i.test(candidate)) urls.add(candidate);
   });
-  return [...urls].slice(0, 100);
+  return [...urls].slice(0, MAX_IMPORTED_PHOTOS);
 }
 
 function collectHighlights(root: unknown): string[] {
@@ -303,10 +304,12 @@ function collectHighlights(root: unknown): string[] {
   const values = new Set<string>();
   visit(source, (key, value) => {
     if (!["accessoire", "optie", "omschrijving", "naam"].includes(key)) return;
-    const text = textFrom(value);
-    if (text && text.length <= 120) values.add(text);
+    for (const item of Array.isArray(value) ? value : [value]) {
+      const text = textFrom(item);
+      if (text) values.add(text);
+    }
   });
-  return [...values].slice(0, 40);
+  return [...values];
 }
 
 function safeExternalId(value: string): string {
@@ -356,6 +359,15 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   const vin = firstText(parsed, ["vin", "chassisnummer"]);
   const licensePlate = firstText(parsed, ["kenteken"]);
   const description = sanitizeProviderDescription(firstText(parsed, ["opmerkingen", "omschrijving"]));
+  // Preserve only fields actually present; their names do not prove Mobilox UI semantics.
+  const sourceTexts: Record<string, string> = {};
+  const vehicleNode = firstField(parsed, ["voertuig"]);
+  if (isRecord(vehicleNode)) {
+    for (const name of ["opmerkingen", "omschrijving", "introductietekst", "advertentietekst"]) {
+      const value = textFrom(vehicleNode[name]);
+      if (value !== undefined) sourceTexts[name] = value;
+    }
+  }
   const batteryHealthPercent = firstInteger(parsed, ["accu_conditie"]);
   const electricRangeKm = firstInteger(parsed, ["wltp_actieradius_elektrisch_combined", "actieradius_elektrisch"]);
   const consumptionPer100Km = firstNumber(parsed, ["wltp_brandstofverbruik_combined_weighted", "wltp_brandstofverbruik_combined", "gemiddeld_verbruik"]);
@@ -407,5 +419,6 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
     validationErrors,
   };
 
+  vehicle.editorial = { version: 1, revision: 0, photos: [], publishedOptionKeys: [], content: { sourceTexts } };
   return { action, providerAction, externalId, vehicle };
 }

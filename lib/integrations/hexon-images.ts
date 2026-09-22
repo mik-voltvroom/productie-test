@@ -1,8 +1,11 @@
 import { createHash } from "node:crypto";
 import { adminStorage } from "@/lib/firebase-admin";
+import { MAX_IMPORTED_PHOTOS } from "@/lib/vehicle/editorial";
+import type { VehicleImage } from "@/types";
+import { fingerprintStoredPhoto } from "@/lib/integrations/storage-server";
 
 const MAX_IMAGE_BYTES = 15_000_000;
-export const MAX_IMAGES_PER_VEHICLE = 200;
+export const MAX_IMAGES_PER_VEHICLE = MAX_IMPORTED_PHOTOS;
 const DOWNLOAD_BASE = "https://firebasestorage.googleapis.com/v0/b";
 
 function assertSafeRemoteImageUrl(rawUrl: string): URL {
@@ -48,7 +51,7 @@ function stableDownloadToken(externalId: string, sourceUrl: string): string {
     .digest("hex");
 }
 
-async function persistOneImage(externalId: string, sourceUrl: string, index: number): Promise<string> {
+async function persistOneImage(externalId: string, sourceUrl: string): Promise<VehicleImage> {
   if (!adminStorage) throw new Error("Firebase Storage is niet beschikbaar.");
   const url = assertSafeRemoteImageUrl(sourceUrl);
   const response = await fetch(url, {
@@ -67,10 +70,10 @@ async function persistOneImage(externalId: string, sourceUrl: string, index: num
   if (!bytes.length || bytes.length > MAX_IMAGE_BYTES) throw new Error("Afbeelding is leeg of groter dan toegestaan.");
 
   const bucket = adminStorage.bucket();
-  const sourceHash = createHash("sha256").update(sourceUrl).digest("hex").slice(0, 12);
+  const contentHash = createHash("sha256").update(bytes).digest("hex");
   const ext = extensionFor(contentType);
-  const objectName = `vehicles/${externalId}/mobilox/${String(index + 1).padStart(3, "0")}-${sourceHash}.${ext}`;
-  const token = stableDownloadToken(externalId, sourceUrl);
+  const objectName = `vehicles/${externalId}/mobilox/${contentHash}.${ext}`;
+  const token = stableDownloadToken(externalId, contentHash);
   const file = bucket.file(objectName);
 
   await file.save(bytes, {
@@ -87,11 +90,12 @@ async function persistOneImage(externalId: string, sourceUrl: string, index: num
     },
   });
 
-  return downloadUrl(bucket.name, objectName, token);
+  return { id: contentHash, contentHash, sourceUrl, url: downloadUrl(bucket.name, objectName, token), source: "mobilox-hexon", importedAt: new Date().toISOString() };
 }
 
 export interface PersistedHexonImages {
   images: string[];
+  photos: VehicleImage[];
   failures: Array<{ sourceUrl: string; message: string }>;
 }
 
@@ -105,16 +109,27 @@ export function limitHexonImageUrls(sourceUrls: string[]): string[] {
  * is omitted instead of making the complete vehicle mutation fail; failures are
  * returned so they can be written to the integration audit event.
  */
-export async function persistHexonImages(externalId: string, sourceUrls: string[]): Promise<PersistedHexonImages> {
-  if (!sourceUrls.length) return { images: [], failures: [] };
+export async function persistHexonImages(externalId: string, sourceUrls: string[], existing: VehicleImage[] = []): Promise<PersistedHexonImages> {
+  if (!sourceUrls.length) return { images: [], photos: [], failures: [] };
+  // Backfill before matching changed provider URLs against older imported photos.
+  const knownPhotos: VehicleImage[] = [];
+  for (let offset = 0; offset < existing.length; offset += 4) {
+    knownPhotos.push(...await Promise.all(existing.slice(offset, offset + 4).map(fingerprintStoredPhoto)));
+  }
   const limited = limitHexonImageUrls(sourceUrls);
   const images: string[] = [];
+  const photos: VehicleImage[] = [...knownPhotos];
   const failures: PersistedHexonImages["failures"] = [];
 
   for (let index = 0; index < limited.length; index += 1) {
     const sourceUrl = limited[index];
     try {
-      images.push(await persistOneImage(externalId, sourceUrl, index));
+      const sourceHash = createHash("sha256").update(sourceUrl).digest("hex").slice(0, 12);
+      const known = knownPhotos.find(photo => photo.sourceUrl === sourceUrl || photo.url === sourceUrl
+        || decodeURIComponent(photo.url).includes(`-${sourceHash}.`));
+      const photo = known ? { ...known, sourceUrl } : await persistOneImage(externalId, sourceUrl);
+      photos.push(photo);
+      if (!photo.deletedAt) images.push(photo.url);
     } catch (error) {
       failures.push({
         sourceUrl,
@@ -123,5 +138,5 @@ export async function persistHexonImages(externalId: string, sourceUrls: string[
     }
   }
 
-  return { images, failures };
+  return { images, photos, failures };
 }

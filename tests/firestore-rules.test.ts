@@ -41,14 +41,14 @@ describe("Firestore Rules commercial boundaries", () => {
     await environment.cleanup();
   });
 
-  it("exposes only available vehicles publicly while staff can read reserved stock", async () => {
+  it("keeps raw vehicles staff-only, including published inventory", async () => {
     await seed("vehicles/available", { status: "available", make: "Volvo" });
     await seed("vehicles/reserved", { status: "reserved", reservedDealId: "deal-1" });
 
     const publicDb = environment.unauthenticatedContext().firestore();
     const salesDb = roleContext("sales").firestore();
 
-    await assertSucceeds(getDoc(doc(publicDb, "vehicles/available")));
+    await assertFails(getDoc(doc(publicDb, "vehicles/available")));
     await assertFails(getDoc(doc(publicDb, "vehicles/reserved")));
     await assertSucceeds(getDoc(doc(salesDb, "vehicles/reserved")));
   });
@@ -91,6 +91,14 @@ describe("Firestore Rules commercial boundaries", () => {
     await assertFails(updateDoc(doc(adminDb, "vehicles/reserved"), { status: "available" }));
     await assertFails(deleteDoc(doc(adminDb, "vehicles/reserved")));
     await assertSucceeds(deleteDoc(doc(ownerDb, "vehicles/draft")));
+  });
+
+  it("keeps editorial mutations on the server", async () => {
+    const ownerDb = roleContext("owner").firestore();
+    await assertFails(setDoc(doc(ownerDb, "vehicles/editorial-create"), { status: "draft", priceCents: 100, editorial: { version: 1 } }));
+    await seed("vehicles/editorial-existing", { status: "available", priceCents: 100, editorial: { revision: 1 } });
+    await assertFails(updateDoc(doc(ownerDb, "vehicles/editorial-existing"), { editorial: { revision: 2 } }));
+    await assertSucceeds(updateDoc(doc(ownerDb, "vehicles/editorial-existing"), { priceCents: 200 }));
   });
 
   it("keeps every Commercial Core collection server-only", async () => {

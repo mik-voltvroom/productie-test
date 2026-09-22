@@ -18,7 +18,7 @@ describe("publieke voorraadpagina", () => {
   });
 
   it("scheidt online advertentiefoto's van interne dossierfoto's", () => {
-    const form = read("components/dashboard/VehicleForm.tsx");
+    const form = read("components/dashboard/VehicleEditorialPanel.tsx");
     const repository = read("lib/repositories/public-vehicle-repository.ts");
     const merchant = read("lib/merchant.ts");
     const hexon = read("lib/integrations/hexon-service.ts");

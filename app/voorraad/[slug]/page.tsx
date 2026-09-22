@@ -24,14 +24,7 @@ function driveLabel(driveType?: string, fuelType?: string): string {
 }
 
 function publicDescription(description: string | undefined, vehicleName: string): string {
-  const normalized = description?.replace(/\\s+/g, " ").trim();
-  const containsTestText = normalized
-    ? /(?:lorem|testtekst|gyubkbnbk)|\\b[a-z]{5,}\\.[a-z]{3,}[,;:]?/i.test(normalized)
-    : false;
-  if (!normalized || containsTestText) {
-    return `${vehicleName} is geselecteerd op historie, technische staat en uitvoering. Hieronder ziet u de beschikbare specificaties, uitrusting en aandrijfgegevens.`;
-  }
-  return normalized;
+  return description?.trim() || `Bekijk hieronder de beschikbare gegevens en uitrusting van deze ${vehicleName}.`;
 }
 
 export function generateStaticParams() {
@@ -111,7 +104,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
         </aside>
       </section>
       <section className={styles.story}>
-        <div><span className={styles.sectionLabel}>Deze auto</span><h2>{vehicleName}<br />in het kort.</h2><p className={styles.storyLead}>{publicDescription(vehicle.description, vehicleName)}</p>{curatedHighlights.length ? <div className={styles.highlightGrid}>{curatedHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div> : null}{remainingHighlights.length ? <details className={styles.allHighlights}><summary>Bekijk alle opties</summary><div className={styles.highlightGrid}>{remainingHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div></details> : null}</div>
+        <div><span className={styles.sectionLabel}>Deze auto</span><h2>{vehicleName}<br />in het kort.</h2><p className={styles.storyLead} style={{ whiteSpace: "pre-line" }}>{publicDescription(vehicle.description, vehicleName)}</p>{curatedHighlights.length ? <div className={styles.highlightGrid}>{curatedHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div> : null}{remainingHighlights.length ? <details className={styles.allHighlights}><summary>Bekijk alle opties</summary><div className={styles.highlightGrid}>{remainingHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div></details> : null}</div>
         <aside className={styles.factsCard}><h3>Specificaties</h3>{specs.length ? specs.map(([label, fact]) => <div className={styles.factRow} key={label}><span>{label}</span><strong>{fact}</strong></div>) : <p>Nadere specificaties volgen.</p>}</aside>
       </section>
       {vehicleFacts.length ? <section className={styles.intelligence} id="carcheck"><div className={styles.intelligenceHead}><div><span className={styles.sectionLabel}>{dataLabel}</span><h2>{dataHeading}<br />Alleen wat bekend is.</h2></div><p>Deze waarden komen uit de beschikbare voertuigdata. Een meetdatum of aanvullende bron vermelden we alleen wanneer die is aangeleverd.</p></div><div className={styles.intelligenceGrid}>{vehicleFacts.slice(0,4).map(([label, fact]) => <article className={styles.intelCard} key={label}><span>{label}</span><strong>{fact}</strong><small>beschikbare voertuigdata</small></article>)}</div></section> : null}

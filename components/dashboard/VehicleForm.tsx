@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import type { DriveType, Vehicle, VehicleCosts, VehicleStatus } from "@/types";
 import { emptyCosts, slugify, validateVehicle } from "@/lib/business";
 import { saveVehicle } from "@/lib/repositories/vehicle-repository";
-import { uploadVehicleImage } from "@/lib/integrations/storage";
 import { MarginPanel } from "./MarginPanel";
 import { centsToEuros, eurosToCents } from "@/lib/money";
 import { CommercialPanel } from "./CommercialPanel";
 import { defaultVehicleCommercial, recordVehiclePrice } from "@/lib/vehicle/business";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
+import { VehicleEditorialPanel } from "./VehicleEditorialPanel";
+import styles from "./VehicleEditorialPanel.module.css";
 
 const now = () => new Date().toISOString();
 const id = () => `VV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -23,108 +24,14 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
     maintenanceHistory: "unknown", images: [], highlights: [], status: "draft", locationCode: "VOLT_VROOM_GRONINGEN",
     costs: emptyCosts, commercial: { ...defaultVehicleCommercial, priceHistory: [], stockEnteredAt: now() }, publication: { channels: { website: false, merchant: false, google_ads: false, meta: false }, completenessPercent: 0, validationErrors: [] }, updatedAt: now(), createdAt: now()
   });
-  const [imageUrl, setImageUrl] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const uploadInProgress = useRef(false);
-  const [uploadNotice, setUploadNotice] = useState("");
   const [saveError, setSaveError] = useState("");
+  const dirty = useRef(new Set<keyof Vehicle>());
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState(initial?.updatedAt);
   const errors = useMemo(() => validateVehicle(vehicle), [vehicle]);
-  const publicImages = useMemo(() => getPublicVehicleImages(vehicle), [vehicle]);
-  const publicImageSet = useMemo(() => new Set(publicImages), [publicImages]);
   const completeness = Math.max(0, Math.round(((10 - Math.min(errors.length, 10)) / 10) * 100));
-  const set = <K extends keyof Vehicle>(key: K, value: Vehicle[K]) => setVehicle(v => ({ ...v, [key]: value }));
-
-  function updatePhotoSelection(imageUrl: string, online: boolean) {
-    setVehicle(current => {
-      const selected = new Set(getPublicVehicleImages(current));
-      if (online) selected.add(imageUrl); else selected.delete(imageUrl);
-      return {
-        ...current,
-        publication: {
-          ...(current.publication ?? { channels: { website: false, merchant: false, google_ads: false, meta: false }, completenessPercent: 0, validationErrors: [] }),
-          publicImageUrls: current.images.filter(image => selected.has(image)),
-        },
-      };
-    });
-  }
-
-  function addInternalImage(value: string) {
-    const imageUrl = value.trim();
-    if (!imageUrl) return;
-    setVehicle(current => {
-      if (current.images.includes(imageUrl)) return current;
-      return {
-        ...current,
-        images: [...current.images, imageUrl],
-        publication: {
-          ...(current.publication ?? { channels: { website: false, merchant: false, google_ads: false, meta: false }, completenessPercent: 0, validationErrors: [] }),
-          publicImageUrls: getPublicVehicleImages(current),
-        },
-      };
-    });
-  }
-
-  function moveImage(from: number, to: number) {
-    setSaved(false);
-    setVehicle(current => {
-      if (from === to || from < 0 || to < 0 || from >= current.images.length || to >= current.images.length) return current;
-      const images = [...current.images];
-      const [image] = images.splice(from, 1);
-      images.splice(to, 0, image);
-      return { ...current, images };
-    });
-  }
-
-  async function uploadImages(files: File[]) {
-    if (!files.length || uploadInProgress.current) return;
-    uploadInProgress.current = true;
-    setUploading(true);
-    setSaved(false);
-    setUploadError("");
-    setUploadNotice("");
-    setUploadProgress(0);
-    const failures: string[] = [];
-    let completed = 0;
-    try {
-      for (const [index, file] of files.entries()) {
-        try {
-          const url = await uploadVehicleImage(vehicle.id, file, progress => {
-            setUploadProgress(Math.round((index + progress / 100) / files.length * 100));
-          });
-          addInternalImage(url);
-          completed++;
-        } catch (error) {
-          failures.push(`${file.name}: ${error instanceof Error ? error.message : "Upload mislukt"}`);
-        }
-        setUploadProgress(Math.round((index + 1) / files.length * 100));
-      }
-      setUploadNotice(`${completed} van ${files.length} foto’s toegevoegd. Klik op Opslaan om de wijzigingen te bewaren.`);
-      setUploadError(failures.join(" · "));
-    } finally {
-      uploadInProgress.current = false;
-      setUploading(false);
-      setUploadProgress(0);
-    }
-  }
-
-  function removeImage(index: number) {
-    setVehicle(current => {
-      const images = current.images.filter((_, imageIndex) => imageIndex !== index);
-      const selected = new Set(getPublicVehicleImages(current));
-      return {
-        ...current,
-        images,
-        publication: current.publication && Object.prototype.hasOwnProperty.call(current.publication, "publicImageUrls")
-          ? { ...current.publication, publicImageUrls: images.filter(image => selected.has(image)) }
-          : current.publication,
-      };
-    });
-  }
+  const set = <K extends keyof Vehicle>(key: K, value: Vehicle[K]) => { dirty.current.add(key); setVehicle(v => ({ ...v, [key]: value })); };
 
   async function save(nextStatus?: VehicleStatus) {
-    if (uploadInProgress.current) return;
     setSaveError("");
     const finalStatus = nextStatus ?? vehicle.status;
     const savedAt = now();
@@ -145,14 +52,14 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
       updatedAt: savedAt
     };
     try {
-      await saveVehicle(next); setVehicle(next); setSaved(true); setTimeout(() => setSaved(false), 1800);
+      await saveVehicle(next, expectedUpdatedAt); dirty.current.clear(); setVehicle(next); setExpectedUpdatedAt(next.updatedAt); setSaved(true); setTimeout(() => setSaved(false), 1800);
       if (!initial) router.replace(`/dashboard/voorraad/${next.id}`);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : "Opslaan mislukt. Probeer het opnieuw.");
     }
   }
 
-  return <div className="editorLayout">
+  return <div className={`editorLayout ${styles.layout}`}>
     <div className="editorMain">
       <section className="panel">
         <div className="panelHeader"><div><p className="eyebrow">Voertuigdossier</p><h1>{initial ? `${vehicle.brand} ${vehicle.model}` : "Nieuwe auto invoeren"}</h1></div><span className="statusPill">{vehicle.status}</span></div>
@@ -175,46 +82,13 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
           <label>Elektrisch bereik km<input type="number" value={vehicle.electricRangeKm ?? 0} onChange={e => set("electricRangeKm", Number(e.target.value))} /></label>
           <label>Verbruik l/100 km<input type="number" step="0.1" value={vehicle.consumptionPer100Km ?? 0} onChange={e => set("consumptionPer100Km", Number(e.target.value))} /></label>
           <label>Garantie maanden<input type="number" value={vehicle.warrantyMonths ?? 0} onChange={e => set("warrantyMonths", Number(e.target.value))} /></label>
-          <label className="span2">Highlights, komma-gescheiden<input value={vehicle.highlights.join(", ")} onChange={e => set("highlights", e.target.value.split(",").map(x => x.trim()).filter(Boolean))} /></label>
-          <label className="span2">Advertentietekst<textarea rows={6} value={vehicle.description ?? ""} onChange={e => set("description", e.target.value)} /></label>
         </div>
       </section>
 
-      <section className="panel">
-        <div className="panelHeader"><div><p className="eyebrow">Beeldbank</p><h2>Voertuigfoto’s</h2></div><span>{publicImages.length} online · {vehicle.images.length - publicImages.length} intern</span></div>
-        <div className="imageInput"><input placeholder="Plak een afbeeldings-URL" value={imageUrl} onChange={e => setImageUrl(e.target.value)} /><button type="button" className="button secondary" onClick={() => { addInternalImage(imageUrl); setImageUrl(""); }}>Toevoegen</button></div>
-        <div className="uploadRow">
-          <label className="uploadButton">Foto’s uploaden<input type="file" accept="image/*" multiple disabled={uploading} onChange={event => {
-            const files = Array.from(event.target.files ?? []);
-            event.target.value = "";
-            void uploadImages(files);
-          }} /></label>
-          {uploading && <span role="status">Foto’s uploaden: {uploadProgress}%</span>}
-          {uploadNotice && <span role="status">{uploadNotice}</span>}
-          {uploadError && <span className="formError" role="alert">{uploadError}</span>}
-        </div>
-        <div className="photoGrid">{vehicle.images.map((src, index) => {
-          const online = publicImageSet.has(src);
-          const isMainPhoto = online && publicImages[0] === src;
-          return <figure className={online ? "photoOnline" : "photoInternal"} key={`${src}-${index}`}>
-            <img src={src} alt={`Voertuigfoto ${index + 1}`} />
-            {isMainPhoto ? <span className="photoMainBadge">Hoofdfoto online</span> : null}
-            <div className="photoControls">
-              <label><input type="checkbox" checked={online} onChange={event => updatePhotoSelection(src, event.target.checked)} /><span>Online tonen</span></label>
-              <button className="photoRemove" type="button" onClick={() => removeImage(index)}>Verwijder</button>
-            </div>
-            <div className="photoControls" role="group" aria-label={`Volgorde foto ${index + 1}`}>
-              <button type="button" className="button secondary" aria-label={`Foto ${index + 1} eerder`} disabled={index === 0 || uploading} onClick={() => moveImage(index, index - 1)}>←</button>
-              <label>Positie<select aria-label={`Positie foto ${index + 1}`} value={index} disabled={uploading} onChange={event => moveImage(index, Number(event.target.value))}>
-                {vehicle.images.map((_, position) => <option key={position} value={position}>{position + 1}</option>)}
-              </select></label>
-              <button type="button" className="button secondary" aria-label={`Foto ${index + 1} later`} disabled={index === vehicle.images.length - 1 || uploading} onClick={() => moveImage(index, index + 1)}>→</button>
-            </div>
-            <span className={`photoVisibilityBadge ${online ? "isOnline" : "isInternal"}`}>{online ? "Online" : "Alleen intern"}</span>
-          </figure>;
-        })}</div>
-        <p className="helper">Nieuwe foto’s blijven eerst alleen intern. Vink ‘Online tonen’ aan om een foto op de website en in advertentiefeeds te gebruiken. Verplaats foto’s met de pijlen of kies een positie. De eerste online foto is de hoofdfoto. Klik daarna op Opslaan.</p>
-      </section>
+      <VehicleEditorialPanel vehicle={vehicle} enabled={Boolean(expectedUpdatedAt)} onSaved={next => {
+        setVehicle(current => ({ ...next, ...Object.fromEntries([...dirty.current].map(key => [key, current[key]])) }));
+        setExpectedUpdatedAt(next.updatedAt);
+      }} />
 
       <MarginPanel priceCents={vehicle.priceCents} costs={vehicle.costs ?? emptyCosts} targetMarginCents={vehicle.commercial?.targetMarginCents} onChange={costs => set("costs", costs)} />
       <CommercialPanel
@@ -229,8 +103,8 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
         <p className="eyebrow">Publicatiecheck</p><div className="completion"><strong>{completeness}%</strong><div><i style={{width:`${completeness}%`}} /></div></div>
         {errors.length ? <ul className="errorList">{errors.map(error => <li key={error}>{error}</li>)}</ul> : <div className="successBox">Klaar voor publicatie</div>}
         <label>Status<select value={vehicle.status} onChange={e => set("status", e.target.value as VehicleStatus)} disabled={vehicle.status === "reserved" || vehicle.status === "sold"}><option value="draft">Concept</option><option value="photography">Fotografie</option><option value="review">Controle</option><option value="available">Beschikbaar</option>{vehicle.status === "reserved" && <option value="reserved">Gereserveerd via deal</option>}{vehicle.status === "sold" && <option value="sold">Verkocht via deal</option>}<option value="archived">Archief</option></select></label>
-        <button className="button wide" type="button" disabled={uploading} onClick={() => save()}>Opslaan</button>
-        <button className="button secondary wide" type="button" disabled={uploading || errors.length > 0} onClick={() => save("available")}>Publiceren</button>
+        <button className="button wide" type="button" onClick={() => save()}>Opslaan</button>
+        <button className="button secondary wide" type="button" disabled={errors.length > 0} onClick={() => save("available")}>Publiceren</button>
         {saveError && <p className="formError" role="alert">{saveError}</p>}
         {saved && <p className="savedNotice">Wijzigingen opgeslagen.</p>}
       </section>

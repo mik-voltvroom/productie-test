@@ -1,5 +1,8 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
+import { getPublicVehicleImages } from "@/lib/vehicle/photos";
+import { publicOptions } from "@/lib/vehicle/editorial";
+import type { Vehicle } from "@/types";
 
 type RawMap = Record<string, unknown>;
 
@@ -39,6 +42,7 @@ function list(value: unknown): string[] {
 }
 
 function publicImages(vehicle: FirestoreVehicle, images: string[]): string[] {
+  if (vehicle.editorial) return getPublicVehicleImages(vehicle as unknown as Vehicle);
   const publication = vehicle.publication as RawMap | undefined;
   if (!publication || !Object.prototype.hasOwnProperty.call(publication, "publicImageUrls")) return images;
   const selected = new Set(list(publication.publicImageUrls));
@@ -104,9 +108,9 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
     vatMargin: text(vehicle.vatMargin) ?? text(rawValue(vehicle, "btw_marge")),
     imageUrls,
     title: text(vehicle.title) ?? text(rawValue(vehicle, "titel")),
-    highlights: list(vehicle.highlights).join(", ") || text(rawValue(vehicle, "highlights")),
-    description: text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
-    accessories: list(vehicle.accessories).length ? list(vehicle.accessories) : list(rawValue(vehicle, "accessoires")),
+    highlights: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle).join(", ") : list(vehicle.highlights).join(", ") || text(rawValue(vehicle, "highlights")),
+    description: (vehicle as unknown as Vehicle).editorial?.content.websiteText ?? text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
+    accessories: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle) : list(vehicle.accessories).length ? list(vehicle.accessories) : list(rawValue(vehicle, "accessoires")),
 
     powerHp: number(vehicle.powerHp) ?? number(rawValue(vehicle, "vermogen_motor_pk")) ?? number(rawValue(vehicle, "vermogen_pk")),
     powerKw: number(vehicle.powerKw) ?? number(rawValue(vehicle, "vermogen_motor_kw")) ?? number(rawValue(vehicle, "vermogen_kw")),

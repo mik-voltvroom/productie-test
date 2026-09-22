@@ -3,7 +3,8 @@ import type { Vehicle } from "@/types";
 import { db } from "@/lib/firebase-client";
 import { integrationMode } from "@/lib/config";
 import { getVehicles, upsertVehicle as demoUpsert, deleteVehicle as demoDelete } from "@/lib/demo-store";
-import { deleteDoc, deleteField, doc, setDoc } from "firebase/firestore";
+import { deleteDoc, deleteField, doc, runTransaction } from "firebase/firestore";
+import { applyEditorialCommand, type EditorialCommand } from "@/lib/vehicle/editorial";
 
 interface VehicleListResponse {
   ok: boolean;
@@ -32,8 +33,9 @@ export async function getVehicle(id: string): Promise<Vehicle | undefined> {
   return (await listVehicles()).find(vehicle => vehicle.id === id);
 }
 
-export async function saveVehicle(vehicle: Vehicle): Promise<void> {
-  if (integrationMode !== "firebase" || !db) return demoUpsert(vehicle);
+export async function saveVehicle(vehicle: Vehicle, expectedUpdatedAt?: string): Promise<void> {
+  if (integrationMode !== "firebase") return demoUpsert(vehicle);
+  if (!db) throw new Error("VVOS database niet beschikbaar. Er is niets opgeslagen.");
   const legacyTopLevelDeletes = {
     priceEur: deleteField(),
     monthlyPriceEur: deleteField(),
@@ -49,11 +51,31 @@ export async function saveVehicle(vehicle: Vehicle): Promise<void> {
     financingEur: deleteField(),
     otherEur: deleteField(),
   } : {};
-  await setDoc(doc(db, "vehicles", vehicle.id), {
-    ...vehicle,
-    ...legacyTopLevelDeletes,
-    ...(vehicle.costs ? { costs: { ...vehicle.costs, ...legacyCostDeletes } } : {}),
-  }, { merge: true });
+  await runTransaction(db, async transaction => {
+    const ref = doc(db!, "vehicles", vehicle.id);
+    const current = await transaction.get(ref);
+    if (current.exists() && current.data().updatedAt !== expectedUpdatedAt) throw new Error("Het voertuig is tussentijds gewijzigd. Herlaad voordat je opslaat.");
+    transaction.set(ref, {
+      ...vehicle,
+      ...legacyTopLevelDeletes,
+      ...(vehicle.costs ? { costs: { ...vehicle.costs, ...legacyCostDeletes } } : {}),
+    }, { merge: true });
+  });
+}
+
+export async function saveVehicleEditorial(vehicle: Vehicle, command: EditorialCommand): Promise<Vehicle> {
+  if (integrationMode !== "firebase") {
+    const current = getVehicles().find(item => item.id === vehicle.id) ?? vehicle;
+    const next = applyEditorialCommand(current, command, new Date().toISOString());
+    demoUpsert(next);
+    return next;
+  }
+  const response = await fetch(`/api/vvos/vehicles/${encodeURIComponent(vehicle.id)}/editorial`, {
+    method: "PATCH", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify(command),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error ?? "Opslaan mislukt.");
+  return result.vehicle;
 }
 
 export async function removeVehicle(id: string): Promise<void> {

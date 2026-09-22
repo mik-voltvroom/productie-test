@@ -6,6 +6,7 @@ import { vehicles as demoVehicles } from "@/lib/sample-data";
 import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import { deduplicateVehiclesByIdentity } from "@/lib/vehicle/identity";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
+import { publicVehicleProjection } from "@/lib/vehicle/editorial";
 import type { Vehicle } from "@/types";
 
 function isPublishedOnWebsite(vehicle: Vehicle): boolean {
@@ -16,7 +17,7 @@ function isPublishedOnWebsite(vehicle: Vehicle): boolean {
 }
 
 function publicProjection(vehicle: Vehicle): Vehicle {
-  return { ...vehicle, images: getPublicVehicleImages(vehicle) };
+  return publicVehicleProjection(vehicle);
 }
 
 function newestFirst(left: Vehicle, right: Vehicle): number {
