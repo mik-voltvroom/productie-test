@@ -87,8 +87,11 @@ describe("publieke Volt & Vroom website", () => {
     const detail = read("app/voorraad/[slug]/page.tsx");
     const card = read("components/VehicleCard.tsx");
     expect(detail).toContain("publicDescription");
-    expect(detail).toContain("Elektrische gegevens");
-    expect(detail).toContain("rustig met u door");
+    expect(detail).toContain("Specificaties");
+    expect(detail).toContain('export const dynamic = "force-dynamic"');
+    expect(detail).toContain('type="application/ld+json"');
+    expect(detail).toContain("Inclusief alle verplichte kosten.");
+    expect(detail).toContain("Opties en uitrusting");
     expect(detail).not.toContain("Hybrid Intelligence");
     expect(detail).not.toContain(">Hybrid data<");
     expect(card).toContain('return "Elektrisch"');

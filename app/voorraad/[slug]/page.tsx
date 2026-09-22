@@ -3,14 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
 import { Header } from "@/components/Header";
-import { eur } from "@/lib/format";
+
 import { centsToEuros } from "@/lib/money";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
 import styles from "./vehicle.module.css";
 
-export const revalidate = 60;
+// VVOS publication data changes at runtime; never serve a prerendered offer.
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
+export const revalidate = 60;
 
+// No demo URLs are enumerated at build time; force-dynamic takes precedence.
+export function generateStaticParams() {
+  return [];
+}
+
+const eur = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const numberFormat = new Intl.NumberFormat("nl-NL");
 
 function driveLabel(driveType?: string, fuelType?: string): string {
@@ -25,10 +33,6 @@ function driveLabel(driveType?: string, fuelType?: string): string {
 
 function publicDescription(description: string | undefined, vehicleName: string): string {
   return description?.trim() || `Bekijk hieronder de beschikbare gegevens en uitrusting van deze ${vehicleName}.`;
-}
-
-export function generateStaticParams() {
-  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -54,62 +58,83 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
 
   const publicDriveType = driveLabel(vehicle.driveType, vehicle.fuelType);
   const vehicleName = `${vehicle.brand} ${vehicle.model}`;
-  const isElectric = publicDriveType === "Elektrisch";
-  const isHybrid = publicDriveType === "Hybride" || publicDriveType === "Plug-in hybride";
+
 
   const specs = [
     ["Carrosserie", vehicle.bodyStyle || null],
     ["Kleur", vehicle.color || null],
     ["Aandrijving", publicDriveType],
     ["Transmissie", vehicle.transmission || null],
-    ["Verbruik", vehicle.consumptionPer100Km ? `${vehicle.consumptionPer100Km} l/100 km` : null],
+    ["Opgegeven verbruik", vehicle.consumptionPer100Km ? `${vehicle.consumptionPer100Km} l/100 km` : null],
+    ["Elektrische actieradius", vehicle.electricRangeKm ? `${numberFormat.format(vehicle.electricRangeKm)} km` : null],
+    ["Accuconditie (aangeleverd)", vehicle.batteryHealthPercent !== undefined ? `${vehicle.batteryHealthPercent}%` : null],
     ["Garantie", vehicle.warrantyMonths ? `${vehicle.warrantyMonths} maanden` : null],
   ].filter((item): item is [string, string] => Boolean(item[1]));
 
-  const vehicleFacts = [
-    ["Accuconditie", vehicle.batteryHealthPercent !== undefined ? `${vehicle.batteryHealthPercent}%` : null],
-    ["Elektrische actieradius", vehicle.electricRangeKm ? `${numberFormat.format(vehicle.electricRangeKm)} km` : null],
-    ["Praktijkverbruik", vehicle.consumptionPer100Km ? `${vehicle.consumptionPer100Km} l/100 km` : null],
-  ].filter((item): item is [string, string] => Boolean(item[1]));
-
-  const dataLabel = isElectric ? "Elektrische gegevens" : isHybrid ? "Hybride gegevens" : "Voertuiggegevens";
-  const dataHeading = isElectric ? "Relevante elektrische gegevens." : isHybrid ? "Relevante hybride gegevens." : "Relevante voertuiggegevens.";
-  const curatedHighlights = vehicle.highlights
-    .filter(item => !/^\\d+\\s*kW lader$/i.test(item.trim()))
-    .slice(0, 4);
-  const remainingHighlights = vehicle.highlights.filter(item => !curatedHighlights.includes(item));
+  const description = publicDescription(vehicle.description, vehicleName);
+  const paragraphs = description.split(/\n\s*\n/).filter(Boolean);
+  const firstParagraph = paragraphs[0] ?? description;
+  const needsMore = description.length > 320;
+  const summary = needsMore ? `${firstParagraph.slice(0, 280).replace(/\s+\S*$/, "")}…` : description;
+  const highlights = [...new Set(vehicle.highlights)];
   const priceEur = centsToEuros(vehicle.priceCents);
   const isReserved = vehicle.status === "reserved";
   const tradeInHref = `/inruilen?vehicleId=${encodeURIComponent(vehicle.id)}&vehicleLabel=${encodeURIComponent(vehicleName + " " + vehicle.trim)}`;
 
+  const contactHref = `mailto:sales@voltvroom.nl?subject=${encodeURIComponent(`Proefrit ${vehicleName} (${vehicle.id})`)}`;
+  const vehicleUrl = `${(process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl").replace(/\/$/, "")}/voorraad/${encodeURIComponent(vehicle.slug)}`;
+  const structuredData = {
+    "@context": "https://schema.org", "@type": "Car", name: `${vehicleName} ${vehicle.trim}`,
+    url: vehicleUrl, sku: vehicle.id, brand: { "@type": "Brand", name: vehicle.brand }, model: vehicle.model,
+    image: vehicle.images, description,
+    ...(vehicle.year ? { vehicleModelDate: String(vehicle.year) } : {}),
+    ...(vehicle.mileageKm !== undefined ? { mileageFromOdometer: { "@type": "QuantitativeValue", value: vehicle.mileageKm, unitCode: "KMT" } } : {}),
+    ...(vehicle.priceCents > 0 ? { offers: { "@type": "Offer", url: vehicleUrl,
+      price: priceEur.toFixed(2), priceCurrency: "EUR",
+      availability: isReserved ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      seller: { "@type": "AutoDealer", name: "Volt & Vroom", telephone: "+31611669111",
+        address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" } },
+    } } : {}),
+  };
+
   return <div className={styles.page}>
     <Header />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
     <main className={styles.shell}>
       <div className={styles.breadcrumb}><Link href="/voorraad">← Terug naar voorraad</Link><span>Volt & Vroom Selectie · Groningen</span></div>
       <section className={styles.hero}>
         <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} reserved={isReserved} />
         <aside className={styles.side}>
           <p className={styles.eyebrow}>{publicDriveType}</p>
-          <h1>{vehicle.brand}<br />{vehicle.model}</h1>
+          <h1>{vehicleName}</h1>
           <p className={styles.trim}>{vehicle.trim}</p>
-          <div className={styles.price}>{vehicle.priceCents > 0 ? eur.format(priceEur) : "Prijs op aanvraag"}</div>
-          <div className={styles.monthly}>{vehicle.monthlyPriceCents ? `Vanaf ${eur.format(centsToEuros(vehicle.monthlyPriceCents))} p/m` : "Persoonlijk voorstel op aanvraag"}</div>
+          <span className={styles.priceLabel}>Verkoopprijs</span><div className={styles.price}>{vehicle.priceCents > 0 ? eur.format(priceEur) : "Prijs op aanvraag"}</div>
+          <p className={styles.priceNote}>Inclusief alle verplichte kosten.</p>
+          <p className={styles.availability}>{isReserved ? "Gereserveerd" : "Beschikbaar bij Volt & Vroom in Groningen"}</p>
           <div className={styles.quickFacts}>
             {vehicle.year ? <div><span>Bouwjaar</span><strong>{vehicle.year}</strong></div> : null}
             {vehicle.mileageKm !== undefined ? <div><span>Kilometerstand</span><strong>{numberFormat.format(vehicle.mileageKm)} km</strong></div> : null}
             <div><span>Aandrijving</span><strong>{publicDriveType}</strong></div>
             {vehicle.transmission ? <div><span>Transmissie</span><strong>{vehicle.transmission}</strong></div> : null}
           </div>
-          <div className={styles.ctaStack}><a className={styles.primary} href="#afspraak">Plan een proefrit</a><Link className={styles.secondary} href={tradeInHref}>Bereken inruilindicatie</Link></div>
+          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><a className={styles.secondary} href="tel:+31611669111">Bel 06 1166 9111</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
       </section>
       <section className={styles.story}>
-        <div><span className={styles.sectionLabel}>Deze auto</span><h2>{vehicleName}<br />in het kort.</h2><p className={styles.storyLead} style={{ whiteSpace: "pre-line" }}>{publicDescription(vehicle.description, vehicleName)}</p>{curatedHighlights.length ? <div className={styles.highlightGrid}>{curatedHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div> : null}{remainingHighlights.length ? <details className={styles.allHighlights}><summary>Bekijk alle opties</summary><div className={styles.highlightGrid}>{remainingHighlights.map((item: string) => <span key={item}>✓ {item}</span>)}</div></details> : null}</div>
-        <aside className={styles.factsCard}><h3>Specificaties</h3>{specs.length ? specs.map(([label, fact]) => <div className={styles.factRow} key={label}><span>{label}</span><strong>{fact}</strong></div>) : <p>Nadere specificaties volgen.</p>}</aside>
+        <div>
+          <h2>Over deze auto</h2>
+          <p className={styles.storyLead}>{summary}</p>
+          {needsMore && <details className={styles.allHighlights}><summary>Lees de volledige beschrijving</summary><p className={styles.storyLead}>{description}</p></details>}
+          {highlights.length > 0 && <details className={styles.allHighlights}><summary>Opties en uitrusting ({highlights.length})</summary><ul className={styles.highlightGrid}>{highlights.map(item => <li key={item}>{item}</li>)}</ul></details>}
+        </div>
+        <aside className={styles.factsCard}><h2>Specificaties</h2><dl>{specs.map(([label, fact]) => <div className={styles.factRow} key={label}><dt>{label}</dt><dd>{fact}</dd></div>)}</dl></aside>
       </section>
-      {vehicleFacts.length ? <section className={styles.intelligence} id="carcheck"><div className={styles.intelligenceHead}><div><span className={styles.sectionLabel}>{dataLabel}</span><h2>{dataHeading}<br />Alleen wat bekend is.</h2></div><p>Deze waarden komen uit de beschikbare voertuigdata. Een meetdatum of aanvullende bron vermelden we alleen wanneer die is aangeleverd.</p></div><div className={styles.intelligenceGrid}>{vehicleFacts.slice(0,4).map(([label, fact]) => <article className={styles.intelCard} key={label}><span>{label}</span><strong>{fact}</strong><small>beschikbare voertuigdata</small></article>)}</div></section> : null}
-      <section className={styles.trust} id="afspraak"><span className={styles.sectionLabel}>Bekijk hem in Groningen</span><h2>De auto gezien.<br />Nu het verhaal erachter.</h2><p>Plan een persoonlijke proefrit. We nemen de auto en de beschikbare voertuigdata rustig met u door.</p><div className={styles.trustActions}><a className={styles.primary} href={`mailto:sales@voltvroom.nl?subject=${encodeURIComponent(`Proefrit ${vehicle.brand} ${vehicle.model}`)}`}>Plan een proefrit</a><a className={styles.secondary} href="mailto:sales@voltvroom.nl">Stel een vraag</a></div></section>
+      <section className={styles.contact} id="afspraak">
+        <div><h2>Bekijk deze auto in Groningen</h2><address><strong>Volt &amp; Vroom</strong><br />Euvelgunnerweg 50 · 9723 CW Groningen</address><a href="mailto:sales@voltvroom.nl">sales@voltvroom.nl</a></div>
+        <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><Link className={styles.secondary} href="/contact">Contact en route</Link></div>
+      </section>
+      <nav className={styles.footerLinks} aria-label="Aanvullende informatie"><Link href="/voorraad">Alle auto’s</Link><Link href="/contact">Bedrijfsgegevens</Link><Link href="/privacy">Privacy</Link></nav>
     </main>
-    <div className={styles.stickyBar}><div><strong>{vehicle.brand} {vehicle.model}</strong><br /><span>{vehicle.trim}{vehicle.priceCents > 0 ? ` · ${eur.format(priceEur)}` : ""}</span></div><a href="#afspraak">Plan proefrit</a></div>
+
   </div>;
 }
