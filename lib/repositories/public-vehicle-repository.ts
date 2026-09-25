@@ -7,14 +7,8 @@ import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import { deduplicateVehiclesByIdentity } from "@/lib/vehicle/identity";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import { publicVehicleProjection } from "@/lib/vehicle/editorial";
+import { isPublishedOnWebsite } from "@/lib/vehicle/publication";
 import type { Vehicle } from "@/types";
-
-function isPublishedOnWebsite(vehicle: Vehicle): boolean {
-  return vehicle.status === "available"
-    && vehicle.publication?.channels.website === true
-    && (vehicle.publication.validationErrors?.length ?? 0) === 0
-    && getPublicVehicleImages(vehicle).length > 0;
-}
 
 function publicProjection(vehicle: Vehicle): Vehicle {
   return publicVehicleProjection(vehicle);
