@@ -69,7 +69,7 @@ describe("publieke Volt & Vroom website", () => {
     const processSteps = read("components/AnimatedProcessSteps.tsx");
     const refresh = read("app/frontend-refresh.css");
 
-    expect(homepage).toContain("<AnimatedProcessSteps />");
+    expect(homepage).not.toContain("<AnimatedProcessSteps />");
     expect(processSteps).toContain("IntersectionObserver");
     expect(processSteps).toContain("observer.disconnect()");
     expect(processSteps).toContain("prefers-reduced-motion: reduce");

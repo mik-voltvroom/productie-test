@@ -1,8 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import { AnimatedProcessSteps } from "@/components/AnimatedProcessSteps";
 import { Header } from "@/components/Header";
-import { HomepageSocialVideos } from "@/components/HomepageSocialVideos";
 import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VehicleCard } from "@/components/VehicleCard";
@@ -63,8 +61,6 @@ export default async function HomePage() {
       </section>
       </div>
 
-      <HomepageSocialVideos />
-
       <HomepageSocialFeed />
 
       <section id="waarom" className="compactAssurances" aria-labelledby="aanpak-title">
@@ -86,11 +82,6 @@ export default async function HomePage() {
       </div></section>
 
 
-
-      <section className="section processSection" aria-labelledby="werkwijze-title"><div className="container">
-        <div className="sectionHeading splitHeading"><div><p className="eyebrow">Zo werken wij</p><h2 id="werkwijze-title">Deskundig en persoonlijk. Beslissen in uw tempo.</h2></div><p className="sectionIntro">In drie heldere stappen krijgt u de informatie en aandacht om zelf een goede keuze te maken.</p></div>
-        <AnimatedProcessSteps />
-      </div></section>
 
       <section id="advies" className="section contactSection homepageContact"><div className="container">
         <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">Een vraag of een proefrit plannen? Neem contact met ons op.</p><div className="contactFacts"><a href="tel:+31611669111"><span>Bel direct</span><strong>0611669111</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
