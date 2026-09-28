@@ -10,7 +10,7 @@ const primaryLinks = [
 ];
 
 const secondaryLinks = [
-  { href: "/#waarom", label: "Waarom V&V" },
+  { href: "/vv-verified", label: "Waarom V&V" },
   { href: "/hybride", label: "Hybride" },
   { href: "/elektrisch", label: "Elektrisch" },
   { href: "/icons", label: "Icons" },

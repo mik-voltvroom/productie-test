@@ -63,18 +63,7 @@ export default async function HomePage() {
 
       <HomepageSocialFeed />
 
-      <section id="waarom" className="compactAssurances" aria-labelledby="aanpak-title">
-        <div className="container">
-          <h2 id="aanpak-title">Onze aanpak</h2>
-          <nav aria-label="Meer over onze aanpak"><ul>
-            <li><a href="/vv-verified">Aantoonbare historie <span aria-hidden="true">→</span></a></li>
-            <li><a href="/kennis/soh-accu-elektrische-auto-uitleg">Accu waar relevant <span aria-hidden="true">→</span></a></li>
-            <li><a href="/vv-verified">Technisch geselecteerd <span aria-hidden="true">→</span></a></li>
-            <li><a href="/keuzehulp">Advies uit de praktijk <span aria-hidden="true">→</span></a></li>
-            <li><a href="/elektrische-auto-kopen-groningen">Energie voor thuis <span aria-hidden="true">→</span></a></li>
-          </ul></nav>
-        </div>
-      </section>
+
 
       <section className="choiceSection" aria-labelledby="keuze-title"><div className="container choiceGrid">
         <div className="choiceCopy"><p className="eyebrow">Hulp bij kiezen</p><h2 id="keuze-title">Welke auto past bij uw gebruik?</h2><p className="lead">Hybride of elektrisch? Ontdek wat past bij uw ritten en laadmogelijkheden.</p><a className="textButton" href="/keuzehulp">Start de keuzehulp <span aria-hidden="true">→</span></a></div>

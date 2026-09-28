@@ -9,7 +9,7 @@ describe("publieke Volt & Vroom website", () => {
     const header = read("components/Header.tsx");
     expect(header).not.toContain("/dashboard");
     expect(header).toContain("Mobiele navigatie");
-    expect(header).toContain("/#waarom");
+    expect(header).toContain("/vv-verified");
     expect(header).toContain("/contact");
   });
 
