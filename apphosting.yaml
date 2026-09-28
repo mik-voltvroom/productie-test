@@ -17,7 +17,7 @@ env:
     value: https://www.voltvroom.nl
     availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_WHATSAPP_NUMBER
-    value: "31611669111"
+    value: "31646585468"
     availability: [BUILD, RUNTIME]
   - variable: VVOS_REQUIRE_AUTH
     value: "true"

@@ -161,8 +161,6 @@
 .homepageHero .latestHeroInfo>strong{font-size:1.1rem}
 .homepageHero .heroEmpty{aspect-ratio:4/3;display:grid;align-content:center;justify-items:center;border:1px solid var(--vv-border);border-radius:var(--vv-radius-card);background:var(--vv-soft);color:var(--vv-graphite)}
 .homepageHero .heroEmpty span{font-family:Manrope,sans-serif;font-size:1.5rem;color:var(--vv-ink)}
-/* Homepage contact remains in the contact section/footer, without covering imagery. */
-body:has(.homepageHero) .mobileActionBar{display:none!important}
 @media(max-width:900px){
   .homepageHero .hero{grid-template-columns:minmax(0,1fr);gap:32px;padding:40px 0}
   .homepageHero .heroCopy{max-width:640px}

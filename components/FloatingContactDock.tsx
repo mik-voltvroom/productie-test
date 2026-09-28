@@ -12,7 +12,7 @@ function RouteIcon() {
 
 export function FloatingContactDock() {
   const routeHref = "https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving";
-  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31611669111").replace(/\D/g, "");
+  const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31646585468").replace(/\D/g, "");
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hallo Volt & Vroom, ik heb een vraag over jullie aanbod.")}`;
 
   return (

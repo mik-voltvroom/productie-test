@@ -9,6 +9,7 @@ import "./seo-content.css";
 import "./social-video.css";
 import "./social-video-editor.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { FloatingContactDock } from "@/components/FloatingContactDock";
 import { GoogleMerchantBadge } from "@/components/GoogleMerchantBadge";
 import { MobileActionBar } from "@/components/MobileActionBar";
 import { PublicAnalytics } from "@/components/PublicAnalytics";
@@ -28,5 +29,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><PublicAnalytics /><MobileActionBar /><GoogleMerchantBadge /></body></html>;
+  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><PublicAnalytics /><FloatingContactDock /><MobileActionBar /><GoogleMerchantBadge /></body></html>;
 }

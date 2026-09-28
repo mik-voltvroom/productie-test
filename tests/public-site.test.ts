@@ -195,9 +195,9 @@ describe("publieke Volt & Vroom website", () => {
 
     expect(publicContactSources.join("\n")).toContain("0646585468");
     expect(publicContactSources.join("\n")).toContain("tel:+31646585468");
-    expect(read("components/FloatingContactDock.tsx")).toContain('"31611669111"');
-    expect(read("components/MobileActionBar.tsx")).toContain('"31611669111"');
-    expect(read("apphosting.yaml")).toMatch(/variable: NEXT_PUBLIC_WHATSAPP_NUMBER\s+value: "31611669111"/);
+    expect(read("components/FloatingContactDock.tsx")).toContain('"31646585468"');
+    expect(read("components/MobileActionBar.tsx")).toContain('"31646585468"');
+    expect(read("apphosting.yaml")).toMatch(/variable: NEXT_PUBLIC_WHATSAPP_NUMBER\s+value: "31646585468"/);
   });
 
   it("biedt een veilige Google Maps-routeplanner naar de showroom", () => {
@@ -218,6 +218,12 @@ describe("publieke Volt & Vroom website", () => {
 
 
   it("biedt herkenbare bel-, WhatsApp- en routeacties", () => {
+    const layout = read("app/layout.tsx");
+    const styles = read("app/frontend-refresh.css");
+
+    expect(layout).toContain("<FloatingContactDock />");
+    expect(layout).toContain("<MobileActionBar />");
+    expect(styles).not.toContain("body:has(.homepageHero) .mobileActionBar{display:none!important}");
     for (const source of [read("components/FloatingContactDock.tsx"), read("components/MobileActionBar.tsx")]) {
       expect(source).toContain("PhoneIcon");
       expect(source).toContain("WhatsAppIcon");
