@@ -193,8 +193,8 @@ describe("publieke Volt & Vroom website", () => {
       expect(source).not.toContain("31655000911");
     }
 
-    expect(publicContactSources.join("\n")).toContain("0611669111");
-    expect(publicContactSources.join("\n")).toContain("tel:+31611669111");
+    expect(publicContactSources.join("\n")).toContain("0646585468");
+    expect(publicContactSources.join("\n")).toContain("tel:+31646585468");
     expect(read("components/FloatingContactDock.tsx")).toContain('"31611669111"');
     expect(read("components/MobileActionBar.tsx")).toContain('"31611669111"');
     expect(read("apphosting.yaml")).toMatch(/variable: NEXT_PUBLIC_WHATSAPP_NUMBER\s+value: "31611669111"/);

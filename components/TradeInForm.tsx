@@ -135,7 +135,7 @@ export function TradeInForm({
     }
 
     setFormState("error");
-    setFeedback(payload?.error || "Versturen lukt nu niet. Bel 0611669111 of mail naar sales@voltvroom.nl.");
+    setFeedback(payload?.error || "Versturen lukt nu niet. Bel 0646585468 of mail naar sales@voltvroom.nl.");
   }
 
   if (formState === "success") {

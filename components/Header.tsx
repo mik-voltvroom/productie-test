@@ -45,7 +45,7 @@ export function Header() {
     <details className="mobileMenu"><summary aria-label="Open navigatiemenu"><span></span><span></span><span></span></summary><nav aria-label="Mobiele navigatie">
       {publicLinks.map((link) => <Link href={link.href} key={link.href}>{link.label === "Waarom V&V" ? "Waarom Volt & Vroom" : link.label}</Link>)}
       <Link href="/keuzehulp" data-vv-event="match_started">Vind mijn auto</Link>
-      <a href="tel:+31611669111" data-vv-event="phone_click">Bel 0611669111</a>
+      <a href="tel:+31646585468" data-vv-event="phone_click">Bel 0646585468</a>
     </nav></details>
   </div></header>;
 }

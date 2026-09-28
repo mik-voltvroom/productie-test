@@ -20,7 +20,7 @@ export default async function HomePage() {
   const latestVehicle = vehicles[0];
 
   return <>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "AutoDealer", name: "Volt & Vroom", description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", url: "https://www.voltvroom.nl", telephone: "+31611669111", email: "sales@voltvroom.nl", address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" }, areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "AutoDealer", name: "Volt & Vroom", description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", url: "https://www.voltvroom.nl", telephone: "+31646585468", email: "sales@voltvroom.nl", address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" }, areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
     <a className="skipLink" href="#inhoud">Ga naar de inhoud</a>
     <Header />
     <main id="inhoud">
@@ -73,7 +73,7 @@ export default async function HomePage() {
 
 
       <section id="advies" className="section contactSection homepageContact"><div className="container">
-        <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">Een vraag of een proefrit plannen? Neem contact met ons op.</p><div className="contactFacts"><a href="tel:+31611669111"><span>Bel direct</span><strong>0611669111</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
+        <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">Een vraag of een proefrit plannen? Neem contact met ons op.</p><div className="contactFacts"><a href="tel:+31646585468"><span>Bel direct</span><strong>0646585468</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
         <a className="button" href="/contact">Neem contact op <span aria-hidden="true">→</span></a>
       </div></section>
     </main>

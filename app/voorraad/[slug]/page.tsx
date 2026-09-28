@@ -92,7 +92,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
     ...(vehicle.priceCents > 0 ? { offers: { "@type": "Offer", url: vehicleUrl,
       price: priceEur.toFixed(2), priceCurrency: "EUR",
       availability: isReserved ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-      seller: { "@type": "AutoDealer", name: "Volt & Vroom", telephone: "+31611669111",
+      seller: { "@type": "AutoDealer", name: "Volt & Vroom", telephone: "+31646585468",
         address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" } },
     } } : {}),
   };
@@ -117,7 +117,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
             <div><span>Aandrijving</span><strong>{publicDriveType}</strong></div>
             {vehicle.transmission ? <div><span>Transmissie</span><strong>{vehicle.transmission}</strong></div> : null}
           </div>
-          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><a className={styles.secondary} href="tel:+31611669111">Bel 06 1166 9111</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
+          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
       </section>
       <section className={styles.story}>
