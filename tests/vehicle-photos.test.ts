@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { validateVehicle } from "@/lib/business";
 import { createVehicleFeed } from "@/lib/merchant";
 import { getPublicVehicleImages, preservePublicImageSelection } from "@/lib/vehicle/photos";
@@ -38,6 +40,14 @@ function vehicle(publicImageUrls?: string[]): Vehicle {
 }
 
 describe("VVOS fotoselectie", () => {
+  it("houdt de online/offline bediening zichtbaar in voertuigbeheer", () => {
+    const form = readFileSync(join(process.cwd(), "components/dashboard/VehicleForm.tsx"), "utf8");
+    expect(form).toContain("Online tonen");
+    expect(form).toContain("Alles online");
+    expect(form).toContain("Alles offline");
+    expect(form).toContain("Hoofdfoto online");
+  });
+
   it("houdt bestaande voertuigen backwards compatible zolang geen selectie is opgeslagen", () => {
     expect(getPublicVehicleImages(vehicle())).toEqual([first, second]);
   });
