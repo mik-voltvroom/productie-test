@@ -129,7 +129,7 @@ export function TradeInForm({
 
     if (response?.ok) {
       setFormState("success");
-      setFeedback("Uw inruilaanvraag is ontvangen. Mik neemt persoonlijk contact met u op.");
+      setFeedback("Uw inruilaanvraag is ontvangen. Ons team neemt zo snel mogelijk contact met u op.");
       window.dispatchEvent(new CustomEvent("vv:lead-submitted", { detail: { form: "trade-in" } }));
       return;
     }
@@ -142,7 +142,7 @@ export function TradeInForm({
     return <section className={styles.success} aria-live="polite">
       <span className={styles.successMark}>✓</span>
       <p className="eyebrow">Aanvraag ontvangen</p>
-      <h2>Dank u. Mik bekijkt uw auto persoonlijk.</h2>
+      <h2>Dank u. Volt &amp; Vroom bekijkt uw aanvraag.</h2>
       <p>{feedback}</p>
       <a className="button" href="/voorraad">Bekijk de actuele voorraad</a>
     </section>;

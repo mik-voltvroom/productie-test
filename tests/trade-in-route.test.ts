@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   persistTradeInRequest: vi.fn(),
   consumePublicLeadQuota: vi.fn(),
+  sendLeadNotification: vi.fn(),
 }));
 
 vi.mock("@/lib/repositories/trade-in-repository", () => {
@@ -15,6 +16,10 @@ vi.mock("@/lib/repositories/trade-in-repository", () => {
 
 vi.mock("@/lib/security/public-rate-limit", () => ({
   consumePublicLeadQuota: mocks.consumePublicLeadQuota,
+}));
+
+vi.mock("@/lib/communications/lead-notification", () => ({
+  sendLeadNotification: mocks.sendLeadNotification,
 }));
 
 import { POST } from "@/app/api/trade-ins/route";
@@ -50,6 +55,7 @@ describe("POST /api/trade-ins", () => {
     vi.clearAllMocks();
     mocks.consumePublicLeadQuota.mockResolvedValue({ allowed: true });
     mocks.persistTradeInRequest.mockResolvedValue({ photoPaths: [] });
+    mocks.sendLeadNotification.mockResolvedValue({ configured: true, sent: 2, failed: 0 });
   });
 
   it.each([
@@ -62,6 +68,7 @@ describe("POST /api/trade-ins", () => {
 
     expect(response.status).toBe(201);
     expect(mocks.persistTradeInRequest).toHaveBeenCalledOnce();
+    expect(mocks.sendLeadNotification).toHaveBeenCalledOnce();
   });
 
   it("ondersteunt aanvragen zonder en met privéfoto's", async () => {

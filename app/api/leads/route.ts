@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createServerDocument, productionDataEnabled } from "@/lib/repositories/server-collection";
 import { scoreLead, responseDeadline } from "@/lib/sales-engine";
 import { consumePublicLeadQuota } from "@/lib/security/public-rate-limit";
+import { sendLeadNotification } from "@/lib/communications/lead-notification";
 
 const leadSchema = z.object({
   vehicleId: z.string().optional(),
@@ -45,6 +46,24 @@ export async function POST(request: Request) {
     createdAt: now,
     updatedAt: now,
   });
+
+  const notification = await sendLeadNotification({
+    id,
+    kind: "lead",
+    name: leadInput.name,
+    email: leadInput.email,
+    phone: leadInput.phone,
+    channel: leadInput.channel,
+    message: leadInput.message,
+    createdAt: now,
+  }).catch(() => ({ configured: true, sent: 0, failed: 1 }));
+  if (!notification.configured || notification.failed > 0) {
+    console.error("Lead notification incomplete", {
+      operation: "sendLeadNotification",
+      reason: notification.configured ? "provider_failure" : "not_configured",
+      failed: notification.failed,
+    });
+  }
 
   return Response.json({ ok: true, mode: "firebase", lead }, { status: 201 });
 }

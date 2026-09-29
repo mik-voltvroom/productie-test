@@ -76,6 +76,9 @@ env:
   - variable: NEXT_PUBLIC_INSTAGRAM_PROFILE_URL
     value: https://www.instagram.com/voltenvroom/
     availability: [BUILD, RUNTIME]
+  - variable: GOOGLE_CHAT_WEBHOOK_URL
+    secret: GOOGLE_CHAT_WEBHOOK_URL
+    availability: [RUNTIME]
 
 # Optional. Once the actual Mobilox image host is known, set an explicit
 # allowlist to make remote-image ingestion fail closed for unknown hosts.

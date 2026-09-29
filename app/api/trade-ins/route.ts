@@ -11,6 +11,7 @@ import {
   TradeInPersistenceUnavailableError,
 } from "@/lib/repositories/trade-in-repository";
 import { consumePublicLeadQuota } from "@/lib/security/public-rate-limit";
+import { sendLeadNotification } from "@/lib/communications/lead-notification";
 import type { Lead } from "@/types";
 
 const conditionLabels = {
@@ -144,6 +145,24 @@ export async function POST(request: Request) {
         updatedAt: now,
       },
     });
+
+    const notification = await sendLeadNotification({
+      id: leadId,
+      kind: "trade-in",
+      name: data.name,
+      email: data.email || undefined,
+      phone: data.phone || undefined,
+      channel: "website",
+      message,
+      createdAt: now,
+    }).catch(() => ({ configured: true, sent: 0, failed: 1 }));
+    if (!notification.configured || notification.failed > 0) {
+      console.error("Lead notification incomplete", {
+        operation: "sendLeadNotification",
+        reason: notification.configured ? "provider_failure" : "not_configured",
+        failed: notification.failed,
+      });
+    }
 
     return Response.json(
       { ok: true, tradeInId, uploadedPhotos: result.photoPaths.length },
