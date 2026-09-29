@@ -153,6 +153,14 @@ export async function POST(request: Request) {
     if (error instanceof TradeInPersistenceUnavailableError) {
       return Response.json({ ok: false, error: "Inruilaanvragen opslaan is tijdelijk niet beschikbaar." }, { status: 503 });
     }
+    const errorCode = error && typeof error === "object" && "code" in error && typeof error.code === "string"
+      ? error.code.slice(0, 80)
+      : undefined;
+    console.error("Trade-in persistence failed", {
+      operation: "persistTradeInRequest",
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      ...(errorCode ? { errorCode } : {}),
+    });
     return Response.json(
       { ok: false, error: "De aanvraag kon niet veilig worden opgeslagen. Probeer het opnieuw of bel 0646585468." },
       { status: 500 },

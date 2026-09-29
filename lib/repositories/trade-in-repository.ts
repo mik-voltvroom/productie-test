@@ -1,4 +1,5 @@
 import { adminDb, adminStorage } from "@/lib/firebase-admin";
+import { removeUndefinedValues } from "@/lib/firestore-data";
 
 type PersistTradeInInput = {
   leadId: string;
@@ -46,12 +47,12 @@ export async function persistTradeInRequest(input: PersistTradeInInput): Promise
     }
 
     const batch = adminDb.batch();
-    batch.set(adminDb.collection("leads").doc(input.leadId), { ...input.lead, id: input.leadId });
-    batch.set(adminDb.collection("tradeIns").doc(input.tradeInId), {
+    batch.set(adminDb.collection("leads").doc(input.leadId), removeUndefinedValues({ ...input.lead, id: input.leadId }));
+    batch.set(adminDb.collection("tradeIns").doc(input.tradeInId), removeUndefinedValues({
       ...input.tradeIn,
       id: input.tradeInId,
       photos: photoPaths,
-    });
+    }));
     await batch.commit();
     return { photoPaths };
   } catch (error) {
