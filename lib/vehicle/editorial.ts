@@ -60,7 +60,12 @@ export function mergeImportedEditorial(current: Vehicle | undefined, incoming: V
     publishedOptionKeys: current ? base.publishedOptionKeys : highlights.map(optionKey),
     content: { ...base.content, sourceTexts: { ...base.content.sourceTexts, ...incoming.editorial?.content.sourceTexts } },
   };
-  return projectEditorial({ ...incoming, highlights, editorial,
+  const retainedManualShowroomValues = {
+    ...(incoming.wltpRangeKm === undefined && current?.wltpRangeKm !== undefined ? { wltpRangeKm: current.wltpRangeKm } : {}),
+    ...(incoming.realisticRangeKm === undefined && current?.realisticRangeKm !== undefined ? { realisticRangeKm: current.realisticRangeKm } : {}),
+    ...(incoming.roadTax === undefined && current?.roadTax !== undefined ? { roadTax: current.roadTax } : {}),
+  };
+  return projectEditorial({ ...incoming, ...retainedManualShowroomValues, highlights, editorial,
     ...(current?.description !== undefined ? { description: current.description } : {}) });
 }
 

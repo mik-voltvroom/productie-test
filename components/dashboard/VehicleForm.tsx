@@ -11,7 +11,6 @@ import { centsToEuros, eurosToCents } from "@/lib/money";
 import { CommercialPanel } from "./CommercialPanel";
 import { defaultVehicleCommercial, recordVehiclePrice } from "@/lib/vehicle/business";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
-import { monthlyRoadTaxLabel } from "@/lib/vehicle/showroom-card";
 import { VehicleEditorialPanel } from "./VehicleEditorialPanel";
 import styles from "./VehicleEditorialPanel.module.css";
 
@@ -41,6 +40,21 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
   const publicImageSet = useMemo(() => new Set(publicImages), [publicImages]);
   const completeness = Math.max(0, Math.round(((10 - Math.min(errors.length, 10)) / 10) * 100));
   const set = <K extends keyof Vehicle>(key: K, value: Vehicle[K]) => { dirty.current.add(key); setVehicle(v => ({ ...v, [key]: value })); };
+
+  function updateRoadTax(bound: "minimum" | "maximum", value: string) {
+    dirty.current.add("roadTax");
+    setVehicle(current => {
+      if (value === "") return { ...current, roadTax: undefined };
+      const cents = eurosToCents(Number(value), `roadTax.${bound}`);
+      const minimum = bound === "minimum" ? cents : current.roadTax?.quarterlyMinCents ?? cents;
+      const maximum = bound === "maximum" ? cents : current.roadTax?.quarterlyMaxCents ?? cents;
+      return { ...current, roadTax: {
+        quarterlyMinCents: Math.min(minimum, maximum),
+        quarterlyMaxCents: Math.max(minimum, maximum),
+        source: "manual",
+      } };
+    });
+  }
 
   function updatePhotoSelection(imageUrl: string, online: boolean) {
     dirty.current.add("publication");
@@ -195,9 +209,11 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
           <label>VIN<input value={vehicle.vin ?? ""} onChange={e => set("vin", e.target.value.toUpperCase())} /></label>
           <label>Accugezondheid %<input type="number" min="0" max="100" value={vehicle.batteryHealthPercent ?? 0} onChange={e => set("batteryHealthPercent", Number(e.target.value))} /></label>
           <label>Elektrisch bereik km<input type="number" value={vehicle.electricRangeKm ?? 0} onChange={e => set("electricRangeKm", Number(e.target.value))} /></label>
-          <label>WLTP-bereik (Mobilox)<input value={vehicle.wltpRangeKm ? `${vehicle.wltpRangeKm} km` : "Niet opgegeven"} readOnly /></label>
-          <label>Realistisch rijbereik km<input type="number" min="0" value={vehicle.realisticRangeKm ?? ""} onChange={e => set("realisticRangeKm", e.target.value === "" ? undefined : Number(e.target.value))} /></label>
-          <label>Wegenbelasting (Mobilox)<input value={monthlyRoadTaxLabel(vehicle.roadTax)} readOnly /></label>
+          <label>WLTP-bereik km<input type="number" min="0" value={vehicle.wltpRangeKm ?? ""} onChange={e => set("wltpRangeKm", e.target.value === "" ? undefined : Number(e.target.value))} /></label>
+          <label>Praktijkbereik km<input type="number" min="0" value={vehicle.realisticRangeKm ?? ""} onChange={e => set("realisticRangeKm", e.target.value === "" ? undefined : Number(e.target.value))} /></label>
+          <label>Wegenbelasting per kwartaal vanaf €<input type="number" min="0" step="0.01" value={vehicle.roadTax ? centsToEuros(vehicle.roadTax.quarterlyMinCents) : ""} onChange={e => updateRoadTax("minimum", e.target.value)} /></label>
+          <label>Wegenbelasting per kwartaal t/m €<input type="number" min="0" step="0.01" value={vehicle.roadTax ? centsToEuros(vehicle.roadTax.quarterlyMaxCents) : ""} onChange={e => updateRoadTax("maximum", e.target.value)} /></label>
+          <p className="helper span2">Handmatige waarden blijven bewaard. Levert Mobilox later een waarde voor hetzelfde veld, dan gebruikt VVOS voortaan de Mobilox-waarde.</p>
           <label>Verbruik l/100 km<input type="number" step="0.1" value={vehicle.consumptionPer100Km ?? 0} onChange={e => set("consumptionPer100Km", Number(e.target.value))} /></label>
           <label>Garantie maanden<input type="number" value={vehicle.warrantyMonths ?? 0} onChange={e => set("warrantyMonths", Number(e.target.value))} /></label>
         </div>

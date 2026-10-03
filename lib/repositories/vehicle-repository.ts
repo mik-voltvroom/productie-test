@@ -5,6 +5,7 @@ import { integrationMode } from "@/lib/config";
 import { getVehicles, upsertVehicle as demoUpsert, deleteVehicle as demoDelete } from "@/lib/demo-store";
 import { deleteDoc, deleteField, doc, runTransaction } from "firebase/firestore";
 import { applyEditorialCommand, type EditorialCommand } from "@/lib/vehicle/editorial";
+import { removeUndefinedValues } from "@/lib/firestore-data";
 
 interface VehicleListResponse {
   ok: boolean;
@@ -51,15 +52,21 @@ export async function saveVehicle(vehicle: Vehicle, expectedUpdatedAt?: string):
     financingEur: deleteField(),
     otherEur: deleteField(),
   } : {};
+  const clearedShowroomValueDeletes = {
+    ...(vehicle.wltpRangeKm === undefined ? { wltpRangeKm: deleteField() } : {}),
+    ...(vehicle.realisticRangeKm === undefined ? { realisticRangeKm: deleteField() } : {}),
+    ...(vehicle.roadTax === undefined ? { roadTax: deleteField() } : {}),
+  };
   await runTransaction(db, async transaction => {
     const ref = doc(db!, "vehicles", vehicle.id);
     const current = await transaction.get(ref);
     if (current.exists() && current.data().updatedAt !== expectedUpdatedAt) throw new Error("Het voertuig is tussentijds gewijzigd. Herlaad voordat je opslaat.");
-    transaction.set(ref, {
+    transaction.set(ref, removeUndefinedValues({
       ...vehicle,
       ...legacyTopLevelDeletes,
+      ...clearedShowroomValueDeletes,
       ...(vehicle.costs ? { costs: { ...vehicle.costs, ...legacyCostDeletes } } : {}),
-    }, { merge: true });
+    }), { merge: true });
   });
 }
 

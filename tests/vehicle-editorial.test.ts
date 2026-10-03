@@ -68,6 +68,45 @@ describe("VVOS publication control", () => {
     expect(vehicle.editorial!.content.sourceTexts.omschrijving).toBe("Andere bron");
   });
 
+  it("keeps manual showroom values until Mobilox supplies the same fields", () => {
+    const manualRoadTax = {
+      quarterlyMinCents: 18_000,
+      quarterlyMaxCents: 18_000,
+      source: "manual" as const,
+    };
+    const current = {
+      ...incoming(),
+      wltpRangeKm: 410,
+      realisticRangeKm: 350,
+      roadTax: manualRoadTax,
+    };
+    const withoutShowroomValues = incoming();
+    const retained = mergeImportedEditorial(current, withoutShowroomValues, photos);
+    expect(retained).toMatchObject({
+      wltpRangeKm: 410,
+      realisticRangeKm: 350,
+      roadTax: manualRoadTax,
+    });
+
+    const mobiloxRoadTax = {
+      quarterlyMinCents: 19_800,
+      quarterlyMaxCents: 21_600,
+      source: "mobilox-hexon" as const,
+      sourceField: "motorrijtuigen_belasting" as const,
+    };
+    const overwritten = mergeImportedEditorial(retained, {
+      ...withoutShowroomValues,
+      wltpRangeKm: 418,
+      realisticRangeKm: 365,
+      roadTax: mobiloxRoadTax,
+    }, photos);
+    expect(overwritten).toMatchObject({
+      wltpRangeKm: 418,
+      realisticRangeKm: 365,
+      roadTax: mobiloxRoadTax,
+    });
+  });
+
   it("rejects stale manual changes and invalid reorder lists", () => {
     const vehicle = mergeImportedEditorial(undefined, incoming(), photos);
     expect(() => applyEditorialCommand(vehicle, { type: "reorder", ids: ["p1"], revision: 0 }, now)).toThrow();

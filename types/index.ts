@@ -55,11 +55,11 @@ export interface VehicleSource {
 }
 
 export interface VehicleRoadTax {
-  /** Exact quarterly range supplied by Mobilox through the Hexon feed. */
+  /** Quarterly amount or range. Mobilox values take precedence when supplied. */
   quarterlyMinCents: number;
   quarterlyMaxCents: number;
-  source: "mobilox-hexon";
-  sourceField: "motorrijtuigen_belasting" | "wegenbelasting_kwartaal";
+  source: "manual" | "mobilox-hexon";
+  sourceField?: "motorrijtuigen_belasting" | "wegenbelasting_kwartaal";
 }
 
 export interface VehicleImage {
