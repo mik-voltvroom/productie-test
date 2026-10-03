@@ -68,3 +68,54 @@ final result: passed
 - Ontbrekende brondata wordt als `Niet opgegeven` getoond en niet verzonnen.
 
 final result: passed
+
+---
+
+# Showroomkaart design QA
+
+- Source visual truth: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\showroom-card-qa\reference.png`
+- Final implementation screenshot: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\showroom-card-qa\implementation-v2.png`
+- Side-by-side comparison: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\showroom-card-qa\comparison-v2.png`
+- Browser viewport: 1200 x 1400 CSS px at device scale 1.
+- A4 component: 793.7 x 1122.5 CSS px, matching 210 x 297 mm.
+- Source pixels: 1024 x 1536. The source was proportionally fitted into a 794 x 1123 comparison frame without cropping; the implementation was captured at its native A4 CSS size.
+- State: local VVOS demo vehicle, A4 portrait preview, controls enabled.
+
+## Full-view comparison
+
+The final implementation preserves the reference hierarchy and proportions: branded diagonal header, dynamic price placard over the vehicle photo, four equal fact columns, QR panel, vehicle title and compact contact footer. The generated ice-blue overlay is a real raster asset; the official lockup is preserved from the supplied visual rather than redrawn. Vehicle photo, price, drivetrain, facts, QR target and title remain dynamic.
+
+## Focused comparison
+
+The header/price and footer/title regions were checked separately because the full A4 comparison makes type details small. Manrope is explicitly applied to price, facts and vehicle title; Inter remains the interface/body family. The final colors use Deep Ink `#0D1117`, Electric Blue `#168BFF` and restrained Ice Blue. QR contrast and address text remain legible at A4 print size.
+
+## Comparison history
+
+### Iteration 1
+
+- P1: the existing SVG lockup rendered its text with a serif fallback in this image context, unlike the supplied sans-serif official lockup.
+- P2: the vehicle title inherited the dashboard's graphite color and Inter family instead of the reference's Deep Ink Manrope heading.
+
+Fixes: extracted the supplied official lockup pixels into a dedicated card asset; explicitly set Manrope and Deep Ink on the vehicle title and display values.
+
+### Iteration 2
+
+Post-fix evidence is recorded in `implementation-v2.png` and `comparison-v2.png`. No actionable P0, P1 or P2 differences remain. The different vehicle crop, model name, price and drivetrain are expected dynamic-content differences rather than design drift.
+
+## Interaction and technical checks
+
+- Back navigation: tested successfully from the showroom card to the vehicle dossier and back.
+- Print A4 control: visible and enabled.
+- Console errors: none.
+- A4 dimensions: verified in the browser at 210 x 297 mm.
+
+## Findings
+
+No blocking or moderate design mismatches remain.
+
+## Follow-up polish
+
+- P3: exceptionally long brand/model combinations may wrap to two lines; this is deliberate to preserve the full vehicle name instead of truncating it.
+- P3: the exact hero crop depends on the source photo supplied by Mobilox.
+
+final result: passed

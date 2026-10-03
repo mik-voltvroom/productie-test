@@ -30,19 +30,24 @@ export function ShowroomCard({ vehicle }: { vehicle: Vehicle }) {
     { label: "Wegenbelasting", value: monthlyRoadTaxLabel(vehicle.roadTax), icon: "/brand/icons/financiering.svg" },
     { label: "Kilometerstand", value: factValue(vehicle.mileageKm), icon: "/brand/icons/kilometerstand.svg" },
   ];
+  const roadTaxSource = vehicle.roadTax?.source === "manual"
+    ? "Wegenbelasting: handmatig ingevoerd kwartaalbedrag, omgerekend naar maandbedrag."
+    : "Wegenbelasting: bron Mobilox / Hexon, omgerekend van kwartaal- naar maandbedrag.";
 
   return (
     <article className={`${styles.sheet} showroomCardSheet`} aria-label={`Showroomkaart voor ${vehicle.brand} ${vehicle.model}`}>
+      <img className={styles.decorativeOverlay} src="/brand/showroom-card-overlay.png" alt="" aria-hidden="true" />
       <header className={styles.brandBar}>
-        <img src="/brand/vv-logo-horizontal.svg" alt="Volt & Vroom" />
-        <span>{driveTypeLabel(vehicle.driveType)}</span>
+        <img className={styles.brandLockup} src="/brand/showroom-card-lockup.png" alt="Volt & Vroom" />
+        <strong>{driveTypeLabel(vehicle.driveType)}</strong>
       </header>
 
+      <div className={styles.priceBlock}>
+        <strong>{vehicle.priceCents > 0 ? price.format(vehicle.priceCents / 100) : "Prijs op aanvraag"}</strong>
+        <i aria-hidden="true" />
+      </div>
+
       <section className={styles.hero}>
-        <div className={styles.priceBlock}>
-          <strong>{price.format(vehicle.priceCents / 100)}</strong>
-          <i aria-hidden="true" />
-        </div>
         {heroImage
           ? <img className={styles.vehicleImage} src={heroImage} alt={`${vehicle.brand} ${vehicle.model}`} />
           : <div className={styles.missingImage}>Geen voertuigfoto beschikbaar</div>}
@@ -75,10 +80,10 @@ export function ShowroomCard({ vehicle }: { vehicle: Vehicle }) {
           <h1>{vehicle.brand} {vehicle.model}</h1>
           <p>{vehicle.trim || `${vehicle.year}`}</p>
           <div className={styles.address}>
-            <span>Euvelgunnerweg 50 · Groningen</span>
-            <strong>voltvroom.nl</strong>
+            <span><img src="/brand/location-pin.png" alt="" aria-hidden="true" />Euvelgunnerweg 50 · Groningen</span>
+            <strong><img src="/brand/website-globe.png" alt="" aria-hidden="true" />voltvroom.nl</strong>
           </div>
-          <small>Wegenbelasting: bron Mobilox / Hexon, omgerekend van kwartaal- naar maandbedrag.</small>
+          <small>{roadTaxSource}</small>
         </div>
       </footer>
     </article>
