@@ -78,11 +78,11 @@ h1 { max-width:850px; margin:18px 0 26px; font-size:clamp(3.25rem,6.4vw,6.4rem);
 .assuranceTagline::before,.assuranceTagline::after { content:""; width:92px; height:1px; background:#cfd8e2; }
 .assuranceSection .carcheckStatement { margin-top:0; }
 .vehicleGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin-top:36px; }
-.vehicle { overflow:hidden; padding:0; }
+.vehicle { display:grid; grid-template-rows:auto 1fr; overflow:hidden; padding:0; }
 .vehicleMedia { position:relative; background:var(--soft); }
 .vehicleMedia img { width:100%; height:320px; object-fit:cover; }
 .vehicleMedia > span { position:absolute; left:16px; top:16px; padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.94); color:var(--ink); font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.vehicleBody { display:grid; padding:24px; }
+.vehicleBody { display:grid; grid-template-rows:auto auto 1fr auto; padding:24px; }
 .vehicleHeading { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
 .vehicleBrand { margin:0 0 4px; color:var(--electric); font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
 .vehicle h3 { margin:0; font-size:1.45rem; letter-spacing:-.025em; }

@@ -83,6 +83,7 @@ describe("publieke Volt & Vroom website", () => {
   it("houdt voertuigteksten publiek en aandrijflijnspecifiek", () => {
     const detail = read("app/voorraad/[slug]/page.tsx");
     const card = read("components/VehicleCard.tsx");
+    const styles = read("app/globals.css");
     expect(detail).toContain("publicDescription");
     expect(detail).toContain("Specificaties");
     expect(detail).toContain('export const dynamic = "force-dynamic"');
@@ -95,6 +96,8 @@ describe("publieke Volt & Vroom website", () => {
     expect(card).toContain('className="vehicleCardLink"');
     expect(card).toContain("monthlyPriceCents");
     expect(card).toContain('src="/brand/vv-symbol.svg"');
+    expect(styles).toContain(".vehicle { display:grid; grid-template-rows:auto 1fr;");
+    expect(styles).toContain(".vehicleBody { display:grid; grid-template-rows:auto auto 1fr auto;");
   });
 
   it("toont geen kenteken in publieke voertuigadvertenties", () => {
