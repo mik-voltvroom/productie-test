@@ -37,12 +37,14 @@ describe("publieke Volt & Vroom website", () => {
   it("toont uitsluitend repository-backed publiceerbare voorraad", () => {
     const homepage = read("app/page.tsx");
     const repository = read("lib/repositories/public-vehicle-repository.ts");
+    const publication = read("lib/vehicle/publication.ts");
     expect(homepage).toContain("listPublicVehicles(100)");
     expect(homepage).toContain("filter(isVvOfferVehicle)");
     expect(homepage).toContain("<VehicleCard vehicle={vehicle}");
     expect(repository).toContain('vehicle.status === "available"');
-    expect(repository).toContain('vehicle.publication?.channels.website === true');
-    expect(repository).toContain("validationErrors");
+    expect(repository).toContain("isPublishedOnWebsite(vehicle)");
+    expect(publication).toContain('vehicle.publication?.channels.website === true');
+    expect(publication).toContain("validationErrors");
   });
 
   it("formuleert de selectienorm controleerbaar en zonder onnodige absolute claims", () => {

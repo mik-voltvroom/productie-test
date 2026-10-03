@@ -8,7 +8,7 @@ type SyncEvent = {
   type: string;
   sourceVehicleId: string;
   receivedAt?: string | null;
-  authentication?: string;
+  imageFailures?: Array<{ message: string }>;
   vehicleId?: string;
   vehicle?: {
     licensePlate?: string | null;
@@ -35,7 +35,7 @@ export default function MobiloxSyncMonitorPage() {
     setLoading(true);
     try {
       const response = await fetch("/api/integrations/mobilox/events?limit=25", { cache: "no-store" });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({ error: `Sync-events konden niet worden geladen (${response.status}).` }));
       if (!response.ok) throw new Error(data.error ?? "Sync-events konden niet worden geladen.");
       setItems(data.items ?? []);
       setError("");
@@ -54,7 +54,7 @@ export default function MobiloxSyncMonitorPage() {
         <div>
           <p style={{ margin: "0 0 8px", fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: "#687280" }}>Integraties · Hexon / Mobilox</p>
           <h1 style={{ margin: 0, fontSize: 34, letterSpacing: "-.04em" }}>Sync Monitor</h1>
-          <p style={{ margin: "10px 0 0", color: "#687280" }}>De laatste 25 voertuigmutaties die VVOS succesvol van Hexon heeft verwerkt.</p>
+          <p style={{ margin: "10px 0 0", color: "#687280" }}>De laatste 25 voertuigmutaties die VVOS van Hexon heeft ontvangen, inclusief fotowaarschuwingen.</p>
         </div>
         <button onClick={() => void load()} style={{ border: "1px solid #dce3e8", background: "white", borderRadius: 10, padding: "10px 16px", cursor: "pointer" }}>Vernieuwen</button>
       </div>
@@ -62,7 +62,7 @@ export default function MobiloxSyncMonitorPage() {
       {error ? <div style={{ padding: 18, borderRadius: 12, background: "#fff3f2", marginBottom: 20 }}>{error}</div> : null}
       <div style={{ background: "white", border: "1px solid #e6ebef", borderRadius: 16, overflow: "hidden" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1.5fr .8fr 1fr 1fr .8fr", padding: "12px 18px", background: "#f7f9fb", color: "#687280", fontSize: 12, fontWeight: 600 }}>
-          <span>Voertuig</span><span>Actie</span><span>Hexon ID</span><span>Ontvangen</span><span>Auth</span>
+          <span>Voertuig</span><span>Actie</span><span>Hexon ID</span><span>Ontvangen</span><span>Foto’s</span>
         </div>
         {loading ? <p style={{ padding: 24 }}>Sync-events laden…</p> : items.length === 0 ? <p style={{ padding: 24 }}>Nog geen Mobilox-events gevonden.</p> : items.map(item => (
           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1.5fr .8fr 1fr 1fr .8fr", padding: "16px 18px", borderTop: "1px solid #edf1f4", alignItems: "center", gap: 12 }}>
@@ -73,7 +73,9 @@ export default function MobiloxSyncMonitorPage() {
             <span>{actionLabel(item.type)}</span>
             <span style={{ fontFamily: "monospace", fontSize: 13 }}>{item.sourceVehicleId || "—"}</span>
             <span>{item.receivedAt ? new Date(item.receivedAt).toLocaleString("nl-NL") : "—"}</span>
-            <span>{item.authentication === "basic" ? "Basic Auth" : item.authentication ?? "—"}</span>
+            <span style={{ color: item.imageFailures?.length ? "#a13b32" : "#276749", fontSize: 13 }}>
+              {item.imageFailures?.length ? <><strong>{item.imageFailures.length} fout</strong><br />{item.imageFailures[0].message}</> : "Verwerkt"}
+            </span>
           </div>
         ))}
       </div>

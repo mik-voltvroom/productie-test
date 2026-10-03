@@ -9,7 +9,7 @@ repositoryprojectie; geen nieuwe database of parallelle feed.
 - `components/dashboard/VehicleForm.tsx`: aansluiting, foutmeldingen en bescherming van niet-opgeslagen formuliervelden.
 - `components/dashboard/VehicleEditorialPanel.tsx` en `.module.css`: compact raster, pointer-drag, verplaatsknoppen, upload, selectie, opties en tekst.
 - `types/index.ts`, `lib/vehicle/editorial.ts`, `lib/vehicle/photos.ts`: additief model, migratie, merge en publicatiefilters.
-- `lib/integrations/hexon.ts`, `hexon-images.ts`, `hexon-service.ts`, `storage-server.ts`: import, identiteit, metadata-aanvulling en transactiemerge.
+- `lib/integrations/hexon.ts`, `hexon-images.ts`, `hexon-service.ts`: import, veilige Mobilox-fotoreferenties en transactiemerge.
 - `lib/repositories/vehicle-repository.ts`, `vehicle-editorial-repository.ts`: bestaande clientopslag en servertransacties.
 - `app/api/vvos/vehicles/[id]/editorial/route.ts`: geautoriseerde, gevalideerde beheeropdrachten.
 - `lib/repositories/public-vehicle-repository.ts`, `lib/public-vehicles.ts`: beide bestaande publieke projecties.
@@ -46,18 +46,17 @@ achteraf niet betrouwbaar bekend is of die handmatig is aangepast.
 ## Import
 
 - Maximaal 200 bronfoto's per payload, ook in de XML-parser.
-- Geïmporteerde foto's worden duurzaam in Storage bewaard; mislukte downloads
-  worden niet als tijdelijke externe URL gepubliceerd.
-- Bron-URL en SHA-256 van de inhoud herkennen herhaalde foto's. Nieuwe objectnamen
-  gebruiken de inhoudshash, niet de providerpositie. Oude objectnamen worden bij
-  dezelfde bron-URL herkend aan hun bestaande bronhash.
+- Mobilox blijft bron en host van geïmporteerde foto's. VVOS bewaart alleen de
+  gevalideerde HTTPS-URL; de toegestane host staat expliciet op de allowlist.
+- De genormaliseerde bron-URL vormt de stabiele foto-identiteit. Bij dezelfde
+  URL blijft een handmatige tombstone behouden.
 - De transactiemerge behoudt volgorde en ontbrekende foto's. Nieuwe foto's komen
   achteraan en blijven bij bestaande voertuigen intern.
-- Verwijderingen zijn tombstones. De sync behoudt deze, ook wanneer dezelfde
-  afbeelding met een andere URL maar dezelfde inhoud wordt aangeleverd.
+- Verwijderingen zijn tombstones. De sync behoudt deze zolang Mobilox dezelfde
+  foto-URL gebruikt.
 - Nieuwe opties verschijnen ongeselecteerd; selecties blijven behouden.
-- Herhaalde geslaagde events worden overgeslagen. Events met fotofouten kunnen
-  opnieuw worden aangeboden; al bekende foto's worden dan hergebruikt.
+- Herhaalde geslaagde events worden overgeslagen. Events met ongeldige foto-URL's
+  kunnen opnieuw worden aangeboden; al bekende foto's worden dan hergebruikt.
 - Een complete voertuig-delete vanuit Mobilox blijft het voertuig archiveren;
   dat is iets anders dan een verdwenen foto in een upsert.
 
@@ -85,17 +84,16 @@ De bestaande rollenmatrix bepaalt wie de nieuwe beheeracties mag uitvoeren.
 Ruwe voertuigen zijn in Firestore voortaan alleen leesbaar voor personeel.
 Publicatie loopt via de serverprojectie. Editorial kan niet rechtstreeks vanuit
 de browser worden overschreven. Firestore-regels moeten samen met de release
-worden uitgerold. Storage download-URL's blijven capability-URL's: 'intern'
-betekent uitgesloten van website/feed, geen intrekking van eerder gedeelde URL's.
-Storage-objecten worden bij handmatig verwijderen niet fysiek gewist.
+worden uitgerold. Mobilox-foto-URL's zijn openbare bronverwijzingen: 'intern'
+betekent uitgesloten van website/feed, geen intrekking van een eerder gedeelde URL.
+Handmatig verwijderen wist de bronfoto in Mobilox niet.
 
 ## Controle en beperkingen
 
 Tests behandelen scenario's A-K, dubbele inhoud, de volledige 200-fotoparser,
 meer dan 40 opties, revisieconflicten en API-autorisatie/validatie.
-Oude Mobilox-foto's in onze Storage krijgen bij sync of handmatig verwijderen
-een inhoudshash uit het bestaande object. Dit gebeurt met maximaal vier gelijktijdige
-downloads. Als zo'n object onleesbaar is, stopt die migratie veilig en wordt niet
-stilzwijgend een onbetrouwbare identiteit aangenomen. Een al vóór deze release verloren foto kan alleen met een nieuwe
-provideraanlevering worden teruggehaald. Geen live data worden automatisch gemigreerd
-of opnieuw gesynchroniseerd tijdens het bouwen van deze wijziging.
+Een gewijzigde foto-URL geldt bewust als een nieuwe foto;
+zonder een eigen kopie vergelijkt VVOS geen afbeeldingsinhoud. Een al vóór deze
+release verloren foto kan alleen met een nieuwe provideraanlevering worden
+teruggehaald. Geen live data worden automatisch gemigreerd of opnieuw
+gesynchroniseerd tijdens het bouwen van deze wijziging.

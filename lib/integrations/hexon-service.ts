@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import type { DocumentReference } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { parseHexonMutation } from "@/lib/integrations/hexon";
-import { persistHexonImages } from "@/lib/integrations/hexon-images";
+import { prepareHexonImages } from "@/lib/integrations/hexon-images";
 import { recordVehiclePrice } from "@/lib/vehicle/business";
 import { vehicleIdentityKeys } from "@/lib/vehicle/identity";
 import { getPublicVehicleImages, preservePublicImageSelection } from "@/lib/vehicle/photos";
@@ -10,7 +10,7 @@ import { editorialFor, mergeImportedEditorial } from "@/lib/vehicle/editorial";
 import type { Vehicle, VehicleImage, VehiclePublication } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-const HEXON_PROCESSOR_VERSION = "3-editorial";
+const HEXON_PROCESSOR_VERSION = "4-direct-media";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
@@ -151,7 +151,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
   if (mutation.action === "upsert" && mutation.vehicle?.images.length) {
     const beforeDownload = await vehicleRef.get();
     const prior = beforeDownload.exists ? beforeDownload.data() as Vehicle : undefined;
-    const persisted = await persistHexonImages(mutation.externalId, mutation.vehicle.images, prior ? editorialFor(prior).photos : []);
+    const persisted = await prepareHexonImages(mutation.vehicle.images, prior ? editorialFor(prior).photos : []);
     imageFailures = persisted.failures;
     importedPhotos = persisted.photos;
     mutation.vehicle.images = persisted.images;
@@ -230,7 +230,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
           provider: "mobilox-hexon",
           externalId: mutation.externalId,
           lastMutationAt: now,
-          imageStorage: mutation.vehicle.images.length ? "firebase-storage" : "none",
+          imageStorage: mutation.vehicle.images.length ? "mobilox" : "none",
           imageFailures: imageFailures.length,
         },
       }, { merge: true });

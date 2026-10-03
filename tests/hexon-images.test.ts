@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { limitHexonImageUrls, MAX_IMAGES_PER_VEHICLE } from "@/lib/integrations/hexon-images";
+import { limitHexonImageUrls, MAX_IMAGES_PER_VEHICLE, prepareHexonImages } from "@/lib/integrations/hexon-images";
 
 describe("Mobilox/Hexon image import limit", () => {
   it("imports up to 200 vehicle photos", () => {
@@ -23,5 +23,37 @@ describe("Mobilox/Hexon image import limit", () => {
     ];
 
     expect(limitHexonImageUrls(sourceUrls)).toEqual(sourceUrls);
+  });
+
+  it("uses validated Mobilox URLs directly without Firebase Storage", async () => {
+    const sourceUrl = "https://media-eigenwebsiteincrementeel.export.dv.nl/103741/57134262-1.jpg";
+
+    const result = await prepareHexonImages([sourceUrl]);
+
+    expect(result.failures).toEqual([]);
+    expect(result.images).toEqual([sourceUrl]);
+    expect(result.photos).toMatchObject([{ url: sourceUrl, sourceUrl, source: "mobilox-hexon" }]);
+  });
+
+  it("rejects unapproved or unsafe image hosts without rejecting the vehicle", async () => {
+    const result = await prepareHexonImages([
+      "http://media-eigenwebsiteincrementeel.export.dv.nl/photo.jpg",
+      "https://images.example.test/photo.jpg",
+    ]);
+
+    expect(result.images).toEqual([]);
+    expect(result.photos).toEqual([]);
+    expect(result.failures).toHaveLength(2);
+  });
+
+  it("preserves a manual tombstone when Mobilox repeats the same photo", async () => {
+    const sourceUrl = "https://media-eigenwebsiteincrementeel.export.dv.nl/103741/photo.jpg";
+    const imported = await prepareHexonImages([sourceUrl]);
+    const deleted = [{ ...imported.photos[0], deletedAt: "2026-10-02T17:00:00.000Z" }];
+
+    const refreshed = await prepareHexonImages([sourceUrl], deleted);
+
+    expect(refreshed.images).toEqual([]);
+    expect(refreshed.photos).toMatchObject([{ deletedAt: "2026-10-02T17:00:00.000Z" }]);
   });
 });

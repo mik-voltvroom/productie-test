@@ -60,8 +60,8 @@ Normal feature work should not be merged into the release branch during this win
    - add/change vehicle
    - exact response `1`
    - integration event written
-   - 1920x1280 image copied to Firebase Storage
-   - permanent image URL written to Firestore
+   - Mobilox image host accepted by the explicit allowlist
+   - validated Mobilox image URL written to Firestore
    - vehicle visible in website and VVOS
 
 10. Validate VVOS inventory

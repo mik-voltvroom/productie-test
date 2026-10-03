@@ -80,8 +80,6 @@ env:
     secret: GOOGLE_CHAT_WEBHOOK_URL
     availability: [RUNTIME]
 
-# Optional. Once the actual Mobilox image host is known, set an explicit
-# allowlist to make remote-image ingestion fail closed for unknown hosts.
-# - variable: HEXON_IMAGE_HOST_ALLOWLIST
-#   value: images.example-mobilox-host.nl
-#   availability: [RUNTIME]
+  - variable: HEXON_IMAGE_HOST_ALLOWLIST
+    value: media-eigenwebsiteincrementeel.export.dv.nl
+    availability: [RUNTIME]
