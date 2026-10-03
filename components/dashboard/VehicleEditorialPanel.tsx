@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Vehicle } from "@/types";
 import { editorialFor, optionKey, type EditorialCommand } from "@/lib/vehicle/editorial";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
@@ -11,9 +11,11 @@ type CommandInput = EditorialCommand extends infer C ? C extends EditorialComman
 
 export function VehicleEditorialPanel({ vehicle, onSaved, enabled }: { vehicle: Vehicle; onSaved: (vehicle: Vehicle) => void; enabled: boolean }) {
   const [busy, setBusy] = useState(false);
+  const [optionsBusy, setOptionsBusy] = useState(false);
   const lock = useRef(false);
   const latestVehicle = useRef(vehicle);
-  latestVehicle.current = vehicle;
+  const editorial = editorialFor(vehicle);
+  if (vehicle.id !== latestVehicle.current.id || editorial.revision >= editorialFor(latestVehicle.current).revision) latestVehicle.current = vehicle;
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [dragged, setDragged] = useState<string | null>(null);
@@ -23,11 +25,18 @@ export function VehicleEditorialPanel({ vehicle, onSaved, enabled }: { vehicle: 
   const [newOption, setNewOption] = useState("");
   const [url, setUrl] = useState("");
   const [text, setText] = useState<string | null>(null);
-  const editorial = editorialFor(vehicle);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState(editorial.publishedOptionKeys);
+  const optionQueue = useRef({ desired: editorial.publishedOptionKeys, version: 0, running: false });
   const photos = editorial.photos.filter(photo => !photo.deletedAt);
   const online = getPublicVehicleImages(vehicle);
   const options = vehicle.highlights.filter(label => optionKey(label).includes(optionKey(query)));
-  const selected = new Set(editorial.publishedOptionKeys);
+  const selected = new Set(selectedOptionKeys);
+
+  useEffect(() => {
+    if (optionQueue.current.running) return;
+    optionQueue.current.desired = editorial.publishedOptionKeys;
+    setSelectedOptionKeys(editorial.publishedOptionKeys);
+  }, [vehicle.id, editorial.revision]);
 
   async function commit(command: CommandInput): Promise<boolean> {
     if (lock.current || !enabled) return false;
@@ -41,6 +50,40 @@ export function VehicleEditorialPanel({ vehicle, onSaved, enabled }: { vehicle: 
       return true;
     } catch (failure) { setError(failure instanceof Error ? failure.message : "Opslaan mislukt."); setMessage(""); return false; }
     finally { lock.current = false; setBusy(false); }
+  }
+
+  async function flushOptionQueue(): Promise<void> {
+    if (optionQueue.current.running || lock.current || !enabled) return;
+    optionQueue.current.running = true; lock.current = true; setBusy(true); setOptionsBusy(true); setError(""); setMessage("Opslaan…");
+    try {
+      while (true) {
+        const version = optionQueue.current.version;
+        const keys = optionQueue.current.desired;
+        const current = latestVehicle.current;
+        const next = await saveVehicleEditorial(current, { type: "options", keys, revision: editorialFor(current).revision });
+        latestVehicle.current = next;
+        onSaved(next);
+        if (version === optionQueue.current.version) break;
+      }
+      setMessage("Opgeslagen");
+    } catch (failure) {
+      const persisted = editorialFor(latestVehicle.current).publishedOptionKeys;
+      optionQueue.current.desired = persisted;
+      setSelectedOptionKeys(persisted);
+      setError(failure instanceof Error ? failure.message : "Opslaan mislukt.");
+      setMessage("");
+    } finally {
+      optionQueue.current.running = false; lock.current = false; setOptionsBusy(false); setBusy(false);
+    }
+  }
+
+  function updateOptionSelection(keys: string[]) {
+    const uniqueKeys = [...new Set(keys)];
+    optionQueue.current.desired = uniqueKeys;
+    optionQueue.current.version += 1;
+    setSelectedOptionKeys(uniqueKeys);
+    setError(""); setMessage("Opslaan…");
+    void flushOptionQueue();
   }
 
   function move(from: string, to: string) {
@@ -109,18 +152,18 @@ export function VehicleEditorialPanel({ vehicle, onSaved, enabled }: { vehicle: 
       </div>
       <p className="helper">Nieuwe foto’s blijven eerst alleen intern. Verwijderen in Mobilox verwijdert geen foto uit VVOS.</p>
     </fieldset>
-    <fieldset disabled={busy || !enabled} className={styles.fields}>
+    <fieldset disabled={(busy && !optionsBusy) || !enabled} className={styles.fields}>
       <legend>Opties op de website · {vehicle.highlights.filter(label => selected.has(optionKey(label))).length} geselecteerd</legend>
       <div className={styles.toolbar}><label>Opties zoeken<input value={query} onChange={event => setQuery(event.target.value)} placeholder="Zoek bijvoorbeeld stoelverwarming" /></label>
-        <button className="button secondary" type="button" onClick={() => void commit({ type: "options", keys: vehicle.highlights.map(optionKey) })}>Alles selecteren</button>
-        <button className="button secondary" type="button" onClick={() => void commit({ type: "options", keys: [] })}>Alles deselecteren</button>
+        <button className="button secondary" type="button" onClick={() => updateOptionSelection(vehicle.highlights.map(optionKey))}>Alles selecteren</button>
+        <button className="button secondary" type="button" onClick={() => updateOptionSelection([])}>Alles deselecteren</button>
       </div>
       <div className={styles.options}>{options.map(label => <label key={optionKey(label)} className={styles.check}><input type="checkbox" checked={selected.has(optionKey(label))} onChange={event => {
-        const keys = new Set(selected); if (event.target.checked) keys.add(optionKey(label)); else keys.delete(optionKey(label));
-        void commit({ type: "options", keys: [...keys] });
+        const keys = new Set(optionQueue.current.desired); if (event.target.checked) keys.add(optionKey(label)); else keys.delete(optionKey(label));
+        updateOptionSelection([...keys]);
       }} />{label}</label>)}</div>
       {!options.length && <p className="helper">Geen opties gevonden.</p>}
-      <div className={styles.add}><label>Optie handmatig toevoegen<input value={newOption} onChange={event => setNewOption(event.target.value)} maxLength={120} /></label><button type="button" className="button secondary" disabled={!newOption.trim()} onClick={async () => { if (await commit({ type: "addOption", label: newOption })) setNewOption(""); }}>Optie toevoegen</button></div>
+      <div className={styles.add}><label>Optie handmatig toevoegen<input value={newOption} onChange={event => setNewOption(event.target.value)} maxLength={120} /></label><button type="button" className="button secondary" disabled={busy || !newOption.trim()} onClick={async () => { if (await commit({ type: "addOption", label: newOption })) setNewOption(""); }}>Optie toevoegen</button></div>
       <p className="helper">Nieuwe Mobilox-opties worden toegevoegd zonder ze automatisch te publiceren. Bestaande keuzes blijven behouden.</p>
     </fieldset>
     <fieldset disabled={busy || !enabled} className={styles.fields}>

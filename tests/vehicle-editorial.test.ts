@@ -50,6 +50,14 @@ describe("VVOS publication control", () => {
     expect(vehicle.images).toHaveLength(20);
   });
 
+  it("preserves an explicitly empty option selection across later imports", () => {
+    let vehicle = mergeImportedEditorial(undefined, incoming(), photos);
+    vehicle = applyEditorialCommand(vehicle, { type: "options", keys: [], revision: 0 }, now);
+    vehicle = mergeImportedEditorial(vehicle, incoming(), photos);
+    expect(publicOptions(vehicle)).toEqual([]);
+    expect(vehicle.editorial?.publishedOptionKeys).toEqual([]);
+  });
+
   it("K: keeps source fields separate and preserves manually edited website text", () => {
     let vehicle = mergeImportedEditorial(undefined, incoming(), photos);
     expect(vehicle.editorial!.content.sourceTexts).toEqual({ opmerkingen: "Intro uit feed", omschrijving: "Andere bron" });
