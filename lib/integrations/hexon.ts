@@ -2,7 +2,7 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { slugify, validateVehicle } from "@/lib/business";
 import { eurosToCents } from "@/lib/money";
 import { MAX_IMPORTED_PHOTOS } from "@/lib/vehicle/editorial";
-import type { DriveType, Vehicle } from "@/types";
+import type { DriveType, Vehicle, VehicleRoadTax } from "@/types";
 
 type XmlRecord = Record<string, unknown>;
 type ProviderAction = "add" | "change" | "delete";
@@ -235,6 +235,28 @@ function firstInteger(root: unknown, names: string[]): number | undefined {
   return number === undefined ? undefined : Math.round(number);
 }
 
+function parseRoadTax(root: unknown): VehicleRoadTax | undefined {
+  const modern = firstField(root, ["motorrijtuigen_belasting"]);
+  const legacy = firstField(root, ["wegenbelasting_kwartaal"]);
+  const node = modern ?? legacy;
+  if (node === undefined) return undefined;
+
+  // Both documented Hexon representations are quarterly euro ranges with
+  // `min` and `max` values. Keep that source period intact in VVOS; the
+  // showroom presentation performs the clearly labelled monthly conversion.
+  const direct = parseNumber(node);
+  const minimumEur = firstNumber(node, ["min"]) ?? direct;
+  const maximumEur = firstNumber(node, ["max"]) ?? minimumEur;
+  if (minimumEur === undefined || maximumEur === undefined || minimumEur < 0 || maximumEur < 0) return undefined;
+
+  return {
+    quarterlyMinCents: Math.round(Math.min(minimumEur, maximumEur) * 100),
+    quarterlyMaxCents: Math.round(Math.max(minimumEur, maximumEur) * 100),
+    source: "mobilox-hexon",
+    sourceField: modern !== undefined ? "motorrijtuigen_belasting" : "wegenbelasting_kwartaal",
+  };
+}
+
 function parseOdometerKm(value: unknown): number | undefined {
   const reading = parseNumber(value);
   if (reading === undefined) return undefined;
@@ -369,7 +391,9 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
     }
   }
   const batteryHealthPercent = firstInteger(parsed, ["accu_conditie"]);
-  const electricRangeKm = firstInteger(parsed, ["wltp_actieradius_elektrisch_combined", "actieradius_elektrisch"]);
+  const wltpRangeKm = firstInteger(parsed, ["wltp_actieradius_elektrisch_combined"]);
+  const electricRangeKm = wltpRangeKm ?? firstInteger(parsed, ["actieradius_elektrisch"]);
+  const roadTax = parseRoadTax(parsed);
   const consumptionPer100Km = firstNumber(parsed, ["wltp_brandstofverbruik_combined_weighted", "wltp_brandstofverbruik_combined", "gemiddeld_verbruik"]);
   const warrantyMonths = firstInteger(parsed, ["garantie_maanden", "fabrieksgarantie_aantal_maanden"]);
 
@@ -389,6 +413,8 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
     color: firstText(parsed, ["kleur_nederlands", "basiskleur"]) ?? "Onbekend",
     ...(batteryHealthPercent !== undefined ? { batteryHealthPercent } : {}),
     ...(electricRangeKm !== undefined ? { electricRangeKm } : {}),
+    ...(wltpRangeKm !== undefined ? { wltpRangeKm } : {}),
+    ...(roadTax ? { roadTax } : {}),
     ...(consumptionPer100Km !== undefined ? { consumptionPer100Km } : {}),
     ...(warrantyMonths !== undefined ? { warrantyMonths } : {}),
     maintenanceHistory: firstText(parsed, ["onderhoudsboekjes"]) === "dealer" ? "complete" : "unknown",

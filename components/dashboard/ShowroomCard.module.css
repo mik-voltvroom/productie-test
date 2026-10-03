@@ -1,0 +1,202 @@
+.page {
+  min-height: 100vh;
+  padding: 32px 20px 72px;
+  background: #eef2f5;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(210mm, 100%);
+  margin: 0 auto 20px;
+}
+
+.toolbar div { display: flex; gap: 10px; }
+.toolbar p { margin: 0; color: #687280; font-size: .9rem; }
+
+.sheet {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #fff;
+  color: #0d1117;
+  box-shadow: 0 24px 70px rgba(13, 17, 23, .14);
+}
+
+.brandBar {
+  height: 25mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12mm;
+  border-bottom: .35mm solid #0d1117;
+}
+
+.brandBar img { width: 58mm; height: auto; }
+.brandBar span {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 9pt;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.hero {
+  position: relative;
+  height: 138mm;
+  overflow: hidden;
+  background: #e6f2ff;
+  clip-path: polygon(0 0, 100% 14%, 100% 100%, 0 88%);
+}
+
+.vehicleImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+}
+
+.missingImage {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #687280;
+  font-size: 13pt;
+}
+
+.priceBlock {
+  position: absolute;
+  z-index: 2;
+  top: 8mm;
+  right: 11mm;
+  min-width: 72mm;
+  padding: 4mm 5mm 3mm;
+  background: rgba(255, 255, 255, .96);
+  text-align: right;
+}
+
+.priceBlock strong {
+  display: block;
+  font-family: var(--font-manrope), Manrope, sans-serif;
+  font-size: 42pt;
+  font-weight: 750;
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+
+.priceBlock i {
+  display: block;
+  width: 50mm;
+  height: 1.2mm;
+  margin: 4mm 0 0 auto;
+  background: #168bff;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: -1mm 11mm 0;
+  padding: 10mm 0 8mm;
+  border-bottom: .35mm solid #0d1117;
+}
+
+.fact {
+  min-width: 0;
+  padding: 0 5mm;
+  border-left: .25mm solid #aeb9c5;
+}
+
+.fact:first-child { padding-left: 0; border-left: 0; }
+.fact:last-child { padding-right: 0; }
+.fact img {
+  width: 10mm;
+  height: 10mm;
+  object-fit: contain;
+  margin-bottom: 3mm;
+  filter: brightness(0) saturate(100%) invert(43%) sepia(99%) saturate(2165%) hue-rotate(195deg) brightness(104%) contrast(101%);
+}
+.fact span {
+  display: block;
+  color: #384453;
+  font-size: 7.2pt;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.fact strong {
+  display: block;
+  margin-top: 1.8mm;
+  font-family: var(--font-manrope), Manrope, sans-serif;
+  font-size: 14pt;
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  display: grid;
+  grid-template-columns: 52mm 1fr;
+  min-height: 88mm;
+  margin: 0 11mm;
+  padding-top: 8mm;
+}
+
+.qrBlock {
+  padding-right: 8mm;
+  border-right: .25mm solid #aeb9c5;
+}
+
+.qrBlock svg { display: block; width: 39mm; height: 39mm; }
+.qrBlock p { margin: 3mm 0 0; max-width: 42mm; color: #384453; font-size: 8pt; line-height: 1.3; }
+.vehicleTitle { display: flex; min-width: 0; flex-direction: column; padding-left: 10mm; }
+.vehicleTitle h1 {
+  max-width: none;
+  margin: 1mm 0 0;
+  font-family: var(--font-manrope), Manrope, sans-serif;
+  font-size: 25pt;
+  font-weight: 750;
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-transform: uppercase;
+}
+.vehicleTitle > p { margin: 2mm 0 0; color: #384453; font-size: 14pt; line-height: 1.2; }
+.address {
+  display: flex;
+  justify-content: space-between;
+  gap: 8mm;
+  margin-top: auto;
+  padding: 4mm 0 3mm;
+  border-top: .25mm solid #aeb9c5;
+  color: #384453;
+  font-size: 8pt;
+}
+.address strong { color: #168bff; }
+.vehicleTitle small { display: block; padding-bottom: 3mm; color: #687280; font-size: 6.2pt; line-height: 1.25; }
+
+@media (max-width: 860px) {
+  .page { overflow-x: auto; padding-inline: 12px; }
+  .toolbar { min-width: 210mm; }
+}
+
+@page { size: A4 portrait; margin: 0; }
+
+@media print {
+  .page { min-height: 0; padding: 0; background: #fff; }
+  .toolbar { display: none !important; }
+  .sheet {
+    position: absolute;
+    inset: 0;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

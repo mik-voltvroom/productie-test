@@ -36,3 +36,35 @@
 - No open severity 1–3 visual, responsive, content or interaction findings.
 
 final result: passed
+
+---
+
+# Design QA — VVOS showroomkaart optie 2
+
+## Referentie
+
+- Geselecteerd ontwerp: optie 2, A4-portret.
+- Controle op: visuele hiërarchie, prijspositie, voertuigfoto, vier kernwaarden, QR-blok en voertuigidentiteit.
+
+## Uitgevoerde controle
+
+- Lokale VVOS-route gecontroleerd in de Codex-browser op desktopbreedte.
+- De referentie en de gebouwde preview naast elkaar beoordeeld.
+- Lange voertuignaam en een wegenbelasting-bandbreedte gecontroleerd op afbreken en uitlijning.
+- Browserconsole gecontroleerd: geen fouten of waarschuwingen.
+- Definitieve kaart gebruikt de officiële Volt & Vroom-logo- en icoonbestanden.
+
+## Iteraties
+
+1. Ongeldige CSS-font shorthand hersteld, zodat Manrope de prijs en voertuigkop correct weergeeft.
+2. Hero en footer vergroot om het volledige A4-oppervlak evenwichtig te benutten.
+3. Kernwaarde-iconen in Ice Blue gezet en prijsblok sterker aangezet volgens optie 2.
+4. Printweergave afgeschermd van VVOS-navigatie en zwevende contactknoppen.
+
+## Resultaat
+
+- Geen zichtbare overflow, afgesneden kernwaarden of botsende tekst.
+- De kaart behoudt de gekozen diagonale beeldtaal en duidelijke scanroute.
+- Ontbrekende brondata wordt als `Niet opgegeven` getoond en niet verzonnen.
+
+final result: passed

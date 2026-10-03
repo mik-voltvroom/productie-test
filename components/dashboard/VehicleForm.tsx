@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { DriveType, Vehicle, VehicleCosts, VehicleStatus } from "@/types";
 import { emptyCosts, slugify, validateVehicle } from "@/lib/business";
@@ -10,6 +11,7 @@ import { centsToEuros, eurosToCents } from "@/lib/money";
 import { CommercialPanel } from "./CommercialPanel";
 import { defaultVehicleCommercial, recordVehiclePrice } from "@/lib/vehicle/business";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
+import { monthlyRoadTaxLabel } from "@/lib/vehicle/showroom-card";
 import { VehicleEditorialPanel } from "./VehicleEditorialPanel";
 import styles from "./VehicleEditorialPanel.module.css";
 
@@ -193,6 +195,9 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
           <label>VIN<input value={vehicle.vin ?? ""} onChange={e => set("vin", e.target.value.toUpperCase())} /></label>
           <label>Accugezondheid %<input type="number" min="0" max="100" value={vehicle.batteryHealthPercent ?? 0} onChange={e => set("batteryHealthPercent", Number(e.target.value))} /></label>
           <label>Elektrisch bereik km<input type="number" value={vehicle.electricRangeKm ?? 0} onChange={e => set("electricRangeKm", Number(e.target.value))} /></label>
+          <label>WLTP-bereik (Mobilox)<input value={vehicle.wltpRangeKm ? `${vehicle.wltpRangeKm} km` : "Niet opgegeven"} readOnly /></label>
+          <label>Realistisch rijbereik km<input type="number" min="0" value={vehicle.realisticRangeKm ?? ""} onChange={e => set("realisticRangeKm", e.target.value === "" ? undefined : Number(e.target.value))} /></label>
+          <label>Wegenbelasting (Mobilox)<input value={monthlyRoadTaxLabel(vehicle.roadTax)} readOnly /></label>
           <label>Verbruik l/100 km<input type="number" step="0.1" value={vehicle.consumptionPer100Km ?? 0} onChange={e => set("consumptionPer100Km", Number(e.target.value))} /></label>
           <label>Garantie maanden<input type="number" value={vehicle.warrantyMonths ?? 0} onChange={e => set("warrantyMonths", Number(e.target.value))} /></label>
         </div>
@@ -244,6 +249,7 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
         <p className="eyebrow">Publicatiecheck</p><div className="completion"><strong>{completeness}%</strong><div><i style={{width:`${completeness}%`}} /></div></div>
         {errors.length ? <ul className="errorList">{errors.map(error => <li key={error}>{error}</li>)}</ul> : <div className="successBox">Klaar voor publicatie</div>}
         <label>Status<select value={vehicle.status} onChange={e => set("status", e.target.value as VehicleStatus)} disabled={vehicle.status === "reserved" || vehicle.status === "sold"}><option value="draft">Concept</option><option value="photography">Fotografie</option><option value="review">Controle</option><option value="available">Beschikbaar</option>{vehicle.status === "reserved" && <option value="reserved">Gereserveerd via deal</option>}{vehicle.status === "sold" && <option value="sold">Verkocht via deal</option>}<option value="archived">Archief</option></select></label>
+        {initial ? <Link className="button secondary wide" href={`/dashboard/voorraad/${encodeURIComponent(vehicle.id)}/showroomkaart`}>Showroomkaart A4</Link> : null}
         <button className="button wide" type="button" disabled={uploading} onClick={() => save()}>Opslaan</button>
         <button className="button secondary wide" type="button" disabled={uploading || errors.length > 0} onClick={() => save("available")}>Publiceren</button>
         {saveError && <p className="formError" role="alert">{saveError}</p>}

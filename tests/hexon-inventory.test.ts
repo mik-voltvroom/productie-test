@@ -57,6 +57,36 @@ describe("Mobilox/Hexon incremental inventory", () => {
     expect(mutation.vehicle).toMatchObject({ id: "hexon-56015851", priceCents: 2591100, driveType: "electric" });
   });
 
+  it("imports the current Mobilox road-tax range and keeps the quarterly source period", () => {
+    const xml = vehicleXml.replace(
+      "</voertuig>",
+      "<wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><motorrijtuigen_belasting><min>198</min><max>216</max></motorrijtuigen_belasting></voertuig>",
+    );
+    const mutation = parseHexonMutation(xml);
+    expect(mutation.vehicle).toMatchObject({
+      wltpRangeKm: 418,
+      roadTax: {
+        quarterlyMinCents: 19_800,
+        quarterlyMaxCents: 21_600,
+        source: "mobilox-hexon",
+        sourceField: "motorrijtuigen_belasting",
+      },
+    });
+  });
+
+  it("keeps compatibility with the former Hexon quarterly road-tax field", () => {
+    const xml = vehicleXml.replace(
+      "</voertuig>",
+      "<wegenbelasting_kwartaal><min>60</min><max>67</max></wegenbelasting_kwartaal></voertuig>",
+    );
+    expect(parseHexonMutation(xml).vehicle?.roadTax).toEqual({
+      quarterlyMinCents: 6_000,
+      quarterlyMaxCents: 6_700,
+      source: "mobilox-hexon",
+      sourceField: "wegenbelasting_kwartaal",
+    });
+  });
+
   it("stores the Mobilox Audi SQ7 diesel payload as conventional inventory", () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <voertuig actie="add" versie="2.25">

@@ -54,6 +54,14 @@ export interface VehicleSource {
   imageFailures?: number;
 }
 
+export interface VehicleRoadTax {
+  /** Exact quarterly range supplied by Mobilox through the Hexon feed. */
+  quarterlyMinCents: number;
+  quarterlyMaxCents: number;
+  source: "mobilox-hexon";
+  sourceField: "motorrijtuigen_belasting" | "wegenbelasting_kwartaal";
+}
+
 export interface VehicleImage {
   id: string;
   url: string;
@@ -96,6 +104,9 @@ export interface Vehicle {
   color: string;
   batteryHealthPercent?: number;
   electricRangeKm?: number;
+  wltpRangeKm?: number;
+  realisticRangeKm?: number;
+  roadTax?: VehicleRoadTax;
   consumptionPer100Km?: number;
   annualSavingCents?: number;
   warrantyMonths?: number;
