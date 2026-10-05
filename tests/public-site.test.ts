@@ -98,6 +98,10 @@ describe("publieke Volt & Vroom website", () => {
     expect(card).toContain('src="/brand/vv-symbol.svg"');
     expect(styles).toContain(".vehicle { display:grid; grid-template-rows:auto 1fr;");
     expect(styles).toContain(".vehicleBody { display:grid; grid-template-rows:auto auto 1fr auto;");
+    expect(styles).toContain(".vehicleCardLink,.vehicle,.vehicleBody,.vehicleHeading,.vehicleHeading>div,.vehicleMeta { min-width:0;");
+    expect(styles).toContain(".vehicleHeading { display:grid; grid-template-columns:minmax(0,1fr) auto;");
+    expect(styles).toContain(".vehicleMeta { margin:12px 0 0; overflow-wrap:anywhere;");
+    expect(styles).toContain(".badges { display:flex; flex-wrap:wrap; align-content:flex-start; align-items:flex-start;");
   });
 
   it("toont geen kenteken in publieke voertuigadvertenties", () => {
