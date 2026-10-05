@@ -133,6 +133,17 @@ export interface Vehicle {
 
 export type LeadStatus = "new" | "contacted" | "qualified" | "appointment" | "won" | "lost";
 export interface Lead {
+  type?: "general" | "financial_lease";
+  companyName?: string;
+  kvk?: string;
+  financialLease?: {
+    selection: import("@/lib/financial-lease/business").LeaseSelection;
+    priceCents: number;
+    quote: import("@/lib/financial-lease/business").LeaseQuote;
+    vehicleLabel: string;
+    requestedAt: string;
+    providerStatus: "not_submitted";
+  };
   id?: string;
   vehicleId?: string;
   name: string;

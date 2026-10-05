@@ -50,3 +50,16 @@ export async function getPublicVehicleBySlug(slug: string): Promise<Vehicle | un
   const vehicles = await listPublicVehicles(100);
   return vehicles.find(vehicle => vehicle.slug === slug);
 }
+
+/** Direct lookup avoids the public inventory list's pagination limit. */
+export async function getPublicVehicleById(id: string): Promise<Vehicle | undefined> {
+  if (process.env.VVOS_DATA_MODE !== "firebase") {
+    const vehicle = demoVehicles.find(candidate => candidate.id === id && candidate.status === "available");
+    return vehicle ? publicProjection(vehicle) : undefined;
+  }
+  if (!adminDb) throw new Error("Vehicle storage unavailable");
+  const document = await adminDb.collection("vehicles").doc(id).get();
+  if (!document.exists) return undefined;
+  const vehicle = normalizeVehicleDocument(document.id, document.data() ?? {});
+  return isPublishedOnWebsite(vehicle) ? publicProjection(vehicle) : undefined;
+}

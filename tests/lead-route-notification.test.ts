@@ -20,6 +20,10 @@ vi.mock("@/lib/communications/lead-notification", () => ({
   sendLeadNotification: mocks.sendLeadNotification,
 }));
 
+vi.mock("@/lib/repositories/public-vehicle-repository", () => ({
+  getPublicVehicleById: vi.fn(),
+}));
+
 import { POST } from "@/app/api/leads/route";
 
 function request(): Request {

@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
 import { Header } from "@/components/Header";
+import { LeaseCalculator } from "@/components/financial-lease/LeaseCalculator";
 
 import { centsToEuros } from "@/lib/money";
+import { eligibleForLease } from "@/lib/financial-lease/business";
+import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
 import styles from "./vehicle.module.css";
 
@@ -129,9 +132,12 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
         </div>
         <aside className={styles.factsCard}><h2>Specificaties</h2><dl>{specs.map(([label, fact]) => <div className={styles.factRow} key={label}><dt>{label}</dt><dd>{fact}</dd></div>)}</dl></aside>
       </section>
+      {eligibleForLease(vehicle) && <LeaseCalculator vehicleId={vehicle.id} priceCents={vehicle.priceCents} annualRateBps={leaseRate()} />}
       <section className={styles.contact} id="afspraak">
-        <div><h2>Bekijk deze auto in Groningen</h2><address><strong>Volt &amp; Vroom</strong><br />Euvelgunnerweg 50 · 9723 CW Groningen</address><a href="mailto:sales@voltvroom.nl">sales@voltvroom.nl</a></div>
-        <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><Link className={styles.secondary} href="/contact">Contact en route</Link></div>
+        <p className={styles.contactEyebrow}>Bekijk hem in Groningen</p>
+        <h2>De auto gezien.<br />Nu het verhaal erachter.</h2>
+        <p>Plan een persoonlijke proefrit. We nemen de auto en de beschikbare voertuigdata rustig met u door.</p>
+        <div className={styles.contactActions}><a className={styles.contactPrimary} href={contactHref}>Plan een proefrit</a><Link className={styles.contactSecondary} href="/contact">Stel een vraag</Link></div>
       </section>
       <nav className={styles.footerLinks} aria-label="Aanvullende informatie"><Link href="/voorraad">Alle auto’s</Link><Link href="/contact">Bedrijfsgegevens</Link><Link href="/privacy">Privacy</Link></nav>
     </main>
