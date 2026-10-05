@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { contactLeadMessage, contactVehicle, leadSubmissionSchema } from "@/lib/contact/business";
 import { financialLeaseFields } from "@/lib/financial-lease/validation";
 import { calculateLease, eligibleForLease } from "@/lib/financial-lease/business";
 import { leaseRate } from "@/lib/financial-lease/config";
@@ -7,21 +7,6 @@ import { createServerDocument, productionDataEnabled } from "@/lib/repositories/
 import { scoreLead, responseDeadline } from "@/lib/sales-engine";
 import { consumePublicLeadQuota } from "@/lib/security/public-rate-limit";
 import { sendLeadNotification } from "@/lib/communications/lead-notification";
-
-const leadSchema = z.object({
-  type: z.enum(["general", "financial_lease"]).optional(),
-  vehicleId: z.string().optional(),
-  name: z.string().min(2).max(120),
-  email: z.string().email().optional(),
-  phone: z.string().min(8).max(40).optional(),
-  channel: z.enum(["website", "whatsapp", "phone", "merchant", "other"]).default("website"),
-  message: z.string().max(2000).optional(),
-  consent: z.literal(true),
-  budgetEur: z.number().nonnegative().optional(),
-  financingNeeded: z.boolean().optional(),
-  hasTradeIn: z.boolean().optional(),
-  website: z.string().max(0).optional(),
-}).refine(data => data.email || data.phone, { message: "E-mail of telefoonnummer is verplicht." });
 
 export async function POST(request: Request) {
   if (!productionDataEnabled()) {
@@ -42,10 +27,30 @@ export async function POST(request: Request) {
   }
 
   const payload = await request.json().catch(() => null);
-  const parsed = leadSchema.safeParse(payload);
-  if (!parsed.success) return Response.json({ ok: false, errors: parsed.error.flatten() }, { status: 400 });
+  const parsed = leadSubmissionSchema.safeParse(payload);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string[]> = {};
+    for (const issue of parsed.error.issues) (fieldErrors[issue.path.join(".")] ??= []).push(issue.message);
+    return Response.json({ ok: false, error: parsed.error.issues[0]?.message || "Controleer de ingevulde gegevens.", errors: { fieldErrors } }, { status: 400 });
+  }
 
   const { website: _honeypot, ...leadInput } = parsed.data;
+  let vehicleTitle: string | undefined;
+  if (leadInput.type !== "financial_lease" && leadInput.vehicleId) {
+    try {
+      // Revalidate the public ID at submit time, including inventory beyond the dropdown page.
+      const vehicle = await getPublicVehicleById(leadInput.vehicleId);
+      if (!vehicle) {
+        const error = "Deze auto is niet meer beschikbaar. Kies een andere auto of stuur een algemene vraag zonder voorkeursauto.";
+        return Response.json({ ok: false, error, errors: { fieldErrors: { vehicleId: [error] } } }, { status: 400 });
+      }
+      vehicleTitle = contactVehicle(vehicle).label;
+    } catch {
+      return Response.json({ ok: false, error: "Voertuiggegevens zijn tijdelijk niet beschikbaar. Probeer later opnieuw." }, { status: 503 });
+    }
+  }
+  const message = leadInput.type === "financial_lease" ? leadInput.message : contactLeadMessage(leadInput, vehicleTitle);
+  const contactFields = { ...(vehicleTitle ? { vehicleTitle } : {}), ...(message !== undefined ? { message } : {}) };
   let leaseFields = {};
   if (leadInput.type === "financial_lease") {
     const lease = financialLeaseFields.safeParse(payload);
@@ -93,12 +98,11 @@ export async function POST(request: Request) {
   }
   const id = `LEAD-${crypto.randomUUID()}`;
   const now = new Date().toISOString();
-  const sales = scoreLead({ ...leadInput, ...leaseFields });
+  const sales = scoreLead({ ...leadInput, ...contactFields, ...leaseFields });
   let lead;
   try {
     lead = await createServerDocument("leads", id, {
-      ...leadInput,
-      ...leaseFields,
+      ...Object.fromEntries(Object.entries({ ...leadInput, ...contactFields, ...leaseFields }).filter(([, value]) => value !== undefined)),
       status: "new",
       sales: { ...sales, responseDueAt: responseDeadline(sales.score) },
       createdAt: now,
@@ -115,7 +119,7 @@ export async function POST(request: Request) {
     email: leadInput.email,
     phone: leadInput.phone,
     channel: leadInput.channel,
-    message: leadInput.message,
+    message,
     createdAt: now,
   }).catch(() => ({ configured: true, sent: 0, failed: 1 }));
   if (!notification.configured || notification.failed > 0) {

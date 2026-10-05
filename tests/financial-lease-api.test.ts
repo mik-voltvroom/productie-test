@@ -49,9 +49,15 @@ describe("financial lease intake", () => {
     const response = await send({ ...body, monthlyCents: 1 });
     expect(response.status).toBe(201);
     const lead = mocks.create.mock.calls[0][2];
+    expect(lead.type).toBe("financial_lease");
+    expect(lead.companyName).toBe(body.companyName);
+    expect(lead.kvk).toBe(body.kvk);
+    expect(lead.financialLease.quote.annualRateBps).toBe(850);
     expect(lead.financialLease.quote.monthlyCents).toBeGreaterThan(0);
     expect(lead.financialLease.providerStatus).toBe("not_submitted");
     expect((await response.json()).lead).toBeUndefined();
+    expect(mocks.notify).toHaveBeenCalledOnce();
+    expect(mocks.create.mock.invocationCallOrder[0]).toBeLessThan(mocks.notify.mock.invocationCallOrder[0]);
   });
 
   it.each([{ kvk: "123" }, { companyName: " " }, { email: "wrong" }, { consent: false }])("rejects invalid input %j", async patch => {

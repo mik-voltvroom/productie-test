@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { calculateLease, defaultSelection, leaseTerms, type LeaseSelection } from "@/lib/financial-lease/business";
 import styles from "./lease.module.css";
 
@@ -30,6 +30,7 @@ export function LeaseCalculator({
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
+  const inFlight = useRef(false);
 
   let quote;
   let calculationError = "";
@@ -47,7 +48,8 @@ export function LeaseCalculator({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (state === "sending") return;
+    if (inFlight.current || state === "done") return;
+    inFlight.current = true;
     const data = new FormData(event.currentTarget);
     setState("sending");
     setError("");
@@ -76,6 +78,7 @@ export function LeaseCalculator({
       }
       setState("done");
     } catch (cause) {
+      inFlight.current = false;
       setError(cause instanceof Error ? cause.message : "Verbinding mislukt. Probeer opnieuw.");
       setState("idle");
     }

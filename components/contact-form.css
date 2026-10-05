@@ -1,0 +1,10 @@
+.contactFields{margin:0;padding:0;border:0;min-width:0}
+.contactFields .visuallyHidden{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.contactFields:disabled{opacity:.7}
+.contactFieldError{display:block;margin-top:5px;color:#9c2430;font-size:.75rem;font-weight:400}
+.contactNotice{margin:0 0 16px;color:var(--vv-graphite);font-size:.8rem;line-height:1.6;overflow-wrap:anywhere}
+.publicFormGrid .contactNotice{margin:0}
+.contactForm select,.contactForm input,.contactForm textarea{min-width:0;max-width:100%}
+.contactForm [aria-invalid="true"]{border-color:#9c2430}
+.contactForm h3{margin:0 0 16px}
+#aanvraag{scroll-margin-top:88px}

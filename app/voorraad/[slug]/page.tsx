@@ -9,6 +9,7 @@ import { centsToEuros } from "@/lib/money";
 import { eligibleForLease } from "@/lib/financial-lease/business";
 import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
+import { vehicleContactHref } from "@/lib/contact/business";
 import styles from "./vehicle.module.css";
 
 // VVOS publication data changes at runtime; never serve a prerendered offer.
@@ -84,7 +85,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   const isReserved = vehicle.status === "reserved";
   const tradeInHref = `/inruilen?vehicleId=${encodeURIComponent(vehicle.id)}&vehicleLabel=${encodeURIComponent(vehicleName + " " + vehicle.trim)}`;
 
-  const contactHref = `mailto:sales@voltvroom.nl?subject=${encodeURIComponent(`Proefrit ${vehicleName} (${vehicle.id})`)}`;
+  const contactHref = vehicleContactHref(vehicle.id, "proefrit");
   const vehicleUrl = `${(process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl").replace(/\/$/, "")}/voorraad/${encodeURIComponent(vehicle.slug)}`;
   const structuredData = {
     "@context": "https://schema.org", "@type": "Car", name: `${vehicleName} ${vehicle.trim}`,
@@ -120,7 +121,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
             <div><span>Aandrijving</span><strong>{publicDriveType}</strong></div>
             {vehicle.transmission ? <div><span>Transmissie</span><strong>{vehicle.transmission}</strong></div> : null}
           </div>
-          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref}>Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
+          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
       </section>
       <section className={styles.story}>
@@ -137,7 +138,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
         <p className={styles.contactEyebrow}>Bekijk hem in Groningen</p>
         <h2>De auto gezien.<br />Nu het verhaal erachter.</h2>
         <p>Plan een persoonlijke proefrit. We nemen de auto en de beschikbare voertuigdata rustig met u door.</p>
-        <div className={styles.contactActions}><a className={styles.contactPrimary} href={contactHref}>Plan een proefrit</a><Link className={styles.contactSecondary} href="/contact">Stel een vraag</Link></div>
+        <div className={styles.contactActions}><a className={styles.contactPrimary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><Link className={styles.contactSecondary} href={vehicleContactHref(vehicle.id, "vraag")}>Stel een vraag</Link></div>
       </section>
       <nav className={styles.footerLinks} aria-label="Aanvullende informatie"><Link href="/voorraad">Alle auto’s</Link><Link href="/contact">Bedrijfsgegevens</Link><Link href="/privacy">Privacy</Link></nav>
     </main>
