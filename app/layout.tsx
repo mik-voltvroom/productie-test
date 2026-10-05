@@ -11,11 +11,15 @@ import "./social-video-editor.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FloatingContactDock } from "@/components/FloatingContactDock";
 import { GoogleMerchantBadge } from "@/components/GoogleMerchantBadge";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MobileActionBar } from "@/components/MobileActionBar";
 import { PublicAnalytics } from "@/components/PublicAnalytics";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl";
 const isProductionSite = siteUrl === "https://www.voltvroom.nl" || siteUrl === "https://voltvroom.nl";
+const analyticsMeasurementId = process.env.VVOS_ENV === "production" && isProductionSite
+  ? process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  : undefined;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -29,5 +33,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><PublicAnalytics /><FloatingContactDock /><MobileActionBar /><GoogleMerchantBadge /></body></html>;
+  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><PublicAnalytics /><GoogleAnalytics measurementId={analyticsMeasurementId} /><FloatingContactDock /><MobileActionBar /><GoogleMerchantBadge /></body></html>;
 }

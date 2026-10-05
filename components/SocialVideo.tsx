@@ -4,15 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import type { PublicSocialVideo } from "@/lib/social-video/model";
 
 declare global {
-  interface Window { dataLayer?: Array<Record<string, unknown>>; }
+  interface Window { dataLayer?: unknown[]; }
 }
 
 const persistableEvents = new Set(["video_impression", "video_play", "video_vehicle_click", "video_carcheck_click", "video_testdrive_click", "video_contact_click"]);
 
 function track(event: string, video: PublicSocialVideo, extra: Record<string, unknown> = {}) {
   const payload = { event, video_id: video.id, video_platform: video.platform, video_title: video.title, ...extra };
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(payload);
+  if (window.localStorage.getItem("vv_analytics_consent") === "accepted") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(payload);
+  }
   window.dispatchEvent(new CustomEvent("vv:analytics", { detail: payload }));
   if (persistableEvents.has(event)) {
     void fetch(`/api/public/social-videos/${encodeURIComponent(video.id)}/events`, {

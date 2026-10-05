@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 declare global {
   interface Window {
-    dataLayer?: Array<Record<string, unknown>>;
+    dataLayer?: unknown[];
   }
 }
 
@@ -23,8 +23,10 @@ export function PublicAnalytics() {
   useEffect(() => {
     function push(eventName: string, detail: Record<string, unknown> = {}) {
       const payload = { event: eventName, ...detail };
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(payload);
+      if (window.localStorage.getItem("vv_analytics_consent") === "accepted") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(payload);
+      }
       window.dispatchEvent(new CustomEvent("vv:analytics", { detail: payload }));
     }
 
