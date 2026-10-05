@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
-export function ContactForm({ vehicles }: { vehicles: { id: string; label: string }[] }) {
+export function ContactForm() {
   const [state, setState] = useState<FormState>("idle");
   const [feedback, setFeedback] = useState("");
 
@@ -16,7 +16,6 @@ export function ContactForm({ vehicles }: { vehicles: { id: string; label: strin
     const form = new FormData(formElement);
     const interest = String(form.get("interest") || "Adviesgesprek");
     const contactPreference = String(form.get("contactPreference") || "phone");
-    const vehicleId = String(form.get("vehicleId") || "");
     const email = String(form.get("email") || "").trim();
     const phone = String(form.get("phone") || "").trim();
 
@@ -33,7 +32,6 @@ export function ContactForm({ vehicles }: { vehicles: { id: string; label: strin
         name: String(form.get("name") || ""),
         email: email || undefined,
         phone: phone || undefined,
-        vehicleId: vehicleId || undefined,
         channel: "website",
         message: `${interest}. Voorkeur contact: ${contactPreference}. ${String(form.get("message") || "Geen aanvullende toelichting.")}`,
         consent: form.get("consent") === "on",
@@ -60,7 +58,6 @@ export function ContactForm({ vehicles }: { vehicles: { id: string; label: strin
       <label className="span2">E-mailadres <span className="fieldHint">optioneel</span><input name="email" type="email" autoComplete="email" /></label>
       <label>Voorkeur contact<select name="contactPreference" defaultValue="phone"><option value="phone">Bel mij</option><option value="email">E-mail mij</option></select></label>
       <label>Waarmee kunnen we helpen?<select name="interest" defaultValue="Adviesgesprek"><option>Adviesgesprek</option><option>Proefrit plannen</option><option>Inruil bespreken</option><option>Vraag over voorraad</option></select></label>
-      <label className="span2">Voorkeursauto<select name="vehicleId" defaultValue=""><option value="">Nog geen voorkeur</option>{vehicles.map(vehicle => <option value={vehicle.id} key={vehicle.id}>{vehicle.label}</option>)}</select></label>
       <label className="span2">Vertel kort hoe u rijdt<textarea name="message" rows={4} placeholder="Bijvoorbeeld: 60 km per dag, vooral snelweg, thuis laden is mogelijk." /></label>
     </div>
     <div className="formHoneypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
