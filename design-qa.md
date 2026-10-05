@@ -39,6 +39,59 @@ final result: passed
 
 ---
 
+# Mobiele routeknop optie 1 — design QA
+
+## Vergelijkingsbasis
+
+- Source visual truth: `C:\Users\carou\.codex\generated_images\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\exec-3c91e67c-fc0d-44ac-9754-6e4fdfcb082f.png`
+- Implementatie, volledige mobiele pagina: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\route-button-qa\qa-route-button-822-page-v2.png`
+- Genormaliseerde gerichte vergelijking: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\route-button-qa\qa-route-button-comparison-v2.png`
+- Viewports: 390 × 844 en 822 × 500 CSS-pixels, device scale factor 1.
+- Sourcepixels: 2048 × 1024; gebruikte sourcecrop: 1968 × 230.
+- Implementatiepixels: 822 × 500; mobiele actiebalk: 783 × 70 CSS-pixels.
+- Staat: homepage bovenaan, mobiele actiebalk zichtbaar en niet verborgen door een formulier.
+
+## Fidelity-controle
+
+- Typografie: bestaande Inter-interfaceletter en gewicht 700 zijn behouden; tekst blijft exact `Route` en past zonder afbreken.
+- Spacing en layout: drie gelijke gridkolommen, bestaande balkhoogte en tappunten blijven behouden. De routeknop heeft dezelfde buitenmaat als Bel en WhatsApp.
+- Kleur en tokens: Route gebruikt Deep Ink `#0D1117`, Ice Blue `#E6F2FF`, Electric Blue `#168BFF` en wit voor voldoende contrast.
+- Iconen: het bestaande repo-eigen navigatie-icoon blijft gebruikt, nu als gevuld blauw icoon in een ronde Ice Blue-drager.
+- Beeldkwaliteit: geen nieuwe rasterasset nodig; de vorm blijft scherp op iedere schermdichtheid.
+- Copy: `Bel`, `WhatsApp` en `Route` zijn ongewijzigd.
+- Responsive: op 390 px blijft de routeknop horizontaal leesbaar; boven 900 px blijft de bestaande verticale contactdock ongewijzigd en zichtbaar.
+- Interactie en toegankelijkheid: de routeknop opent een modal met Google Maps, Apple Kaarten en Waze; de modal heeft een toegankelijke naam, sluit met Escape en geeft de focus terug aan de routeknop.
+- Browserconsole: geen fouten.
+- Focused comparison: noodzakelijk omdat de wijziging uitsluitend de routeknop betreft; de gerichte vergelijking toont bron en implementatie in dezelfde compositie.
+
+## Vergelijkingsgeschiedenis
+
+1. Eerste vergelijking — P2: het route-icoon werd als lijncontour weergegeven, terwijl de gekozen bron een gevuld blauw navigatie-icoon toont.
+2. Correctie: `fill: currentColor` en `stroke: none` uitsluitend op het mobiele route-icoon toegepast.
+3. Tweede vergelijking: icoon, Deep Ink-oppervlak, ronde Ice Blue-drager en blauwe onderlijn sluiten aan op optie 1. Geen resterende P0-, P1- of P2-afwijkingen.
+
+## Restpunten
+
+- De zwarte `N`-indicator in ontwikkelcaptures is Next.js-ontwikkelchrome en maakt geen deel uit van de productie-interface.
+- De source visual is bewust ruimer en scherper gerenderd dan de productiecomponent; de implementatie behoudt de bestaande responsieve maatvoering van de website.
+
+final result: passed
+
+## Routekeuze — aanvullende functionele QA
+
+- Open-state: `C:\Users\carou\.codex\visualizations\2026\09\16\01a0aa3a-7760-76a2-a2cc-bab4f0776e39\route-button-qa\qa-route-chooser-mobile.png`
+- Viewport: 390 × 844 CSS-pixels.
+- De open-state was niet uitgewerkt in de gekozen bron; daarom is deze beoordeeld op dezelfde Deep Ink-, Ice Blue- en Electric Blue-tokens en op aansluiting bij de bestaande mobiele actiebalk.
+- Google Maps, Apple Kaarten en Waze hebben elk een geldige route-URL en openen veilig in een nieuw tabblad met `noopener noreferrer`.
+- De laatst gekozen route-app wordt lokaal onthouden en bij heropening gemarkeerd met `Laatst gebruikt`.
+- Escape sluit de modal en herstelt de focus naar de routeknop.
+- De productiebuild is geslaagd; de bestaande, niet-door-deze-wijziging-veroorzaakte autoprefixer-waarschuwingen blijven zichtbaar.
+- Browserconsole: geen fouten.
+
+final result: passed
+
+---
+
 # Homepage vehicle-card alignment — design QA
 
 ## Reference

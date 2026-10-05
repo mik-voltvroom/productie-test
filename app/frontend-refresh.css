@@ -89,14 +89,14 @@
   box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 10px 24px rgba(13,17,23,.19);
 }
 .floatingContactDock a:active{transform:scale(.97)}
-.floatingContactDock a:focus-visible,.mobileActionBar a:focus-visible{
+.floatingContactDock a:focus-visible,.mobileActionBar .contactAction:focus-visible{
   outline:3px solid #fff;
   outline-offset:2px;
   box-shadow:0 0 0 5px rgba(10,132,255,.48),0 10px 24px rgba(13,17,23,.18);
 }
 .floatingContactDock .contactActionPhone,.mobileActionBar .contactActionPhone{background:#34c759!important}
 .floatingContactDock .contactActionWhatsapp,.mobileActionBar .contactActionWhatsapp{background:#25d366!important}
-.floatingContactDock .contactActionRoute,.mobileActionBar .contactActionRoute{background:#0a84ff!important}
+.floatingContactDock .contactActionRoute{background:#0a84ff!important}
 .floatingContactDock .dockIcon{
   width:31px;
   height:31px;
@@ -109,6 +109,7 @@
   0%,100%{transform:translateY(-50%)}
   50%{transform:translateY(calc(-50% - 5px))}
 }
+.routeChooserBackdrop,.routeChooserSheet{display:none}
 @media(max-width:900px){
   .mobileActionBar{
     gap:7px!important;
@@ -120,7 +121,7 @@
     backdrop-filter:blur(22px) saturate(180%)!important;
     -webkit-backdrop-filter:blur(22px) saturate(180%)!important;
   }
-  .mobileActionBar a{
+  .mobileActionBar .contactAction{
     min-height:54px;
     gap:6px;
     border:0!important;
@@ -130,16 +131,80 @@
     text-shadow:0 1px 2px rgba(13,17,23,.18);
     transition:transform .18s ease,filter .18s ease;
   }
-  .mobileActionBar a:active{filter:brightness(.94);transform:scale(.97)}
+  .mobileActionBar .contactAction:active{filter:brightness(.94);transform:scale(.97)}
   .mobileActionBar svg{width:19px;height:19px;stroke-width:2}
+  .mobileActionBar .contactActionRoute{
+    position:relative;
+    overflow:hidden;
+    background:#0d1117!important;
+    color:#fff!important;
+    box-shadow:inset 0 -3px 0 #168bff,inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(13,17,23,.18);
+    text-shadow:none;
+  }
+  .mobileActionBar .routeActionIcon{
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
+    border-radius:50%;
+    background:#e6f2ff;
+    color:#168bff;
+    box-shadow:inset 0 0 0 1px rgba(22,139,255,.12);
+  }
+  .mobileActionBar .routeActionIcon svg{width:17px;height:17px;fill:currentColor;stroke:none}
+  .routeChooserBackdrop{
+    position:fixed;
+    inset:0;
+    z-index:54;
+    display:block;
+    border:0;
+    background:rgba(13,17,23,.38);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+  }
+  .routeChooserSheet{
+    position:fixed;
+    left:12px;
+    right:12px;
+    bottom:92px;
+    z-index:56;
+    display:block;
+    width:min(520px,calc(100vw - 24px));
+    margin:0 auto;
+    padding:20px;
+    border:1px solid rgba(255,255,255,.82);
+    border-radius:24px;
+    background:#fff;
+    color:#0d1117;
+    box-shadow:0 22px 56px rgba(13,17,23,.24);
+  }
+  .routeChooserHeader{display:flex;align-items:start;justify-content:space-between;gap:16px}
+  .routeChooserHeader>div>span{display:block;color:#168bff;font-size:.65rem;font-weight:800;letter-spacing:.12em}
+  .routeChooserHeader h2{margin:5px 0 0;font-family:"Manrope Variable",Manrope,sans-serif;font-size:1.35rem;font-weight:600;letter-spacing:-.03em}
+  .routeChooserClose{min-height:40px;padding:0 12px;border:1px solid #dbe2ea;border-radius:12px;background:#f6f8fb;color:#0d1117;font:inherit;font-size:.75rem;font-weight:700;cursor:pointer}
+  .routeChooserClose:focus-visible,.routeChoice:focus-visible{outline:3px solid rgba(22,139,255,.42);outline-offset:2px}
+  .routeChooserSheet>p{margin:10px 0 16px;color:#687582;font-size:.78rem;line-height:1.5}
+  .routeChooserOptions{display:grid;gap:8px}
+  .routeChoice{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:62px;padding:11px 14px;border:1px solid #dbe2ea;border-radius:16px;background:#fff;color:#0d1117;text-decoration:none;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+  .routeChoice:hover{border-color:#168bff;background:#f5faff}
+  .routeChoice:active{transform:scale(.985)}
+  .routeChoice>span{display:grid;gap:2px}
+  .routeChoice strong{font-size:.9rem}
+  .routeChoice small{color:#687582;font-size:.72rem}
+  .routeChoice em{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#e6f2ff;color:#075eba;font-size:.62rem;font-style:normal;font-weight:800}
+  .routeChoice.isPreferred{border-color:rgba(22,139,255,.5);background:#f5faff}
 }
 @media(max-width:640px){
   .mobileActionBar{left:8px;right:8px;bottom:8px}
-  .mobileActionBar a{min-height:56px;font-size:.7rem}
+  .mobileActionBar .contactAction{min-height:56px;font-size:.7rem}
+  .mobileActionBar .contactActionRoute{flex-direction:row;gap:7px}
+  .mobileActionBar .routeActionIcon{width:28px;height:28px;flex-basis:28px}
+  .routeChooserSheet{left:8px;right:8px;bottom:88px;width:calc(100vw - 16px);padding:18px;border-radius:22px}
 }
 @media(prefers-reduced-motion:reduce){
   .floatingContactDock{animation:none}
-  .floatingContactDock a,.mobileActionBar a{transition:none}
+  .floatingContactDock a,.mobileActionBar .contactAction,.routeChoice{transition:none}
 }
 
 /* Homepage hero: only public VVOS imagery, reserved 4:3 space and two actions. */
