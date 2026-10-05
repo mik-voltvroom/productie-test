@@ -65,8 +65,9 @@ export function mergeImportedEditorial(current: Vehicle | undefined, incoming: V
     ...(incoming.realisticRangeKm === undefined && current?.realisticRangeKm !== undefined ? { realisticRangeKm: current.realisticRangeKm } : {}),
     ...(incoming.roadTax === undefined && current?.roadTax !== undefined ? { roadTax: current.roadTax } : {}),
   };
-  return projectEditorial({ ...incoming, ...retainedManualShowroomValues, highlights, editorial,
-    ...(current?.description !== undefined ? { description: current.description } : {}) });
+  // projectEditorial keeps an explicitly edited websiteText. Without such an
+  // override, the latest Mobilox advert copy should remain the public source.
+  return projectEditorial({ ...incoming, ...retainedManualShowroomValues, highlights, editorial });
 }
 
 const keyList = z.array(z.string().min(1).max(4096)).max(2000);

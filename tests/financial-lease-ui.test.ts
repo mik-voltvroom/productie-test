@@ -10,6 +10,7 @@ describe("financial lease UI", () => {
     expect(component).toContain('value={downPayment}');
     expect(component).toContain('value={balloon}');
     expect(component).toContain('placeholder="0"');
+    expect(component).not.toContain("rekenrente");
   });
 
   it("places the calculator directly before the final appointment section", () => {

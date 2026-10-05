@@ -26,6 +26,7 @@ describe("publieke voorraadpagina", () => {
     expect(form).toContain("Online tonen");
     expect(form).toContain("Alleen intern");
     expect(form).toContain("Nieuwe foto’s blijven eerst alleen intern");
+    expect(form).toContain("Vink per optie aan wat bezoekers op de voertuigadvertentie mogen zien");
     expect(repository).toContain("getPublicVehicleImages");
     expect(merchant).toContain("getPublicVehicleImages");
     expect(hexon).toContain("preservePublicImageSelection");

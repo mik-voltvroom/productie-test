@@ -380,7 +380,9 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   const updatedAt = now.toISOString();
   const vin = firstText(parsed, ["vin", "chassisnummer"]);
   const licensePlate = firstText(parsed, ["kenteken"]);
-  const description = sanitizeProviderDescription(firstText(parsed, ["opmerkingen", "omschrijving"]));
+  // Mobilox sends the sales copy separately from its introduction text. Prefer
+  // the explicit advert copy; legacy feeds retain their established fallbacks.
+  const description = sanitizeProviderDescription(firstText(parsed, ["advertentietekst", "opmerkingen", "omschrijving"]));
   // Preserve only fields actually present; their names do not prove Mobilox UI semantics.
   const sourceTexts: Record<string, string> = {};
   const vehicleNode = firstField(parsed, ["voertuig"]);

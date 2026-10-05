@@ -154,6 +154,7 @@ export function VehicleEditorialPanel({ vehicle, onSaved, enabled }: { vehicle: 
     </fieldset>
     <fieldset disabled={(busy && !optionsBusy) || !enabled} className={styles.fields}>
       <legend>Opties op de website · {vehicle.highlights.filter(label => selected.has(optionKey(label))).length} geselecteerd</legend>
+      <p className="helper">Vink per optie aan wat bezoekers op de voertuigadvertentie mogen zien. Wijzigingen worden automatisch opgeslagen.</p>
       <div className={styles.toolbar}><label>Opties zoeken<input value={query} onChange={event => setQuery(event.target.value)} placeholder="Zoek bijvoorbeeld stoelverwarming" /></label>
         <button className="button secondary" type="button" onClick={() => updateOptionSelection(vehicle.highlights.map(optionKey))}>Alles selecteren</button>
         <button className="button secondary" type="button" onClick={() => updateOptionSelection([])}>Alles deselecteren</button>

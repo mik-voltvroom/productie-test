@@ -133,7 +133,7 @@ export function LeaseCalculator({
       {quote && <>
         <span>Indicatieve maandtermijn</span>
         <strong>{money(quote.monthlyCents)} <small>p/m</small></strong>
-        <span>{quote.termMonths} maanden · rekenrente {(quote.annualRateBps / 100).toLocaleString("nl-NL")}% per jaar</span>
+        <span>{quote.termMonths} maanden</span>
       </>}
     </div>
     <p className={styles.help}>Uitsluitend zakelijk. Indicatieve annuïtaire berekening, geen offerte of kredietgoedkeuring. Definitieve rente, looptijd, kosten en acceptatie worden door de financier bepaald. Onderhoud, verzekering en belastingen zijn niet inbegrepen.</p>

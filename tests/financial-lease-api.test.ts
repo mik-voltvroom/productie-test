@@ -21,7 +21,7 @@ const body = {
   type: "financial_lease",
   vehicleId: "car-1",
   expectedPriceCents: 3_000_000,
-  expectedAnnualRateBps: 850,
+  expectedAnnualRateBps: 1250,
   companyName: "Voorbeeld BV",
   kvk: "12345678",
   name: "Test Aanvrager",
@@ -38,7 +38,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.enabled.mockReturnValue(true);
   mocks.quota.mockResolvedValue({ allowed: true });
-  mocks.rate.mockReturnValue(850);
+  mocks.rate.mockReturnValue(1250);
   mocks.vehicle.mockResolvedValue({ id: "car-1", status: "available", priceCents: 3_000_000, brand: "Test", model: "Auto", trim: "" });
   mocks.create.mockImplementation(async (_collection, id, lead) => ({ id, ...lead }));
   mocks.notify.mockResolvedValue({ configured: true, sent: 1, failed: 0 });
@@ -52,7 +52,7 @@ describe("financial lease intake", () => {
     expect(lead.type).toBe("financial_lease");
     expect(lead.companyName).toBe(body.companyName);
     expect(lead.kvk).toBe(body.kvk);
-    expect(lead.financialLease.quote.annualRateBps).toBe(850);
+    expect(lead.financialLease.quote.annualRateBps).toBe(1250);
     expect(lead.financialLease.quote.monthlyCents).toBeGreaterThan(0);
     expect(lead.financialLease.providerStatus).toBe("not_submitted");
     expect((await response.json()).lead).toBeUndefined();

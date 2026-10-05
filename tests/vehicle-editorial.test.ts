@@ -10,6 +10,24 @@ const incoming = () => ({ ...parseHexonMutation(xml).vehicle!, highlights: Array
 const photos: VehicleImage[] = Array.from({ length: 20 }, (_, i) => ({ id: `p${i + 1}`, url: `https://example.com/${i + 1}.jpg`, source: "mobilox-hexon", contentHash: `hash${i + 1}`, importedAt: now }));
 
 describe("VVOS publication control", () => {
+  it("uses Mobilox advert copy instead of introduction text and keeps it current", () => {
+    const withSeparateTexts = xml.replace(
+      "<opmerkingen>Intro uit feed</opmerkingen><omschrijving>Andere bron</omschrijving>",
+      "<introductietekst>Introductie voor intern gebruik</introductietekst><advertentietekst>Advertentietekst versie 1</advertentietekst><opmerkingen>Oude fallback</opmerkingen>",
+    );
+    const first = parseHexonMutation(withSeparateTexts).vehicle!;
+    expect(first.description).toBe("Advertentietekst versie 1");
+    expect(first.description).not.toContain("Introductie voor intern gebruik");
+
+    let vehicle = mergeImportedEditorial(undefined, first, photos);
+    vehicle = mergeImportedEditorial(vehicle, parseHexonMutation(withSeparateTexts.replace("versie 1", "versie 2")).vehicle!, photos);
+    expect(vehicle.description).toBe("Advertentietekst versie 2");
+
+    vehicle = applyEditorialCommand(vehicle, { type: "text", text: "Handmatige websitetekst", revision: 0 }, now);
+    vehicle = mergeImportedEditorial(vehicle, parseHexonMutation(withSeparateTexts.replace("versie 1", "versie 3")).vehicle!, photos);
+    expect(vehicle.description).toBe("Handmatige websitetekst");
+  });
+
   it("does not leak raw legacy imports, internal photos or unselected options", () => {
     let vehicle = mergeImportedEditorial(undefined, incoming(), photos);
     vehicle = applyEditorialCommand(vehicle, { type: "visibility", id: "p2", online: false, revision: 0 }, now);

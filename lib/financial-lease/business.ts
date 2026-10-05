@@ -72,9 +72,3 @@ export function calculateLease(priceCents: number, selection: LeaseSelection, an
     calculationVersion: "annuity-v1",
   };
 }
-
-export function configuredRate(value: string | undefined): number | null {
-  if (!value || !/^\d+$/.test(value)) return null;
-  const rate = Number(value);
-  return Number.isInteger(rate) && rate >= 0 && rate <= 3000 ? rate : null;
-}
