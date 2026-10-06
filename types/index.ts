@@ -1,3 +1,4 @@
+import type { SourceSpecifications } from "@/lib/vehicle/source-specifications";
 export type DriveType = "full-hybrid" | "plug-in-hybrid" | "electric" | "combustion";
 export type VehicleStatus = "draft" | "photography" | "review" | "available" | "reserved" | "sold" | "archived";
 export type PublishChannel = "website" | "merchant" | "google_ads" | "meta";
@@ -47,6 +48,10 @@ export interface VehicleCommercial {
 }
 
 export interface VehicleSource {
+  /** Set only by a validated full Mobilox replacement. */
+  contentVersion?: 1;
+  payloadSha256?: string;
+  inventoryStatus?: VehicleStatus;
   provider: string;
   externalId?: string;
   lastMutationAt?: string;
@@ -87,7 +92,7 @@ export interface VehicleEditorial {
   content: VehicleContent;
 }
 
-export interface Vehicle {
+export interface Vehicle extends SourceSpecifications {
   id: string;
   slug: string;
   brand: string;

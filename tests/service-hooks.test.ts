@@ -24,12 +24,12 @@ describe("service hooks fail closed", () => {
     expect(response.status).toBe(401);
   });
 
-  it("rejects VWE imports when no webhook secret is configured", async () => {
+  it("permanently rejects VWE inventory imports", async () => {
     const response = await importVwe(new Request("https://staging.voltvroom.nl/api/vwe/import", {
       method: "POST",
       body: JSON.stringify({ vehicles: [] }),
     }));
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(410);
   });
 
   it("rejects Hexon imports when dedicated credentials are not configured", async () => {

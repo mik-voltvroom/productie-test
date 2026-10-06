@@ -1,6 +1,6 @@
 import type { Vehicle, VehiclePublication } from "@/types";
 
-type VehiclePhotoSource = Pick<Vehicle, "images" | "publication" | "editorial">;
+type VehiclePhotoSource = Pick<Vehicle, "images" | "publication" | "editorial" | "source">;
 
 function uniqueUrls(values: unknown): string[] {
   if (!Array.isArray(values)) return [];
@@ -12,33 +12,19 @@ export function hasExplicitPublicImageSelection(publication: VehiclePublication 
 }
 
 /**
- * Returns the only photos that may be exposed outside VVOS, preserving the
- * canonical order from `vehicle.images`. Existing records without an explicit
- * selection remain backwards compatible and publish all current photos.
+ * Publishes the canonical Mobilox image list in provider order.
+ * Legacy selections remain read-only until a verified source replacement.
  */
 export function getPublicVehicleImages(vehicle: VehiclePhotoSource): string[] {
-  const images = uniqueUrls(vehicle.editorial ? vehicle.editorial.photos.filter(photo => !photo.deletedAt).map(photo => photo.url) : vehicle.images ?? []);
+  if (vehicle.source?.contentVersion === 1) return uniqueUrls(vehicle.images);
+  // Transition only: until a full verified reimport, do not expose previously
+  // internal legacy media by dropping its selection. No new editor can write it.
+  const images = uniqueUrls(vehicle.editorial ? vehicle.editorial.photos.filter(photo => !photo.deletedAt).map(photo => photo.url) : vehicle.images);
   if (!hasExplicitPublicImageSelection(vehicle.publication)) return images;
-
-  const selected = new Set(uniqueUrls(vehicle.publication?.publicImageUrls ?? []));
-  return images.filter(image => selected.has(image));
+  const selected = new Set(uniqueUrls(vehicle.publication?.publicImageUrls));
+  return images.filter(url => selected.has(url));
 }
 
 export function isVehicleImagePublic(vehicle: VehiclePhotoSource, imageUrl: string): boolean {
   return getPublicVehicleImages(vehicle).includes(imageUrl);
-}
-
-/**
- * Keeps a deliberate human photo selection across provider synchronisations.
- * New or replaced provider photos are internal until a user explicitly opts
- * them in. `undefined` means there was no selection yet and legacy behaviour
- * should remain in place.
- */
-export function preservePublicImageSelection(
-  publication: VehiclePublication | undefined,
-  nextImages: readonly string[],
-): string[] | undefined {
-  if (!hasExplicitPublicImageSelection(publication)) return undefined;
-  const available = new Set(uniqueUrls(nextImages));
-  return uniqueUrls(publication?.publicImageUrls ?? []).filter(image => available.has(image));
 }

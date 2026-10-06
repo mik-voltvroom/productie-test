@@ -63,16 +63,8 @@ service cloud.firestore {
     match /vehicles/{vehicleId} {
       // Public pages use the server projection; raw source/internal media stay staff-only.
       allow read: if staff();
-      allow create: if (hasRole('owner') || hasRole('admin') || hasRole('sales'))
-        && safeVehicleCreate()
-        && !request.resource.data.keys().hasAny(['editorial'])
-        && validVehicleMoney(request.resource.data);
-      allow update: if (hasRole('owner') || hasRole('admin') || hasRole('sales'))
-        && safeVehicleUpdate()
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['editorial'])
-        && validVehicleMoney(request.resource.data);
-      allow delete: if (hasRole('owner') || hasRole('admin'))
-        && !commercialVehicleStatus(resource.data);
+      // Mobilox imports and authorized internal/deal APIs use Admin transactions.
+      allow create, update, delete: if false;
     }
     match /leads/{leadId} {
       allow create, read, update: if staff();

@@ -195,7 +195,7 @@ export async function updateDealStatus(id: string, nextStatus: Deal["status"]): 
 
     if (nextStatus === "cancelled" && vehicle && vehicleReference && vehicle.status === "reserved" && vehicle.reservedDealId === deal.id) {
       transaction.update(vehicleReference, {
-        status: "available",
+        status: vehicle.source?.inventoryStatus ?? "available",
         reservedDealId: FieldValue.delete(),
         reservedAt: FieldValue.delete(),
         updatedAt,

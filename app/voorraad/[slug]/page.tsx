@@ -10,6 +10,7 @@ import { eligibleForLease } from "@/lib/financial-lease/business";
 import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
 import { vehicleContactHref } from "@/lib/contact/business";
+import { vehicleSpecifications } from "@/lib/vehicle/specifications";
 import styles from "./vehicle.module.css";
 
 // VVOS publication data changes at runtime; never serve a prerendered offer.
@@ -64,16 +65,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   const vehicleName = `${vehicle.brand} ${vehicle.model}`;
 
 
-  const specs = [
-    ["Carrosserie", vehicle.bodyStyle || null],
-    ["Kleur", vehicle.color || null],
-    ["Aandrijving", publicDriveType],
-    ["Transmissie", vehicle.transmission || null],
-    ["Opgegeven verbruik", vehicle.consumptionPer100Km ? `${vehicle.consumptionPer100Km} l/100 km` : null],
-    ["Elektrische actieradius", vehicle.electricRangeKm ? `${numberFormat.format(vehicle.electricRangeKm)} km` : null],
-    ["Accuconditie (aangeleverd)", vehicle.batteryHealthPercent !== undefined ? `${vehicle.batteryHealthPercent}%` : null],
-    ["Garantie", vehicle.warrantyMonths ? `${vehicle.warrantyMonths} maanden` : null],
-  ].filter((item): item is [string, string] => Boolean(item[1]));
+  const specs = vehicleSpecifications(vehicle);
 
   const description = publicDescription(vehicle.description, vehicleName);
   const paragraphs = description.split(/\n\s*\n/).filter(Boolean);

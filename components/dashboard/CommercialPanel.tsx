@@ -39,7 +39,7 @@ export function CommercialPanel({
       <label>Doelmarge<input type="number" min="0" step="0.01" value={centsToEuros(commercial.targetMarginCents)} onChange={event => set("targetMarginCents", eurosToCents(Number(event.target.value), "targetMarginCents"))} /></label>
       <label>Websiteweergaven<input type="number" min="0" step="1" value={commercial.viewCount} onChange={event => set("viewCount", Number(event.target.value))} /></label>
       <label>Leads<input type="number" min="0" step="1" value={commercial.leadCount} onChange={event => set("leadCount", Number(event.target.value))} /></label>
-      <label>Definitieve verkoopprijs<input type="number" min="0" step="0.01" value={commercial.soldPriceCents === undefined ? "" : centsToEuros(commercial.soldPriceCents)} onChange={event => set("soldPriceCents", event.target.value === "" ? undefined : eurosToCents(Number(event.target.value), "soldPriceCents"))} /></label>
+      <label>Definitieve verkoopprijs<input value={commercial.soldPriceCents === undefined ? "" : centsToEuros(commercial.soldPriceCents)} readOnly /></label>
     </div>
     <div className="marginSummary">
       <span>Verwachte/definitieve marge <strong>{summary.costsKnown ? eur.format(centsToEuros(summary.marginCents)) : "Vul eerst de inkoopprijs in"}</strong></span>

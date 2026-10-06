@@ -3,14 +3,13 @@ import type { DocumentReference } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { parseHexonMutation } from "@/lib/integrations/hexon";
 import { prepareHexonImages } from "@/lib/integrations/hexon-images";
-import { recordVehiclePrice } from "@/lib/vehicle/business";
 import { vehicleIdentityKeys } from "@/lib/vehicle/identity";
-import { getPublicVehicleImages, preservePublicImageSelection } from "@/lib/vehicle/photos";
-import { editorialFor, mergeImportedEditorial } from "@/lib/vehicle/editorial";
-import type { Vehicle, VehicleImage, VehiclePublication } from "@/types";
+import { buildMobiloxReplacement } from "@/lib/vehicle/mobilox";
+
+import type { Vehicle, VehicleImage } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-const HEXON_PROCESSOR_VERSION = "4-direct-media";
+export const HEXON_PROCESSOR_VERSION = "5-mobilox-authoritative";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
@@ -65,7 +64,7 @@ export async function reconcileHexonInventoryDuplicates(): Promise<{ scanned: nu
   if (!adminDb) throw new Error("VVOS database niet beschikbaar.");
   const snapshot = await adminDb.collection("vehicles").where("status", "==", "available").get();
   const candidates = snapshot.docs
-    .filter(document => isProviderManagedVehicle(document.id, document.data()))
+    .filter(document => isProviderManagedVehicle(document.id, document.data()) && !document.data().reservedDealId && !document.data().soldDealId)
     .sort((left, right) => {
       const leftTime = Date.parse(String(left.data().updatedAt ?? "")) || 0;
       const rightTime = Date.parse(String(right.data().updatedAt ?? "")) || 0;
@@ -137,8 +136,8 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
   let imageFailures: Array<{ sourceUrl: string; message: string }> = [];
   let importedPhotos: VehicleImage[] = [];
 
-  const alreadyProcessed = await eventRef.get();
-  if (alreadyProcessed.exists && alreadyProcessed.data()?.result !== "accepted_with_image_warnings") {
+  const [alreadyProcessed, latestVehicle] = await Promise.all([eventRef.get(), vehicleRef.get()]);
+  if (alreadyProcessed.exists && latestVehicle.data()?.source?.payloadSha256 === payloadHash) {
     return {
       duplicate: true,
       externalId: mutation.externalId,
@@ -149,10 +148,9 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
   }
 
   if (mutation.action === "upsert" && mutation.vehicle?.images.length) {
-    const beforeDownload = await vehicleRef.get();
-    const prior = beforeDownload.exists ? beforeDownload.data() as Vehicle : undefined;
-    const persisted = await prepareHexonImages(mutation.vehicle.images, prior ? editorialFor(prior).photos : []);
+    const persisted = await prepareHexonImages(mutation.vehicle.images);
     imageFailures = persisted.failures;
+    if (imageFailures.length) throw new Error("Mobilox-fotolijst ongeldig; bestaande voertuigdata behouden.");
     importedPhotos = persisted.photos;
     mutation.vehicle.images = persisted.images;
   }
@@ -163,17 +161,17 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
 
   await adminDb.runTransaction(async transaction => {
     const event = await transaction.get(eventRef);
-    if (event.exists && event.data()?.result !== "accepted_with_image_warnings") {
+    const current = await transaction.get(vehicleRef);
+    if (event.exists && current.data()?.source?.payloadSha256 === payloadHash) {
       duplicate = true;
       return;
     }
 
-    const current = await transaction.get(vehicleRef);
     const duplicateSnapshots = await Promise.all(duplicateVehicleRefs.map(reference => transaction.get(reference)));
     if (mutation.action === "archive") {
       if (current.exists) {
         transaction.set(vehicleRef, {
-          status: "archived",
+          status: current.data()?.soldDealId ? "sold" : current.data()?.reservedDealId ? "reserved" : "archived",
           publication: {
             channels: { website: false, merchant: false, google_ads: false, meta: false },
             completenessPercent: current.data()?.publication?.completenessPercent ?? 0,
@@ -181,59 +179,22 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
             validationErrors: ["Niet langer geselecteerd in Mobilox/Hexon"],
           },
           updatedAt: now,
-          source: { provider: "mobilox-hexon", externalId: mutation.externalId, lastMutationAt: now },
+          source: { provider: "mobilox-hexon", inventoryStatus: "archived", externalId: mutation.externalId, lastMutationAt: now, payloadSha256: payloadHash },
         }, { merge: true });
       }
     } else {
       if (!mutation.vehicle) throw new Error("Hexon voertuigdata ontbreekt.");
       for (const duplicateSnapshot of duplicateSnapshots) {
         const duplicateData = duplicateSnapshot.data();
-        if (!duplicateData || !isProviderManagedVehicle(duplicateSnapshot.id, duplicateData) || duplicateData.status === "archived") continue;
+        if (!duplicateData || !isProviderManagedVehicle(duplicateSnapshot.id, duplicateData) || duplicateData.status === "archived" || duplicateData.reservedDealId || duplicateData.soldDealId) continue;
         transaction.set(duplicateSnapshot.ref, duplicateArchivePatch(duplicateData, vehicleRef.id, now), { merge: true });
         archivedDuplicates += 1;
       }
       const currentData = current.data();
-      const mergedVehicle = mergeImportedEditorial(current.exists ? currentData as Vehicle : undefined, mutation.vehicle, importedPhotos);
-      const publicImageUrls = preservePublicImageSelection(
-        current.exists ? { ...currentData?.publication, publicImageUrls: getPublicVehicleImages(currentData as Vehicle) } as VehiclePublication : undefined,
-        mergedVehicle.images,
-      );
-      const publication: VehiclePublication = {
-        ...(currentData?.publication ?? mutation.vehicle.publication) as VehiclePublication,
-        ...(publicImageUrls !== undefined ? { publicImageUrls } : {}),
-      };
-      if (publicImageUrls !== undefined && publicImageUrls.length === 0) {
-        publication.channels = { ...publication.channels, website: false };
-        publication.validationErrors = [
-          ...new Set([
-            ...(publication.validationErrors ?? []),
-            "Selecteer minimaal één foto voor online publicatie",
-          ]),
-        ];
-      }
-      const commercial = recordVehiclePrice(
-        currentData?.commercial,
-        mutation.vehicle.priceCents,
-        now,
-        "mobilox-hexon",
-      );
-      transaction.set(vehicleRef, {
-        ...mergedVehicle,
-        publication,
-        createdAt: currentData?.createdAt ?? now,
-        commercial: {
-          ...commercial,
-          acquisitionSource: commercial.acquisitionSource ?? "Mobilox / Hexon",
-          stockEnteredAt: commercial.stockEnteredAt ?? currentData?.createdAt ?? now,
-        },
-        source: {
-          provider: "mobilox-hexon",
-          externalId: mutation.externalId,
-          lastMutationAt: now,
-          imageStorage: mutation.vehicle.images.length ? "mobilox" : "none",
-          imageFailures: imageFailures.length,
-        },
-      }, { merge: true });
+      const replacement = buildMobiloxReplacement(current.exists ? currentData as Vehicle : undefined,
+        mutation.vehicle, importedPhotos, now);
+      replacement.source!.payloadSha256 = payloadHash;
+      transaction.set(vehicleRef, replacement);
     }
 
     transaction.set(eventRef, {

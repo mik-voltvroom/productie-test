@@ -1,3 +1,5 @@
+> Historisch ontwerp. Voor de nieuwe Mobilox-import en herstelprocedure geldt [MOBILOX_SOURCE_OF_TRUTH.md](./MOBILOX_SOURCE_OF_TRUTH.md). De handmatige publicatieregels hieronder zijn vervallen na een geverifieerde herimport.
+
 # VVOS publicatieregie
 
 Mobilox importeert brongegevens. VVOS bepaalt fotovolgorde, actieve foto's,

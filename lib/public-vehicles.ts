@@ -42,11 +42,7 @@ function list(value: unknown): string[] {
 }
 
 function publicImages(vehicle: FirestoreVehicle, images: string[]): string[] {
-  if (vehicle.editorial) return getPublicVehicleImages(vehicle as unknown as Vehicle);
-  const publication = vehicle.publication as RawMap | undefined;
-  if (!publication || !Object.prototype.hasOwnProperty.call(publication, "publicImageUrls")) return images;
-  const selected = new Set(list(publication.publicImageUrls));
-  return images.filter(image => selected.has(image));
+  return getPublicVehicleImages({ ...vehicle, images } as unknown as Vehicle);
 }
 
 function rawValue(vehicle: FirestoreVehicle, key: string) {
@@ -76,11 +72,15 @@ function websiteEnabled(vehicle: FirestoreVehicle): boolean {
 export type PublicVehicle = ReturnType<typeof projectPublicVehicle>;
 
 export function projectPublicVehicle(vehicle: FirestoreVehicle) {
+  if ((vehicle.source as RawMap)?.contentVersion === 1) {
+    const { raw, imageUrls, hybrid, ...canonical } = vehicle;
+    vehicle = canonical;
+  }
   const hybrid = (vehicle.hybrid ?? {}) as RawMap;
   const id = text(vehicle.id) ?? "";
   const canonicalImages = list(vehicle.images);
   const legacyImages = list(vehicle.imageUrls).length ? list(vehicle.imageUrls) : list(rawValue(vehicle, "afbeeldingen"));
-  const imageUrls = publicImages(vehicle, canonicalImages.length ? canonicalImages : legacyImages);
+  const imageUrls = publicImages(vehicle, Array.isArray(vehicle.images) ? canonicalImages : legacyImages);
   const status = text(vehicle.status);
   const sold = status === "sold" || bool(vehicle.sold) === true || bool(rawValue(vehicle, "verkocht")) === true;
   const reserved = status === "reserved" || bool(vehicle.reserved) === true || bool(rawValue(vehicle, "gereserveerd")) === true;
@@ -109,7 +109,7 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
     imageUrls,
     title: text(vehicle.title) ?? text(rawValue(vehicle, "titel")),
     highlights: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle).join(", ") : list(vehicle.highlights).join(", ") || text(rawValue(vehicle, "highlights")),
-    description: (vehicle as unknown as Vehicle).editorial?.content.websiteText ?? text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
+    description: (vehicle.source as RawMap)?.contentVersion === 1 ? text(vehicle.description) : (vehicle as unknown as Vehicle).editorial?.content.websiteText ?? text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
     accessories: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle) : list(vehicle.accessories).length ? list(vehicle.accessories) : list(rawValue(vehicle, "accessoires")),
 
     powerHp: number(vehicle.powerHp) ?? number(rawValue(vehicle, "vermogen_motor_pk")) ?? number(rawValue(vehicle, "vermogen_pk")),

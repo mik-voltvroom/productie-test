@@ -17,18 +17,10 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryPage).not.toContain('@/lib/public-vehicles');
   });
 
-  it("scheidt online advertentiefoto's van interne dossierfoto's", () => {
-    const form = read("components/dashboard/VehicleEditorialPanel.tsx");
-    const repository = read("lib/repositories/public-vehicle-repository.ts");
-    const merchant = read("lib/merchant.ts");
-    const hexon = read("lib/integrations/hexon-service.ts");
-
-    expect(form).toContain("Online tonen");
-    expect(form).toContain("Alleen intern");
-    expect(form).toContain("Nieuwe foto’s blijven eerst alleen intern");
-    expect(form).toContain("Vink per optie aan wat bezoekers op de voertuigadvertentie mogen zien");
-    expect(repository).toContain("getPublicVehicleImages");
-    expect(merchant).toContain("getPublicVehicleImages");
-    expect(hexon).toContain("preservePublicImageSelection");
+  it("uses the canonical Mobilox content across inventory and feeds", () => {
+    expect(read("components/dashboard/VehicleForm.tsx")).not.toContain("uploadVehicleImage");
+    expect(read("lib/integrations/hexon-service.ts")).toContain("buildMobiloxReplacement");
+    expect(read("lib/integrations/hexon-service.ts")).not.toContain("preservePublicImageSelection");
+    expect(read("lib/merchant.ts")).toContain("getPublicVehicleImages");
   });
 });

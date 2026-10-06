@@ -124,18 +124,17 @@ describe("Mobilox/Hexon incremental inventory", () => {
   });
 
   it("keeps incomplete vehicles out of the public website", () => {
-    const mutation = parseHexonMutation(vehicleXml.replace("<tellerstand>12.345</tellerstand>", "<tellerstand/>"));
-    expect(mutation.vehicle?.status).toBe("review");
-    expect(mutation.vehicle?.publication?.channels.website).toBe(false);
+    expect(() => parseHexonMutation(vehicleXml.replace("<tellerstand>12.345</tellerstand>", "<tellerstand/>"))).toThrow("kilometerstand");
   });
 
-  it("sanitizes escaped Mobilox advert HTML and removes duplicated spec blocks", () => {
+  it("preserves the full advert including specifications and contact text", () => {
     const escapedAdvert = "Eigen tekst over de auto.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Polestar 2&lt;/b&gt;&lt;br /&gt;&lt;ul&gt;&lt;li&gt;&lt;b&gt;Kenteken&lt;/b&gt;: HXP-41-S&lt;/li&gt;&lt;li&gt;&lt;b&gt;Merk&lt;/b&gt;: Polestar&lt;/li&gt;&lt;/ul&gt;&lt;br /&gt;&lt;b&gt;Volt &amp;amp; Vroom&lt;/b&gt;&lt;br /&gt;Groningen &amp;euro; 270 &amp;quot;test&amp;quot; be&amp;iuml;nvloeden.";
     const xml = vehicleXml.replace("Volledig elektrische Polestar.", escapedAdvert);
     const mutation = parseHexonMutation(xml);
-    expect(mutation.vehicle?.description).toBe("Eigen tekst over de auto.\n\nPolestar 2");
+    expect(mutation.vehicle?.description).toContain("Eigen tekst over de auto.");
+    expect(mutation.vehicle?.description).toContain("Groningen € 270");
     expect(mutation.vehicle?.description).not.toContain("&lt;");
-    expect(mutation.vehicle?.description).not.toContain("Kenteken");
+    expect(mutation.vehicle?.description).toContain("Kenteken");
   });
 
   it("decodes nested HTML entities in free advert text", () => {

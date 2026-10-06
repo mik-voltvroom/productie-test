@@ -53,52 +53,16 @@ describe("Firestore Rules commercial boundaries", () => {
     await assertSucceeds(getDoc(doc(salesDb, "vehicles/reserved")));
   });
 
-  it("allows ordinary inventory maintenance but denies client-side reservation and sale", async () => {
-    const salesDb = roleContext("sales").firestore();
-    const ownerDb = roleContext("owner").firestore();
-    const adminDb = roleContext("admin").firestore();
-
-    await assertSucceeds(setDoc(doc(salesDb, "vehicles/draft"), { status: "draft", make: "Kia", priceCents: 2_500_000 }));
-    await assertFails(setDoc(doc(salesDb, "vehicles/legacy-money"), { status: "draft", make: "Kia", priceEur: 25_000 }));
-    await assertFails(setDoc(doc(salesDb, "vehicles/fractional-cents"), { status: "draft", make: "Kia", priceCents: 2_500_000.5 }));
-    await assertSucceeds(setDoc(doc(salesDb, "vehicles/commercial-model"), {
-      status: "draft",
-      make: "Audi",
-      priceCents: 3_199_000,
-      commercial: { targetMarginCents: 300_000, maxStockDays: 45, viewCount: 0, leadCount: 0, priceHistory: [] },
-    }));
-    await assertFails(setDoc(doc(salesDb, "vehicles/fractional-commercial-money"), {
-      status: "draft",
-      make: "Audi",
-      priceCents: 3_199_000,
-      commercial: { targetMarginCents: 299_999.5, maxStockDays: 45, viewCount: 0, leadCount: 0, priceHistory: [] },
-    }));
-    await assertFails(setDoc(doc(salesDb, "vehicles/reserved-create"), {
-      status: "reserved",
-      reservedDealId: "deal-1",
-      priceCents: 2_500_000,
-    }));
-
-    await seed("vehicles/available", { status: "available", make: "Volvo", priceCents: 2_500_000 });
-    await assertSucceeds(updateDoc(doc(salesDb, "vehicles/available"), { make: "Polestar" }));
-    await assertFails(updateDoc(doc(ownerDb, "vehicles/available"), {
-      status: "reserved",
-      reservedDealId: "deal-1",
-      reservedAt: "2026-08-18T00:00:00.000Z",
-    }));
-
-    await seed("vehicles/reserved", { status: "reserved", reservedDealId: "deal-1" });
-    await assertFails(updateDoc(doc(adminDb, "vehicles/reserved"), { status: "available" }));
-    await assertFails(deleteDoc(doc(adminDb, "vehicles/reserved")));
-    await assertSucceeds(deleteDoc(doc(ownerDb, "vehicles/draft")));
-  });
-
-  it("keeps editorial mutations on the server", async () => {
-    const ownerDb = roleContext("owner").firestore();
-    await assertFails(setDoc(doc(ownerDb, "vehicles/editorial-create"), { status: "draft", priceCents: 100, editorial: { version: 1 } }));
-    await seed("vehicles/editorial-existing", { status: "available", priceCents: 100, editorial: { revision: 1 } });
-    await assertFails(updateDoc(doc(ownerDb, "vehicles/editorial-existing"), { editorial: { revision: 2 } }));
-    await assertSucceeds(updateDoc(doc(ownerDb, "vehicles/editorial-existing"), { priceCents: 200 }));
+  it("denies every direct vehicle mutation, including privileged clients", async () => {
+    await seed("vehicles/available", { status: "available", priceCents: 2500000, images: ["https://example.test/a.jpg"] });
+    for (const role of ["owner", "admin", "sales", "marketing"]) {
+      const db = roleContext(role).firestore();
+      await assertFails(setDoc(doc(db, "vehicles/new"), { status: "available", priceCents: 2500000 }));
+      for (const patch of [{ priceCents: 1 }, { images: [] }, { description: "override" }, { highlights: [] }, { costs: {} }, { status: "sold" }]) {
+        await assertFails(updateDoc(doc(db, "vehicles/available"), patch));
+      }
+      await assertFails(deleteDoc(doc(db, "vehicles/available")));
+    }
   });
 
   it("keeps every Commercial Core collection server-only", async () => {

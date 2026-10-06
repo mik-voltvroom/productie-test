@@ -46,14 +46,14 @@ describe("Mobilox/Hexon image import limit", () => {
     expect(result.failures).toHaveLength(2);
   });
 
-  it("preserves a manual tombstone when Mobilox repeats the same photo", async () => {
+  it("restores the current Mobilox URL even after a legacy deletion or storage copy", async () => {
     const sourceUrl = "https://media-eigenwebsiteincrementeel.export.dv.nl/103741/photo.jpg";
     const imported = await prepareHexonImages([sourceUrl]);
-    const deleted = [{ ...imported.photos[0], deletedAt: "2026-10-02T17:00:00.000Z" }];
+    const deleted = [{ ...imported.photos[0], url: "https://storage.example.test/old.jpg", deletedAt: "2026-10-02T17:00:00.000Z" }];
 
     const refreshed = await prepareHexonImages([sourceUrl], deleted);
 
-    expect(refreshed.images).toEqual([]);
-    expect(refreshed.photos).toMatchObject([{ deletedAt: "2026-10-02T17:00:00.000Z" }]);
+    expect(refreshed.images).toEqual([sourceUrl]);
+    expect(refreshed.photos[0]).not.toHaveProperty("deletedAt");
   });
 });

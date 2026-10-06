@@ -3,15 +3,11 @@ service firebase.storage {
   match /b/{bucket}/o {
     function staff() { return request.auth != null && request.auth.token.role in ['owner','admin','sales','marketing','workshop']; }
 
-    // Vehicle media may live in nested provider folders such as
-    // /vehicles/{vehicleId}/mobilox/{fileName}. Public reads are allowed for
-    // published vehicle images; authenticated staff writes stay image-only and
-    // below the 15 MiB ceiling.
+    // Legacy URLs keep working during the verified Mobilox reimport.
+    // New public photos remain hosted by Mobilox; client uploads are retired.
     match /vehicles/{vehicleId}/{allPaths=**} {
       allow read: if true;
-      allow write: if staff()
-        && request.resource.size < 15 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+      allow write: if false;
     }
   }
 }

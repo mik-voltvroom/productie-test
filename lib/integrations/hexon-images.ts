@@ -56,13 +56,11 @@ export function limitHexonImageUrls(sourceUrls: string[]): string[] {
 
 /**
  * Mobilox remains the source and host for imported vehicle photos. VVOS stores
- * only the validated HTTPS references so editorial order, publication choices
- * and tombstones keep working without duplicating the image binary. Invalid
- * URLs are omitted without making the complete vehicle mutation fail.
+ * only validated HTTPS references in source order. The caller must reject
+ * the entire mutation if any URL fails validation.
  */
-export async function prepareHexonImages(sourceUrls: string[], existing: VehicleImage[] = []): Promise<PreparedHexonImages> {
+export async function prepareHexonImages(sourceUrls: string[], _existing: VehicleImage[] = []): Promise<PreparedHexonImages> {
   if (!sourceUrls.length) return { images: [], photos: [], failures: [] };
-  const knownPhotos = existing;
   const limited = limitHexonImageUrls(sourceUrls);
   const images: string[] = [];
   const photos: VehicleImage[] = [];
@@ -71,10 +69,7 @@ export async function prepareHexonImages(sourceUrls: string[], existing: Vehicle
   for (let index = 0; index < limited.length; index += 1) {
     const sourceUrl = limited[index];
     try {
-      const known = knownPhotos.find(photo => photo.sourceUrl === sourceUrl || photo.url === sourceUrl
-        || photo.id === sourcePhotoId(sourceUrl));
-      const normalizedUrl = assertSafeRemoteImageUrl(sourceUrl).toString();
-      const photo = known ? { ...known, sourceUrl: normalizedUrl } : referenceOneImage(normalizedUrl);
+      const photo = referenceOneImage(sourceUrl);
       photos.push(photo);
       if (!photo.deletedAt) images.push(photo.url);
     } catch (error) {

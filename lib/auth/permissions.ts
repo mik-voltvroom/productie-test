@@ -4,6 +4,7 @@ export type VvosPermission =
   | "dashboard.read"
   | "vehicles.read"
   | "vehicles.write"
+  | "vehicles.internal.write"
   | "leads.read"
   | "leads.write"
   | "deals.read"
@@ -24,19 +25,19 @@ export type VvosPermission =
 
 const rolePermissions: Record<VvosRole, ReadonlySet<VvosPermission>> = {
   owner: new Set<VvosPermission>([
-    "dashboard.read", "vehicles.read", "vehicles.write", "leads.read", "leads.write",
+    "dashboard.read", "vehicles.read", "vehicles.write", "vehicles.internal.write", "leads.read", "leads.write",
     "deals.read", "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "workshop.read", "workshop.write", "finance.read",
     "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send",
     "socialVideos.read", "socialVideos.write",
   ]),
   admin: new Set<VvosPermission>([
-    "dashboard.read", "vehicles.read", "vehicles.write", "leads.read", "leads.write",
+    "dashboard.read", "vehicles.read", "vehicles.write", "vehicles.internal.write", "leads.read", "leads.write",
     "deals.read", "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "workshop.read", "workshop.write", "finance.read",
     "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send",
     "socialVideos.read", "socialVideos.write",
   ]),
   sales: new Set<VvosPermission>([
-    "dashboard.read", "vehicles.read", "leads.read", "leads.write", "deals.read",
+    "dashboard.read", "vehicles.read", "vehicles.internal.write", "leads.read", "leads.write", "deals.read",
     "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "communications.send", "socialVideos.read",
   ]),
   marketing: new Set<VvosPermission>([

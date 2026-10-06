@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { validateVehicle } from "@/lib/business";
 import { createVehicleFeed } from "@/lib/merchant";
-import { getPublicVehicleImages, preservePublicImageSelection } from "@/lib/vehicle/photos";
+import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import type { Vehicle } from "@/types";
 
 const first = "https://images.example.test/front.jpg";
@@ -12,6 +12,7 @@ const second = "https://images.example.test/interior.jpg";
 function vehicle(publicImageUrls?: string[]): Vehicle {
   return {
     id: "VV-photo-test",
+    source: { provider: "mobilox-hexon", contentVersion: 1 },
     slug: "photo-test",
     brand: "Polestar",
     model: "2",
@@ -39,44 +40,17 @@ function vehicle(publicImageUrls?: string[]): Vehicle {
   };
 }
 
-describe("VVOS fotoselectie", () => {
-  it("houdt de online/offline bediening zichtbaar in voertuigbeheer", () => {
-    const form = readFileSync(join(process.cwd(), "components/dashboard/VehicleForm.tsx"), "utf8");
-    expect(form).toContain("Online tonen");
-    expect(form).toContain("Alles online");
-    expect(form).toContain("Alles offline");
-    expect(form).toContain("Hoofdfoto online");
+describe("Mobilox photo publication", () => {
+  it("ignores old empty and partial editorial selections", () => {
+    expect(getPublicVehicleImages(vehicle([]))).toEqual([first, second]);
+    expect(getPublicVehicleImages(vehicle([second]))).toEqual([first, second]);
   });
-
-  it("houdt bestaande voertuigen backwards compatible zolang geen selectie is opgeslagen", () => {
-    expect(getPublicVehicleImages(vehicle())).toEqual([first, second]);
+  it("uses the Mobilox first photo in the merchant feed", () => {
+    expect(createVehicleFeed([vehicle([second])], "https://www.voltvroom.nl")).toContain(`<g:image_link>${first}</g:image_link>`);
   });
-
-  it("publiceert alleen geselecteerde foto's en behoudt de interne volgorde", () => {
-    expect(getPublicVehicleImages(vehicle([second]))).toEqual([second]);
-    expect(getPublicVehicleImages(vehicle([second, "https://unknown.test/photo.jpg"]))).toEqual([second]);
-  });
-
-  it("behandelt een lege expliciete selectie als alleen intern", () => {
-    const internalOnly = vehicle([]);
-    expect(getPublicVehicleImages(internalOnly)).toEqual([]);
-    expect(validateVehicle(internalOnly)).toContain("Selecteer minimaal één foto voor online publicatie");
-  });
-
-  it("gebruikt nooit een interne foto in de Merchant-feed", () => {
-    const feed = createVehicleFeed([vehicle([second])], "https://www.voltvroom.nl");
-    expect(feed).toContain(second);
-    expect(feed).not.toContain(first);
-  });
-
-  it("neemt een voertuig zonder online foto niet op in de Merchant-feed", () => {
-    const feed = createVehicleFeed([vehicle([])], "https://www.voltvroom.nl");
-    expect(feed).not.toContain("VV-photo-test");
-  });
-
-  it("behoudt een handmatige selectie bij een providerupdate en zet nieuwe foto's niet vanzelf online", () => {
-    const selection = preservePublicImageSelection(vehicle([second]).publication, [second, "https://images.example.test/new.jpg"]);
-    expect(selection).toEqual([second]);
-    expect(preservePublicImageSelection(vehicle().publication, [first, second])).toBeUndefined();
+  it("does not publish an empty source photo set", () => {
+    const empty = { ...vehicle(), images: [] };
+    expect(validateVehicle(empty)).toContain("Minimaal één foto is verplicht");
+    expect(createVehicleFeed([empty], "https://www.voltvroom.nl")).not.toContain("VV-photo-test");
   });
 });

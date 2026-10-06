@@ -1,3 +1,4 @@
+import { numericSourceSpecs, textSourceSpecs, type SourceSpecifications } from "@/lib/vehicle/source-specifications";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { slugify, validateVehicle } from "@/lib/business";
 import { eurosToCents } from "@/lib/money";
@@ -115,11 +116,11 @@ function decodeHtmlEntitiesOnce(value: string): string {
   return value.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z][a-z0-9]+);/gi, (match, entity: string) => {
     if (entity.startsWith("#x") || entity.startsWith("#X")) {
       const codePoint = Number.parseInt(entity.slice(2), 16);
-      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
+      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
     }
     if (entity.startsWith("#")) {
       const codePoint = Number.parseInt(entity.slice(1), 10);
-      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
+      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
     }
     return HTML_ENTITIES[entity] ?? HTML_ENTITIES[entity.toLowerCase()] ?? match;
   });
@@ -139,6 +140,7 @@ function sanitizeProviderDescription(value: string | undefined): string | undefi
   if (!value) return undefined;
 
   let text = decodeHtmlEntities(value)
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "")
     .replace(/<\s*br\s*\/?\s*>/gi, "\n")
     .replace(/<\s*\/\s*(?:p|div|ul|ol|li|h[1-6])\s*>/gi, "\n")
     .replace(/<\s*li\b[^>]*>/gi, "- ")
@@ -150,24 +152,6 @@ function sanitizeProviderDescription(value: string | undefined): string | undefi
     .replace(/[ \t]+/g, " ")
     .replace(/ *\n */g, "\n")
     .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-  // Mobilox can append a complete HTML advert (specs, equipment, contact data and
-  // disclaimer) to the free-text introduction. VVOS already renders those fields
-  // structurally, so keep only the genuine introduction before the duplicated spec block.
-  const structuredMarkers = [
-    /\n-?\s*Kenteken\s*:/i,
-    /\n-?\s*Merk\s*:/i,
-    /\n-?\s*APK tot\s*:/i,
-  ];
-  const markerPositions = structuredMarkers
-    .map(pattern => text.search(pattern))
-    .filter(position => position >= 0);
-  if (markerPositions.length) text = text.slice(0, Math.min(...markerPositions)).trim();
-
-  text = text
-    .replace(/\n(?:Volt\s*&\s*Vroom|Euvelgunnerweg\s+50)[\s\S]*$/i, "")
-    .replace(/\nWe hebben ons uiterste best gedaan[\s\S]*$/i, "")
     .trim();
 
   return text || undefined;
@@ -315,14 +299,13 @@ function collectHttpsUrls(root: unknown): string[] {
   visit(root, (key, value) => {
     if (key !== "url" || typeof value !== "string") return;
     const candidate = value.trim();
-    if (/^https:\/\//i.test(candidate)) urls.add(candidate);
+    if (candidate) urls.add(candidate);
   });
   return [...urls].slice(0, MAX_IMPORTED_PHOTOS);
 }
 
 function collectHighlights(root: unknown): string[] {
-  const source = firstField(root, ["accessoires", "zoekaccessoires", "opties"]);
-  if (!source) return [];
+  const source = ["accessoires", "zoekaccessoires", "opties"].map(name => firstField(root, [name]));
   const values = new Set<string>();
   visit(source, (key, value) => {
     if (!["accessoire", "optie", "omschrijving", "naam"].includes(key)) return;
@@ -357,6 +340,8 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   if (validation !== true) throw new Error("Hexon XML is niet geldig.");
 
   const parsed = parser.parse(xml) as unknown;
+  const vehicleNode = firstField(parsed, ["voertuig"]);
+  if (!isRecord(vehicleNode)) throw new Error("Verwacht precies één volledig Mobilox-voertuig per aanlevering.");
   const externalId = safeExternalId(firstText(parsed, ["voertuignr_hexon", "voertuignr", "voertuignr_klant", "voertuignummer", "stocknummer"]) ?? "");
   const providerAction = providerMutationAction(parsed);
   const action = providerAction === "delete" ? "archive" : "upsert";
@@ -364,15 +349,18 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
 
   const brand = firstText(parsed, ["merk"]) ?? "";
   const model = firstText(parsed, ["model"]) ?? "";
+  if (!brand || !model) throw new Error("Hexon merk of model ontbreekt.");
   const trim = firstText(parsed, ["uitrustingsniveau", "type", "titel"]) ?? "";
   const rawFuel = firstText(parsed, ["brandstof", "brandstof_omschrijving"]) ?? "";
   const pluginHybrid = parseBoolean(firstField(parsed, ["plugin_hybride"]));
   const driveType = inferDriveType(rawFuel, pluginHybrid);
   const fuelType = displayFuelType(rawFuel, driveType);
-  const year = parseInteger(firstField(parsed, ["bouwjaar", "modeljaar"])) ?? 0;
+  const year = parseInteger(firstField(parsed, ["bouwjaar", "modeljaar"]));
+  if (year === undefined || year < 1886 || year > now.getFullYear() + 2) throw new Error("Hexon bouwjaar ontbreekt of is ongeldig.");
   const mileageValue = firstField(parsed, ["tellerstand", "kilometerstand"]);
   const parsedMileageKm = parseOdometerKm(mileageValue);
-  const mileageKm = parsedMileageKm ?? 0;
+  if (parsedMileageKm === undefined || parsedMileageKm < 0) throw new Error("Hexon kilometerstand ontbreekt of is ongeldig.");
+  const mileageKm = parsedMileageKm;
   const images = collectHttpsUrls(firstField(parsed, ["afbeeldingen", "fotos", "foto_s"]));
   const sold = parseBoolean(firstField(parsed, ["verkocht"]));
   const reserved = parseBoolean(firstField(parsed, ["gereserveerd"]));
@@ -382,16 +370,15 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   const licensePlate = firstText(parsed, ["kenteken"]);
   // Mobilox sends the sales copy separately from its introduction text. Prefer
   // the explicit advert copy; legacy feeds retain their established fallbacks.
-  const description = sanitizeProviderDescription(firstText(parsed, ["advertentietekst", "opmerkingen", "omschrijving"]));
   // Preserve only fields actually present; their names do not prove Mobilox UI semantics.
   const sourceTexts: Record<string, string> = {};
-  const vehicleNode = firstField(parsed, ["voertuig"]);
   if (isRecord(vehicleNode)) {
     for (const name of ["opmerkingen", "omschrijving", "introductietekst", "advertentietekst"]) {
-      const value = textFrom(vehicleNode[name]);
+      const value = textFrom(Object.entries(vehicleNode).find(([key]) => normalizedKey(key) === name)?.[1]);
       if (value !== undefined) sourceTexts[name] = value;
     }
   }
+  const description = sanitizeProviderDescription(sourceTexts.advertentietekst ?? sourceTexts.opmerkingen ?? sourceTexts.omschrijving);
   const batteryHealthPercent = firstInteger(parsed, ["accu_conditie"]);
   const wltpRangeKm = firstInteger(parsed, ["wltp_actieradius_elektrisch_combined"]);
   const electricRangeKm = wltpRangeKm ?? firstInteger(parsed, ["actieradius_elektrisch"]);
@@ -399,7 +386,21 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   const consumptionPer100Km = firstNumber(parsed, ["wltp_brandstofverbruik_combined_weighted", "wltp_brandstofverbruik_combined", "gemiddeld_verbruik"]);
   const warrantyMonths = firstInteger(parsed, ["garantie_maanden", "fabrieksgarantie_aantal_maanden"]);
 
+  const specs: SourceSpecifications = {};
+  for (const [key, definition] of Object.entries(numericSourceSpecs)) {
+    const value = firstNumber(parsed, [...definition.fields]);
+    if (value !== undefined && value >= 0) specs[key as keyof typeof numericSourceSpecs] = value;
+  }
+  for (const [key, definition] of Object.entries(textSourceSpecs)) {
+    const value = firstText(parsed, [...definition.fields]);
+    if (value !== undefined) specs[key as keyof typeof textSourceSpecs] = value;
+  }
+  const fastCharge = firstText(parsed, ["geschikt_voor_snelladen"])?.toLowerCase();
+  if (fastCharge && ["j", "ja", "1", "true", "n", "nee", "0", "false"].includes(fastCharge)) {
+    specs.fastChargingSupported = ["j", "ja", "1", "true"].includes(fastCharge);
+  }
   const vehicle: Vehicle = {
+    ...specs,
     id,
     slug: slugify(`${brand}-${model}-${trim}-${year}-${externalId}`),
     brand,
@@ -424,7 +425,7 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
     ...(licensePlate ? { licensePlate } : {}),
     images,
     highlights: collectHighlights(parsed),
-    ...(description ? { description } : {}),
+    ...(description !== undefined ? { description } : {}),
     status: sold ? "sold" : reserved ? "reserved" : "review",
     locationCode: process.env.HEXON_DEFAULT_LOCATION_CODE || "GRONINGEN",
     updatedAt,
