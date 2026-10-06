@@ -28,7 +28,7 @@ export async function planMobiloxRepair(current: Vehicle, xml: string, now: stri
   if (!mutation.vehicle || mutation.action !== "upsert" || mutation.vehicle.id !== current.id) throw new Error("Herstel vereist een volledige Mobilox-aanlevering voor hetzelfde voertuig.");
   const prepared = await prepareHexonImages(mutation.vehicle.images);
   if (prepared.failures.length) throw new Error("Herstel geweigerd: ongeldige Mobilox-foto-URLs.");
-  const replacement = buildMobiloxReplacement(current, mutation.vehicle, prepared.photos, now);
+  const replacement = buildMobiloxReplacement(current, mutation.vehicle, prepared.photos, now, mutation.contentPresence);
   replacement.source!.payloadSha256 = createHash("sha256").update(xml).digest("hex");
   const changed = contentDigest(current) !== contentDigest(replacement);
   return { id: current.id, payloadSha256: createHash("sha256").update(xml).digest("hex"),

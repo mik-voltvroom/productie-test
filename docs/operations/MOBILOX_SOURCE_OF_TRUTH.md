@@ -7,7 +7,7 @@ Implementatie voorbereid op productie-archief `2987642039c302a8b15ec29c07f408ac9
 `Mobilox XML → parser → HTTPS-validatie → volledige voertuigvervanging in Firestore → publieke allowlist → website/feed`.
 
 - De bestaande Basic Auth-webhook en de compatibiliteitsroute gebruiken dezelfde processor. Geen nieuwe provider of dependency.
-- Een upsert is een volledig voertuigbericht. Merk, model, bouwjaar, kilometerstand, prijs en aandrijving moeten geldig zijn. Een ontbrekende kilometerstand wordt niet meer nul. Verifieer met de actuele provider dat `change` volledige records bevat voordat dit live gaat; er wordt geen nieuw API-contract verondersteld.
+- Een upsert wordt als volledig voertuigbericht verwerkt. Als een contentgroep (foto’s, advertentietekst of opties) ontbreekt terwijl het huidige dossier daarvoor gegevens bevat, weigeren import én herstelplanner de gehele mutatie. Bestaande gegevens en het eventlog blijven dan intact. Een expliciet leeg element geldt als bewust leeggemaakt; zonder foto’s wordt het voertuig niet gepubliceerd. Dit onderscheid beschermt tegen ontbrekende contentgroepen, maar bewijst niet dat overige optionele specificaties volledig zijn aangeleverd. Merk, model, bouwjaar, kilometerstand, prijs en aandrijving moeten geldig zijn. Een ontbrekende kilometerstand wordt niet meer nul. Verifieer met de actuele provider dat `change` volledige records bevat voordat dit live gaat; er wordt geen nieuw API-contract verondersteld.
 - Foto’s gebruiken de directe, gevalideerde Mobilox-URLs en bronvolgorde. Oude Storage-kopieën, tombstones, handmatige foto’s en publieke selecties worden bij vervanging verwijderd. De bestaande bovengrens is 200 foto’s.
 - De volledige advertentietekst wordt naar platte tekst geconverteerd. Blokken vanaf `Kenteken`, contactgegevens en disclaimers worden niet meer afgekapt. Alleen tekstvelden direct op het voertuig worden gebruikt; een omschrijving van een optie wordt nooit advertentietekst. HTML wordt niet als HTML gerenderd.
 - Opties uit de bestaande groepen `accessoires`, `zoekaccessoires` en `opties` worden samengevoegd en genormaliseerd; alleen de nieuwe bronset blijft bestaan.
@@ -71,3 +71,26 @@ Gebruik Node 22+, `npm ci` met het ongewijzigde lockbestand en expliciet ingeste
 Eerst lintconfiguratie beoordelen, clean install, tests, TypeScript, productiebuild, Firestore/Storage-regeltests en visuele controles in een geïsoleerde omgeving. Deploy code en bijbehorende regels gecoördineerd na expliciete toestemming. Oude clients krijgen bewust een fout op mutaties en moeten vernieuwen. In de bestaande `.firebaserc`, `firebase.json` en README staan stagingverwijzingen; deze zijn niet aangepast en mogen niet als bewijs van een productieproject worden gebruikt.
 
 Bij rollback: stop nieuwe bronmutaties tijdens de gecontroleerde omschakeling, herstel de vorige code/regels alleen na beoordeling en gebruik de serverback-up als bewijs voor gericht dataherstel. Schrijf niet blind een oud heel voertuig terug over nieuwere kosten of dealmutaties. Herstel bij voorkeur uit een opnieuw bevestigde actuele Mobilox-aanlevering. De parserback-up en daadwerkelijke productie-/Ford-validatie moeten vóór livegang beschikbaar zijn.
+
+## Aanvullende reparatie 7 oktober 2026
+
+Accugezondheid en verbruik zijn aanvullende brongegevens en blokkeren publicatie niet langer. Ontbrekende waarden blijven afwezig; er wordt geen nul of meetresultaat verzonnen. Verplichte identiteit, prijs, foto en vestiging blijven gecontroleerd. Processorversie 6 past de bescherming tegen ontbrekende contentgroepen ook op opnieuw aangeboden berichten toe.
+
+De CI-blokkade GHSA-68fv-2mgg-jv7q is opgelost door source-map-js in het lockbestand naar 1.2.2 bij te werken. De integriteit is opgehaald uit de npm-registry via GitHub CI en vastgelegd in het lockbestand. Geen nieuwe productiedependency of aanpassing van de beveiligingsaudit.
+
+## Verwijderen uit de actieve VVOS-voorraad
+
+De standaardweergave is Actieve voorraad. Een ontvangen Mobilox-delete haalt de auto uit die lijst en uit de actieve KPI’s; het dossier blijft via Archief / verwijderd in Mobilox of Alle dossiers inclusief historie toegankelijk. Bij een actieve deal blijft de lokale reserverings-/verkoopstatus behouden, maar source.inventoryStatus=archived sluit het voertuig toch uit van actieve voorraad. De lijst herlaadt bij terugkeer naar het tabblad en elke minuut zolang het tabblad zichtbaar is. Zonder ontvangen delete kan VVOS niet weten dat de bronauto verwijderd is.
+
+## Rechtstreekse aanlevering vanuit Mobilox
+
+Gebruik de bestaande Mobilox/Hexon Eigen Website Incrementeel-aanlevering:
+- Ontvanger: `https://www.voltvroom.nl/api/hexon/inventory`.
+- Methode: POST; Content-Type application/xml (text/xml wordt ook geaccepteerd).
+- Basic Authentication: de productiegegevens die overeenkomen met runtime-secrets HEXON_SYNC_USERNAME en HEXON_SYNC_PASSWORD. Geen secretwaarden opnemen in documenten of chat.
+- Succes: HTTP 200 met platte tekst `1`, pas na succesvolle databaseverwerking. Fouten worden niet als succes bevestigd.
+- Verstuur zowel toevoegingen, wijzigingen als verwijderingen voor dezelfde bronidentifiers.
+
+Dit is een push naar de bestaande serverontvanger, geen browserimport of periodieke volledige feeddownload. `/api/integrations/mobilox` is uitsluitend een compatibiliteitsroute naar dezelfde verwerking. De cronroute ontdubbelt dossiers en haalt geen voorraad uit Mobilox op. De VWE-import is beëindigd en wordt daarom niet meer als actieve koppeling getoond.
+
+Activering van het verzenddoel en het opnieuw aanbieden van gemiste verwijderingen moeten in Mobilox of via de provider gebeuren. Repositorywijzigingen wijzigen die externe instellingen niet. Bevestig na uitrol één echte wijziging en één verwijdering in de importevents, het VVOS-dossier en de publieke website. Voer geen bulkverwijdering uit op basis van een onvolledige lijst.

@@ -82,6 +82,7 @@ describe("Mobilox authoritative public inventory", () => {
     const plan = await planMobiloxRepair(current, xml, now);
     expect(plan.changed).toBe(true);
     expect(JSON.stringify(current)).toBe(before);
+    await expect(planMobiloxRepair(current, xml.replace(/<afbeeldingen>[\s\S]*?<\/afbeeldingen>/, ''), now)).rejects.toThrow('Onvolledige Mobilox');
     const repeat = await planMobiloxRepair(plan.replacement, xml, "2026-10-07T10:00:00.000Z");
     expect(repeat.changed).toBe(false);
     await expect(planMobiloxRepair(current, xml.replace('test123', 'other'), now)).rejects.toThrow('hetzelfde voertuig');

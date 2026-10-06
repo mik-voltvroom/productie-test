@@ -1,10 +1,19 @@
+import type { HexonMutation } from "@/lib/integrations/hexon";
 import type { Vehicle, VehicleImage } from "@/types";
 import { mergeImportedEditorial } from "./editorial";
 import { recordVehiclePrice } from "./business";
 import { validateVehicle } from "@/lib/business";
 
 /** Full document replacement: only these internal fields survive a source refresh. */
-export function buildMobiloxReplacement(current: Vehicle | undefined, incoming: Vehicle, photos: VehicleImage[], now: string): Vehicle {
+export function buildMobiloxReplacement(current: Vehicle | undefined, incoming: Vehicle, photos: VehicleImage[], now: string, presence?: HexonMutation["contentPresence"]): Vehicle {
+  if (current && presence) {
+    const missing = [
+      !presence.images && (current.images?.length || current.editorial?.photos.length) ? "foto’s" : null,
+      !presence.description && (current.description || current.editorial?.content.websiteText) ? "advertentietekst" : null,
+      !presence.highlights && current.highlights?.length ? "opties" : null,
+    ].filter(Boolean);
+    if (missing.length) throw new Error(`Onvolledige Mobilox-aanlevering (${missing.join(", ")}); bestaande voertuigdata behouden.`);
+  }
   const next = mergeImportedEditorial(current, incoming, photos);
   const commercial = recordVehiclePrice(current?.commercial, incoming.priceCents, now, "mobilox-hexon");
   next.commercial = { ...commercial,

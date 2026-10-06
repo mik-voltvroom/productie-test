@@ -40,6 +40,38 @@ describe('Mobilox database replacement', () => {
     expect(mock.writes).toEqual([]);
     expect(mock.data.get('vehicles/hexon-service-test')).toEqual({ description: 'keep' });
   });
+  it('rejects omitted source sections atomically but accepts explicit empty sections', async () => {
+    const full = xml.replace('</voertuig>', '<opties><optie>Camera</optie></opties></voertuig>');
+    await processHexonInventoryXml(full);
+    const before = JSON.stringify([...mock.data]);
+    const writes = mock.writes.length;
+    for (const omitted of [
+      full.replace(/<afbeeldingen>[\s\S]*?<\/afbeeldingen>/, ''),
+      full.replace('<advertentietekst>New</advertentietekst>', ''),
+      full.replace('<opties><optie>Camera</optie></opties>', ''),
+    ]) {
+      await expect(processHexonInventoryXml(omitted)).rejects.toThrow('Onvolledige Mobilox');
+      expect(JSON.stringify([...mock.data])).toBe(before);
+      expect(mock.writes).toHaveLength(writes);
+    }
+    await processHexonInventoryXml(full
+      .replace(/<afbeeldingen>[\s\S]*?<\/afbeeldingen>/, '<afbeeldingen/>')
+      .replace('<advertentietekst>New</advertentietekst>', '<advertentietekst/>')
+      .replace('<opties><optie>Camera</optie></opties>', '<opties/>'));
+    const current = mock.data.get('vehicles/hexon-service-test');
+    expect(current.images).toEqual([]);
+    expect(current.highlights).toEqual([]);
+    expect(current.description).toBeUndefined();
+    expect(current.publication.channels.website).toBe(false);
+  });
+  it('publishes hybrids without inventing missing battery health or consumption', async () => {
+    await processHexonInventoryXml(xml.replace('<brandstof>E</brandstof>', '<brandstof>H</brandstof>'));
+    const current = mock.data.get('vehicles/hexon-service-test');
+    expect(current.status).toBe('available');
+    expect(current.publication.channels.website).toBe(true);
+    expect(current.batteryHealthPercent).toBeUndefined();
+    expect(current.consumptionPer100Km).toBeUndefined();
+  });
   it('does not erase an active deal on provider deletion', async () => {
     mock.data.set('vehicles/hexon-service-test', { status: 'reserved', reservedDealId: 'deal-1' });
     await processHexonInventoryXml('<voertuig actie="delete" voertuignr_hexon="service-test"/>');

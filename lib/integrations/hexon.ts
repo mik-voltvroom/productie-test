@@ -13,6 +13,7 @@ export interface HexonMutation {
   providerAction: ProviderAction;
   externalId: string;
   vehicle?: Vehicle;
+  contentPresence?: { images: boolean; description: boolean; highlights: boolean };
 }
 
 const parser = new XMLParser({
@@ -449,5 +450,11 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   };
 
   vehicle.editorial = { version: 1, revision: 0, photos: [], publishedOptionKeys: [], content: { sourceTexts } };
-  return { action, providerAction, externalId, vehicle };
+  const directKeys = new Set(Object.keys(vehicleNode).map(normalizedKey));
+  const contentPresence = {
+    images: ["afbeeldingen", "fotos", "foto_s"].some(key => directKeys.has(key)),
+    description: ["advertentietekst", "opmerkingen", "omschrijving"].some(key => directKeys.has(key)),
+    highlights: ["accessoires", "zoekaccessoires", "opties"].some(key => directKeys.has(key)),
+  };
+  return { action, providerAction, externalId, vehicle, contentPresence };
 }

@@ -42,9 +42,7 @@ export function validateVehicle(vehicle: Partial<Vehicle>): string[] {
     errors.push("Selecteer minimaal één foto voor online publicatie");
   }
   if (!vehicle.locationCode) errors.push("Vestigingscode ontbreekt");
-  if (vehicle.driveType !== "electric" && !vehicle.consumptionPer100Km) errors.push("Praktijkverbruik ontbreekt");
-  if (["full-hybrid", "plug-in-hybrid"].includes(vehicle.driveType ?? "") && !vehicle.batteryHealthPercent) {
-    errors.push("Accugezondheid ontbreekt");
-  }
+  // Optional provider specifications remain unknown when absent; never invent them
+  // or hide an otherwise publishable vehicle because no measurement was supplied.
   return errors;
 }

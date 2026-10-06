@@ -28,7 +28,7 @@ describe("vehicle business rules", () => {
     const errors = validateVehicle({ brand: "Toyota", model: "Corolla", driveType: "full-hybrid", images: [] });
     expect(errors).toContain("Minimaal één foto is verplicht");
     expect(errors).toContain("Verkoopprijs ontbreekt");
-    expect(errors).toContain("Accugezondheid ontbreekt");
+    expect(errors).not.toContain("Accugezondheid ontbreekt");
   });
 
   it("does not require high-voltage battery data for combustion vehicles", () => {

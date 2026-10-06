@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import type { Vehicle, VehicleStatus } from "@/types";
+import type { Vehicle } from "@/types";
 import { listVehicles } from "@/lib/repositories/vehicle-repository";
 import { eur } from "@/lib/format";
 import { grossMargin } from "@/lib/business";
 import { centsToEuros } from "@/lib/money";
 import { vehicleCommercialSummary } from "@/lib/vehicle/business";
 import { calculateOpportunityScore } from "@/lib/vehicle/opportunity";
+
+import { isActiveInventory, matchesInventoryFilter, type InventoryFilter } from "@/lib/vehicle/inventory";
 
 const IDEAL_STOCK_DAYS = 30;
 const DEFAULT_INTERVENTION_DAYS = 45;
@@ -20,27 +22,38 @@ function money(cents: number) {
 export default function InventoryPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<VehicleStatus | "all">("all");
+  const [status, setStatus] = useState<InventoryFilter>("active");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
+    let loading = false;
     const load = async () => {
+      if (loading) return;
+      loading = true;
       try {
         const items = await listVehicles();
         if (active) { setVehicles(items); setError(null); }
       } catch (loadError) {
         if (active) setError(loadError instanceof Error ? loadError.message : "Voorraad laden mislukt.");
-      }
+      } finally { loading = false; }
     };
     void load();
-    const refresh = () => { void load(); };
+    const refresh = () => { if (document.visibilityState === "visible") void load(); };
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
     window.addEventListener("vvos:vehicles", refresh);
-    return () => { active = false; window.removeEventListener("vvos:vehicles", refresh); };
+    return () => {
+      active = false; window.clearInterval(timer);
+      window.removeEventListener("vvos:vehicles", refresh);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, []);
 
   const activeVehicles = useMemo(
-    () => vehicles.filter(v => !["sold", "archived"].includes(v.status)),
+    () => vehicles.filter(isActiveInventory),
     [vehicles],
   );
 
@@ -60,13 +73,13 @@ export default function InventoryPage() {
   }, [activeVehicles]);
 
   const filtered = useMemo(
-    () => vehicles.filter(v => (status === "all" || v.status === status)
+    () => vehicles.filter(v => matchesInventoryFilter(v, status)
       && `${v.brand} ${v.model} ${v.trim} ${v.licensePlate ?? ""}`.toLowerCase().includes(query.toLowerCase())),
     [vehicles, query, status],
   );
 
   return <main className="container dashboardPage">
-    <div className="pageTitle"><div><p className="eyebrow">VVOS Management Cockpit</p><h1>Voorraad, marge & statijd</h1><p className="muted">Dagelijkse stuurinformatie: waar zit het voorraadkapitaal, welke marge verwachten we en welke auto vraagt vandaag actie?</p></div><Link className="button" href="/dashboard/voorraad/nieuw">+ Nieuwe auto</Link></div>
+    <div className="pageTitle"><div><p className="eyebrow">VVOS Management Cockpit</p><h1>Voorraad, marge & statijd</h1><p className="muted">Dagelijkse stuurinformatie: waar zit het voorraadkapitaal, welke marge verwachten we en welke auto vraagt vandaag actie?</p></div><Link className="button" href="/dashboard/voorraad/nieuw">Auto toevoegen via Mobilox</Link></div>
     {error ? <div className="notice noticeError">{error}</div> : null}
 
     <div className="kpiGrid">
@@ -80,7 +93,7 @@ export default function InventoryPage() {
       <strong>Kapitaalbewaking:</strong> {money(cockpit.capitalOver30Cents)} staat langer dan {IDEAL_STOCK_DAYS} dagen vast; {money(cockpit.capitalOver45Cents)} staat voorbij de maximale statijd en vraagt een prijs-, marketing- of uitstapbesluit.
     </div>
 
-    <div className="toolbar"><input placeholder="Zoek merk, model of kenteken" value={query} onChange={e=>setQuery(e.target.value)} /><select value={status} onChange={e=>setStatus(e.target.value as VehicleStatus|"all")}><option value="all">Alle statussen</option><option value="draft">Concept</option><option value="photography">Fotografie</option><option value="review">Controle</option><option value="available">Beschikbaar</option><option value="reserved">Gereserveerd</option><option value="sold">Verkocht</option></select></div>
+    <div className="toolbar"><input placeholder="Zoek merk, model of kenteken" value={query} onChange={e=>setQuery(e.target.value)} /><select value={status} onChange={e=>setStatus(e.target.value as InventoryFilter)}><option value="active">Actieve voorraad</option><option value="all">Alle dossiers inclusief historie</option><option value="draft">Concept</option><option value="photography">Fotografie</option><option value="review">Controle</option><option value="available">Beschikbaar</option><option value="reserved">Gereserveerd</option><option value="sold">Verkocht</option><option value="archived">Archief / verwijderd in Mobilox</option></select></div>
     <div className="tableWrap"><table><thead><tr><th>Voertuig</th><th>Status</th><th>Verkoop</th><th>Marge</th><th>Statijd</th><th>Interesse</th><th>Opportunity</th><th>Compleet</th></tr></thead><tbody>{filtered.map(v => {
       const commercial = vehicleCommercialSummary(v);
       const margin = v.costs?.purchasePriceCents ? grossMargin(v.commercial?.soldPriceCents ?? v.priceCents, v.costs) : undefined;

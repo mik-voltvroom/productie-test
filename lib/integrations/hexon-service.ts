@@ -9,7 +9,7 @@ import { buildMobiloxReplacement } from "@/lib/vehicle/mobilox";
 import type { Vehicle, VehicleImage } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-export const HEXON_PROCESSOR_VERSION = "5-mobilox-authoritative";
+export const HEXON_PROCESSOR_VERSION = "6-mobilox-content-guard";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
@@ -192,7 +192,7 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
       }
       const currentData = current.data();
       const replacement = buildMobiloxReplacement(current.exists ? currentData as Vehicle : undefined,
-        mutation.vehicle, importedPhotos, now);
+        mutation.vehicle, importedPhotos, now, mutation.contentPresence);
       replacement.source!.payloadSha256 = payloadHash;
       transaction.set(vehicleRef, replacement);
     }
