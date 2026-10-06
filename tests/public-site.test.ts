@@ -22,6 +22,17 @@ describe("publieke Volt & Vroom website", () => {
     expect(form).toContain("telefoonnummer of e-mailadres");
   });
 
+  it("toont Don en Mik als verkoopadviseurs met toegankelijke portretten", () => {
+    const contact = read("app/contact/page.tsx");
+    const form = read("components/ContactForm.tsx");
+    expect(contact).toContain("/team/don-verkoopadviseur.jpg");
+    expect(contact).toContain("/team/mik-verkoopadviseur.jpg");
+    expect(contact).toContain("Don, verkoopadviseur bij Volt & Vroom");
+    expect(contact).toContain("Mik, verkoopadviseur bij Volt & Vroom");
+    expect(contact).toContain("Mik of Don neemt persoonlijk contact met u op");
+    expect(form).toContain("Mik of Don neemt contact met u op");
+  });
+
   it("gebruikt geen vervallen Automotive-descriptor op de homepage", () => {
     expect(read("app/page.tsx").toUpperCase()).not.toContain("AUTOMOTIVE");
   });

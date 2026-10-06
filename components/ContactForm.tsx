@@ -100,11 +100,11 @@ export function ContactForm({ vehicles, initialVehicleId = "", initialInterest =
     <div className="formHeader"><span>Aanvraag ontvangen</span></div>
     <h3>{isTestDrive ? "Uw proefritaanvraag is ontvangen." : "Uw aanvraag is ontvangen."}</h3>
     {selectedVehicle ? <p><strong>{selectedVehicle.label}</strong></p> : null}
-    <p>{isTestDrive ? "Mik neemt contact met u op om het moment af te stemmen. Uw afspraak staat pas vast na onze bevestiging." : "Mik neemt persoonlijk contact met u op."}</p>
+    <p>{isTestDrive ? "Mik of Don neemt contact met u op om het moment af te stemmen. Uw afspraak staat pas vast na onze bevestiging." : "Mik of Don neemt persoonlijk contact met u op."}</p>
   </section>;
 
   return <form className="contactForm" onSubmit={submit} noValidate aria-busy={state === "submitting"}>
-    <div className="formHeader"><span>Persoonlijk antwoord</span><strong>Mik neemt contact met u op.</strong></div>
+    <div className="formHeader"><span>Persoonlijk antwoord</span><strong>Mik of Don neemt contact met u op.</strong></div>
     <p className="contactNotice">Vul een telefoonnummer of e-mailadres in zodat we u kunnen bereiken.</p>
     {notice ? <p className="contactNotice" role="status">{notice}</p> : null}
     {vehicles.length === 0 ? <p className="contactNotice">Er staan op dit moment geen auto's in de keuzelijst. U kunt wel een algemene vraag stellen.</p> : null}
