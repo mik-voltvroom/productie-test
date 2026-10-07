@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { PhoneIcon, WhatsAppIcon } from "@/components/ContactActionIcon";
 import { RouteIcon } from "@/components/RouteIcon";
 
 type RouteAppId = "google" | "apple" | "waze";
@@ -27,16 +28,6 @@ const routeOptions: Array<{ id: RouteAppId; label: string; description: string; 
     href: "https://www.waze.com/ul?q=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&navigate=yes",
   },
 ];
-
-function PhoneIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5 9 7.9 7.4 9.5a15 15 0 0 0 7.1 7.1l1.6-1.6 4.4 2.4-.7 2.7c-.2.8-.9 1.4-1.8 1.4C9.5 21.5 2.5 14.5 2.5 6c0-.9.6-1.6 1.4-1.8l2.7-.7Z" /></svg>;
-}
-
-function WhatsAppIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.3-4.7a8.5 8.5 0 1 1 16.2-4.1Z" /><path d="M8.4 7.6c.3-.3.6-.3.8.1l1 2c.1.3.1.5-.1.7l-.7.8c.8 1.7 2 2.9 3.7 3.7l.8-.7c.2-.2.5-.2.7-.1l2 1c.4.2.4.5.1.8-.6.8-1.5 1.2-2.4 1.1-3.7-.5-6.7-3.5-7.2-7.2-.1-.9.3-1.8 1.3-2.2Z" /></svg>;
-}
-
-
 
 export function MobileActionBar() {
   const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31646585468").replace(/\D/g, "");
@@ -124,8 +115,8 @@ export function MobileActionBar() {
 
   return <>
     <div className={`mobileActionBar${formInView ? " isHidden" : ""}`} aria-label="Snelle acties" aria-hidden={formInView || undefined}>
-      <a className="contactAction contactActionPhone" href="tel:+31646585468" data-vv-event="phone_click" aria-label="Bel Volt & Vroom"><PhoneIcon /><span>Bel</span></a>
-      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht"><WhatsAppIcon /><span>WhatsApp</span></a>
+      <a className="contactAction contactActionPhone" href="tel:+31646585468" data-vv-event="phone_click" aria-label="Bel Volt & Vroom"><span className="contactActionIcon"><PhoneIcon /></span><span>Bel</span></a>
+      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht"><span className="contactActionIcon"><WhatsAppIcon /></span><span>WhatsApp</span></a>
       <button ref={routeTriggerRef} className="contactAction contactActionRoute" type="button" aria-label="Kies een navigatie-app voor de route naar Volt & Vroom" aria-haspopup="dialog" aria-expanded={routeChooserOpen} aria-controls="mobile-route-chooser" onClick={() => setRouteChooserOpen(true)}><span className="routeActionIcon"><RouteIcon /></span><span>Route</span></button>
     </div>
     {routeChooserOpen && <>
