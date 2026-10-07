@@ -3,7 +3,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import styles from "./Header.module.css";
 
 const primaryLinks = [
-  { href: "/#uitgelicht", label: "Aanbod" },
+  { href: "/voorraad", label: "Aanbod" },
   { href: "/inruilen", label: "Inruilen" },
   { href: "/kennis", label: "Kennis" },
   { href: "/contact", label: "Contact" },

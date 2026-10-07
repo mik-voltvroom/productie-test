@@ -5,6 +5,26 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
 
 describe("publieke voorraadpagina", () => {
+  it("opent het volledige aanbod vanuit desktop- en mobiele navigatie", () => {
+    const header = read("components/Header.tsx");
+
+    expect(header).toContain('{ href: "/voorraad", label: "Aanbod" }');
+    expect(header).not.toContain('{ href: "/#uitgelicht", label: "Aanbod" }');
+    expect(header).toContain("primaryLinks[0]");
+  });
+
+  it("wist alle actieve filters voordat een snelcategorie wordt gekozen", () => {
+    const inventoryBrowser = read("components/InventoryBrowser.tsx");
+    const selectCategory = inventoryBrowser.match(/function selectCategory\(next: Category\) \{([\s\S]*?)\n  \}/)?.[1];
+
+    expect(selectCategory).toBeDefined();
+    expect(selectCategory).toMatch(/resetFilters\(\);\s+setCategory\(next\);/);
+    for (const setter of ["setBrand", "setModel", "setDriveType", "setFuelType", "setTrim", "setYearFrom", "setYearTo", "setPriceFrom", "setPriceTo"]) {
+      expect(inventoryBrowser).toContain(`${setter}("")`);
+    }
+    expect(inventoryBrowser).toContain('value="all" onSelect={selectCategory}');
+  });
+
   it("projecteert prijs, foto en detail-link vanuit het canonieke voertuigmodel", () => {
     const inventoryPage = read("app/voorraad/page.tsx");
     const inventoryBrowser = read("components/InventoryBrowser.tsx");

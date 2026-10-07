@@ -33,7 +33,11 @@ export function InventoryBrowser({ vehicles, initialCategory = "all" }: { vehicl
   const fuels = useMemo(() => unique(vehicles.map(v => v.fuelType)), [vehicles]); const trims = useMemo(() => unique(vehicles.map(v => v.trim)), [vehicles]);
   const years = useMemo(() => [...new Set(vehicles.map(v => v.year))].sort((a, b) => b - a), [vehicles]);
   const filtered = useMemo(() => vehicles.filter(vehicle => { const price = centsToEuros(vehicle.priceCents); return (category === "all" || categoryFor(vehicle) === category) && (!brand || vehicle.brand === brand) && (!model || vehicle.model === model) && (!driveType || vehicle.driveType === driveType) && (!fuelType || vehicle.fuelType === fuelType) && (!trim || vehicle.trim === trim) && (!yearFrom || vehicle.year >= Number(yearFrom)) && (!yearTo || vehicle.year <= Number(yearTo)) && (!priceFrom || price >= Number(priceFrom)) && (!priceTo || price <= Number(priceTo)); }), [brand, category, driveType, fuelType, model, priceFrom, priceTo, trim, vehicles, yearFrom, yearTo]);
-  function selectCategory(next: Category) { setCategory(next); document.getElementById("aanbod-resultaten")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  function selectCategory(next: Category) {
+    resetFilters();
+    setCategory(next);
+    document.getElementById("aanbod-resultaten")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   function resetFilters() { setCategory("all"); setBrand(""); setModel(""); setDriveType(""); setFuelType(""); setTrim(""); setYearFrom(""); setYearTo(""); setPriceFrom(""); setPriceTo(""); }
   return <>
     <div className={styles.categoryHeading}><div><span>Kies een categorie</span><h2>Welk type auto zoekt u?</h2></div><QuickCategory active={category === "all"} value="all" onSelect={selectCategory}>Bekijk complete voorraad</QuickCategory></div>
