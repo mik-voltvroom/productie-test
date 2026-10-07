@@ -42,7 +42,7 @@ export function InventoryBrowser({ vehicles, initialCategory = "all" }: { vehicl
   }
   function resetFilters() { setCategory("all"); setBrand(""); setModel(""); setDriveType(""); setFuelType(""); setTrim(""); setYearFrom(""); setYearTo(""); setPriceFrom(""); setPriceTo(""); }
   return <>
-    <div className={styles.categoryHeading}><div><span>Kies een categorie</span><h2>Welk type auto zoekt u?</h2></div><QuickCategory active={category === "all"} value="all" onSelect={selectCategory}>Bekijk complete voorraad</QuickCategory></div>
+    <div className={styles.categoryActions}><QuickCategory active={category === "all"} value="all" onSelect={selectCategory}>Volledig aanbod</QuickCategory></div>
     <nav className={styles.categoryChoices} aria-label="Snel naar een aanbodcategorie">
       {categoryChoices.map(choice => <button key={choice.value} type="button" className={`${styles.categoryChoice} ${styles[choice.value]} ${category === choice.value ? styles.categoryActive : ""}`} aria-pressed={category === choice.value} onClick={() => selectCategory(choice.value)}>
         {choice.icon ? <Image src={choice.icon} alt="" width={44} height={44} /> : <span className={styles.iconsMark} aria-hidden="true">&amp;</span>}

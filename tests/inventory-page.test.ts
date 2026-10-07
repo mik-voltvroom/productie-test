@@ -5,6 +5,21 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
 
 describe("publieke voorraadpagina", () => {
+  it("toont randloze vervagende categoriekaarten en de korte volledig-aanbodactie", () => {
+    const browser = read("components/InventoryBrowser.tsx");
+    const styles = read("app/voorraad/voorraad.module.css");
+    expect(browser).not.toContain("Kies een categorie");
+    expect(browser).not.toContain("Welk type auto zoekt u?");
+    expect(browser).toContain('value="all" onSelect={selectCategory}>Volledig aanbod');
+    expect(styles).toMatch(/\.categoryChoice \{[^}]*border:0;[^}]*background:transparent;[^}]*box-shadow:none;/);
+    expect(styles).toContain("var(--category-image)");
+    expect(styles).toContain("linear-gradient(0deg,#f7f9fa");
+    expect(styles).toContain("linear-gradient(90deg,#f7f9fa");
+    expect(styles).toContain(".categoryChoice:focus-visible");
+    expect(styles).toContain(".categoryChoice.categoryActive strong");
+    expect(styles).toContain(".categoryChoices{grid-template-columns:1fr");
+  });
+
   it("opent het volledige aanbod vanuit desktop- en mobiele navigatie", () => {
     const header = read("components/Header.tsx");
 
