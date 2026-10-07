@@ -26,8 +26,12 @@
   font:inherit;
   text-align:left;
   box-shadow:none;
+  appearance:none;
+  -webkit-appearance:none;
+  outline:0;
   cursor:pointer;
 }
+.intro h1 em{color:#168bff;font-style:normal}
 .categoryChoice::before {
   content:"";
   position:absolute;

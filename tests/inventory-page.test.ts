@@ -12,12 +12,21 @@ describe("publieke voorraadpagina", () => {
     expect(browser).not.toContain("Welk type auto zoekt u?");
     expect(browser).toContain('value="all" onSelect={selectCategory}>Volledig aanbod');
     expect(styles).toMatch(/\.categoryChoice \{[^}]*border:0;[^}]*background:transparent;[^}]*box-shadow:none;/);
+    expect(styles).toMatch(/\.categoryChoice \{[^}]*appearance:none;[^}]*-webkit-appearance:none;[^}]*outline:0;/);
     expect(styles).toContain("var(--category-image)");
     expect(styles).toContain("linear-gradient(0deg,#f7f9fa");
     expect(styles).toContain("linear-gradient(90deg,#f7f9fa");
     expect(styles).toContain(".categoryChoice:focus-visible");
     expect(styles).toContain(".categoryChoice.categoryActive strong");
     expect(styles).toContain(".categoryChoices{grid-template-columns:1fr");
+  });
+
+  it("accentueert alleen aanbod in de voorraadkop", () => {
+    const page = read("app/voorraad/page.tsx");
+    const styles = read("app/voorraad/voorraad.module.css");
+
+    expect(page).toContain("Ons <em>aanbod.</em>");
+    expect(styles).toContain(".intro h1 em{color:#168bff;font-style:normal}");
   });
 
   it("opent het volledige aanbod vanuit desktop- en mobiele navigatie", () => {

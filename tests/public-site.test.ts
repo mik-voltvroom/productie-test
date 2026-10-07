@@ -270,6 +270,9 @@ describe("publieke Volt & Vroom website", () => {
     }
     const refresh = read("app/frontend-refresh.css");
     expect(refresh).toContain(".mobileActionBar .contactActionPhone{background:#34c759!important}");
+    expect(refresh).toContain(".floatingContactDock .contactActionRoute{");
+    expect(refresh).toContain("background:#fff!important;");
+    expect(refresh).toContain(".floatingContactDock .contactActionRoute .dockIcon{background:#e6f2ff;color:#075eba;box-shadow:none}");
     expect(refresh).toContain(".mobileActionBar .contactActionWhatsapp{background:#25d366!important}");
     expect(read("components/MobileActionBar.tsx")).toContain("routeActionIcon");
     expect(read("components/MobileActionBar.tsx")).toContain('role="dialog"');
