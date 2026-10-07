@@ -228,6 +228,13 @@ describe("publieke Volt & Vroom website", () => {
     expect(read("apphosting.yaml")).toMatch(/variable: NEXT_PUBLIC_WHATSAPP_NUMBER\s+value: "31646585468"/);
   });
 
+  it("centreert de routeknop zonder de generieke knopopmaak te overschrijven", () => {
+    const enhancements = read("app/enhancements.css");
+    expect(enhancements).not.toContain(".contactPageCard a,.contactPageCard span");
+    expect(enhancements).toContain(".contactPageCard a:not(.button),.contactPageCard>span");
+    expect(enhancements).toContain(".contactPageCard>.button{display:flex;align-items:center;justify-content:center;width:100%;padding:12px 20px;margin-top:8px;text-align:center}");
+  });
+
   it("biedt een veilige Google Maps-routeplanner naar de showroom", () => {
     const homepage = read("app/page.tsx");
     const footer = read("components/SiteFooter.tsx");
