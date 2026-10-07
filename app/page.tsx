@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VehicleCard } from "@/components/VehicleCard";
+import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
 import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
@@ -44,7 +45,7 @@ export default async function HomePage() {
                   : <div className="latestHeroFallback"><span>V&amp;V</span></div>}
               </div>
               <div className="latestHeroInfo">
-                <div><span>{latestVehicle.driveType === "electric" ? "Elektrisch" : latestVehicle.driveType === "plug-in-hybrid" ? "Plug-in hybride" : latestVehicle.driveType === "full-hybrid" ? "Hybride" : latestVehicle.fuelType}</span><h2>{latestVehicle.brand} {latestVehicle.model}</h2><p>{latestVehicle.trim}</p></div>
+                <div><span>{latestVehicle.driveType === "electric" ? "Elektrisch" : latestVehicle.driveType === "plug-in-hybrid" ? "Plug-in hybride" : latestVehicle.driveType === "full-hybrid" ? "Hybride" : latestVehicle.fuelType}</span><h2>{latestVehicle.brand} {latestVehicle.model}</h2><VehicleHighlights trim={latestVehicle.trim} compact /></div>
                 <strong>{latestVehicle.priceCents > 0 ? eur.format(centsToEuros(latestVehicle.priceCents)) : "Prijs op aanvraag"}</strong>
               </div>
             </a> : <div className="heroEmpty"><span>Volt &amp; Vroom</span><p>Nieuw aanbod in voorbereiding.</p></div>}

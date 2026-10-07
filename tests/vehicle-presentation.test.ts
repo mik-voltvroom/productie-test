@@ -50,9 +50,9 @@ describe("Mobilox execution and highlights presentation", () => {
   });
 
   it("shares presentation across the public detail page and all inventory cards", () => {
-    for (const path of ["app/voorraad/[slug]/page.tsx", "components/InventoryBrowser.tsx", "components/VehicleCard.tsx", "components/FeaturedInventoryRail.tsx"]) {
+    for (const path of ["app/page.tsx", "app/voorraad/[slug]/page.tsx", "components/InventoryBrowser.tsx", "components/VehicleCard.tsx", "components/FeaturedInventoryRail.tsx"]) {
       const code = readFileSync(resolve(process.cwd(), path), "utf8");
-      expect(code).toContain("<VehicleHighlights trim={vehicle.trim}");
+      expect(code).toMatch(/<VehicleHighlights trim=\{(?:latestVehicle|vehicle)\.trim\}/);
     }
     const inventory = readFileSync(resolve(process.cwd(), "components/InventoryBrowser.tsx"), "utf8");
     expect(inventory).toContain("vehiclePresentation(v.trim).edition");
