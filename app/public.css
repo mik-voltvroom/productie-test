@@ -36,3 +36,7 @@ h1,h2,h3,.brandLogo,.price,.metric strong{font-family:"Manrope Variable",Manrope
 @media(max-width:640px){.segmentHero,.matchHero{padding:64px 0}.segmentHero h1,.matchHero h1{font-size:clamp(2.7rem,13vw,4rem)}.segmentHeroGrid{gap:40px}.segmentIconPanel{min-height:240px;padding:32px}.segmentIconPanel img{margin-bottom:28px}.segmentAdvice{gap:28px}.matchLayout{padding-top:48px;padding-bottom:72px}.matchForm{padding:24px 18px}.matchFormIntro{display:grid}.optionGrid,.optionGridTwo,.matchContact{grid-template-columns:1fr}.matchContact label:last-child{grid-column:auto}.footerTop{grid-template-columns:1fr}}
 
 .inventoryPlaceholder{display:flex;align-items:center;justify-content:space-between;gap:40px;padding:32px;border:1px solid var(--vv-border);border-radius:var(--vv-radius-card);background:var(--vv-soft)}.inventoryPlaceholder>div{max-width:720px}.inventoryPlaceholder span{color:var(--vv-electric);font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.inventoryPlaceholder h3{margin:8px 0;font-size:1.35rem;font-weight:500}.inventoryPlaceholder p{margin:0;color:var(--vv-graphite)}@media(max-width:700px){.inventoryPlaceholder{align-items:stretch;flex-direction:column}.inventoryPlaceholder .button{width:100%}}
+
+/* Transparent category emblems retain their full square canvas. */
+.segmentIconPanel img{object-fit:contain}
+.categoryIconsEmblem{filter:drop-shadow(0 1px 2px rgba(13,17,23,.2))}

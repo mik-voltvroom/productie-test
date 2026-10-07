@@ -74,8 +74,8 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryBrowser).toContain("vehicle.slug");
     expect(inventoryBrowser).toContain('value="all">Hele voorraad');
     expect(inventoryBrowser).toContain('value="icons"');
-    expect(inventoryBrowser).toContain('/brand/icons/hybride.svg');
-    expect(inventoryBrowser).toContain('/brand/icons/elektrisch.svg');
+    expect(inventoryBrowser).toContain('/brand/icons/hybride-3d.webp');
+    expect(inventoryBrowser).toContain('/brand/icons/elektrisch-3d.webp');
     expect(inventoryBrowser).toContain('aria-label="Snel naar een aanbodcategorie"');
     const inventoryStyles = read("app/voorraad/voorraad.module.css");
     expect(inventoryStyles).toContain('/editorial/home-hybrid-card-v1.jpg');

@@ -66,3 +66,5 @@
 .media>span{min-height:34px;display:inline-flex;align-items:center;gap:7px}.media>span img{width:18px;height:18px;object-fit:contain}.media>span b{font-family:var(--font-manrope),sans-serif;font-size:17px;line-height:1}.media>span.iconBadge{color:#9b5837}
 @media(max-width:1050px){.layoutWithoutFilters .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.categoryChoices{grid-template-columns:1fr;margin-bottom:32px}.categoryChoice{min-height:124px}.layoutWithoutFilters .grid{grid-template-columns:1fr}}
+
+.icons.categoryChoice>img{filter:drop-shadow(0 1px 2px rgba(13,17,23,.2))}

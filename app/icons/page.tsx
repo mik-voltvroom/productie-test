@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { centsToEuros } from "@/lib/money";
@@ -34,7 +35,7 @@ export default async function IconsPage() {
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
           <div className={styles.copperLine} aria-hidden="true" />
-          <p className={styles.eyebrow}>Volt &amp; Vroom Icons</p>
+          <div className={styles.categoryBrand}><Image src="/brand/icons/icons-3d.webp" alt="" width={64} height={64} /><p className={styles.eyebrow}>Volt &amp; Vroom Icons</p></div>
           <h1>Meer karakter.<br />Dezelfde standaard.</h1>
           <p className={styles.heroLead}>Youngtimers, klassiekers in spe en bijzondere sportieve auto’s, geselecteerd op historie, techniek en karakter.</p>
           <div className={styles.heroActions}>

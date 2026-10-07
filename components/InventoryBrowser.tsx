@@ -15,10 +15,10 @@ const number = new Intl.NumberFormat("nl-NL");
 const driveLabels: Record<DriveType, string> = { "full-hybrid": "Hybride", "plug-in-hybrid": "Plug-in hybride", electric: "Elektrisch", combustion: "Verbrandingsmotor" };
 const unique = (values: string[]) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
 const categoryFor = (vehicle: Vehicle): Exclude<Category, "all"> => vehicle.driveType === "electric" ? "electric" : vehicle.driveType === "combustion" ? "icons" : "hybrid";
-const categoryChoices: Array<{ value: Exclude<Category, "all">; title: string; description: string; icon?: string }> = [
-  { value: "hybrid", title: "Hybride", description: "Elektrisch ondersteund, vertrouwd op benzine.", icon: "/brand/icons/hybride.svg" },
-  { value: "electric", title: "Elektrisch", description: "Volledig elektrisch, stil en direct.", icon: "/brand/icons/elektrisch.svg" },
-  { value: "icons", title: "Icons", description: "Bijzondere auto’s met karakter." },
+const categoryChoices: Array<{ value: Exclude<Category, "all">; title: string; description: string; icon: string }> = [
+  { value: "hybrid", title: "Hybride", description: "Elektrisch ondersteund, vertrouwd op benzine.", icon: "/brand/icons/hybride-3d.webp" },
+  { value: "electric", title: "Elektrisch", description: "Volledig elektrisch, stil en direct.", icon: "/brand/icons/elektrisch-3d.webp" },
+  { value: "icons", title: "Icons", description: "Bijzondere auto’s met karakter.", icon: "/brand/icons/icons-3d.webp" },
 ];
 
 function QuickCategory({ active, value, children, onSelect }: { active: boolean; value: Category; children: ReactNode; onSelect: (value: Category) => void }) {
@@ -45,7 +45,7 @@ export function InventoryBrowser({ vehicles, initialCategory = "all", showFilter
     <div className={styles.categoryActions}><QuickCategory active={category === "all"} value="all" onSelect={selectCategory}>Volledig aanbod</QuickCategory></div>
     <nav className={styles.categoryChoices} aria-label="Snel naar een aanbodcategorie">
       {categoryChoices.map(choice => <button key={choice.value} type="button" className={`${styles.categoryChoice} ${styles[choice.value]} ${category === choice.value ? styles.categoryActive : ""}`} aria-pressed={category === choice.value} onClick={() => selectCategory(choice.value)}>
-        {choice.icon ? <Image src={choice.icon} alt="" width={44} height={44} /> : <span className={styles.iconsMark} aria-hidden="true">&amp;</span>}
+        <Image src={choice.icon} alt="" width={44} height={44} />
         <span><strong>{choice.title}</strong><small>{choice.description}</small></span>
       </button>)}
     </nav>
@@ -62,7 +62,7 @@ export function InventoryBrowser({ vehicles, initialCategory = "all", showFilter
         <label>Categorie<select value={category} onChange={e => setCategory(e.target.value as Category)}><option value="all">Hele voorraad</option><option value="hybrid">Hybride</option><option value="electric">Elektrisch</option><option value="icons">Icons</option></select></label>
       </aside> : null}
       <section id="aanbod-resultaten" className={styles.results} aria-live="polite"><div className={styles.resultHeading}><span>{filtered.length} {filtered.length === 1 ? "auto" : "auto’s"} gevonden</span><span>{category === "all" ? "Alle categorieën" : category === "hybrid" ? "Hybride" : category === "electric" ? "Elektrisch" : "Icons"}</span></div>
-        {filtered.length === 0 ? <div className={styles.empty}><h2>Geen auto’s met deze filters.</h2><p>Pas één of meer filters aan om het volledige aanbod te bekijken.</p><button type="button" onClick={resetFilters}>Bekijk hele voorraad</button></div> : <div className={styles.grid}>{filtered.map(vehicle => <Link key={vehicle.id} href={`/voorraad/${encodeURIComponent(vehicle.slug)}`} className={styles.card}><div className={styles.media}>{vehicle.images[0] ? <img src={vehicle.images[0]} alt={`${vehicle.brand} ${vehicle.model}`} /> : <div>Foto volgt</div>}<span className={categoryFor(vehicle) === "icons" ? styles.iconBadge : undefined}>{categoryFor(vehicle) === "icons" ? <><b aria-hidden="true">&amp;</b>Icons</> : <><Image src={vehicle.driveType === "electric" ? "/brand/icons/elektrisch.svg" : "/brand/icons/hybride.svg"} alt="" width={18} height={18} />{driveLabels[vehicle.driveType]}</>}</span></div><div className={styles.cardBody}><div className={styles.cardHeading}><div><h2>{vehicle.brand} {vehicle.model}</h2></div><strong>{vehicle.priceCents > 0 ? money.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"}</strong><VehicleHighlights trim={vehicle.trim} compact className={styles.cardPresentation} /></div><div className={styles.meta}><span>{vehicle.year}</span><span>{number.format(vehicle.mileageKm)} km</span><span>{vehicle.transmission}</span><span>{vehicle.fuelType}</span></div><span className={styles.cardAction}>Bekijk auto <b aria-hidden="true">→</b></span></div></Link>)}</div>}
+        {filtered.length === 0 ? <div className={styles.empty}><h2>Geen auto’s met deze filters.</h2><p>Pas één of meer filters aan om het volledige aanbod te bekijken.</p><button type="button" onClick={resetFilters}>Bekijk hele voorraad</button></div> : <div className={styles.grid}>{filtered.map(vehicle => <Link key={vehicle.id} href={`/voorraad/${encodeURIComponent(vehicle.slug)}`} className={styles.card}><div className={styles.media}>{vehicle.images[0] ? <img src={vehicle.images[0]} alt={`${vehicle.brand} ${vehicle.model}`} /> : <div>Foto volgt</div>}<span className={categoryFor(vehicle) === "icons" ? styles.iconBadge : undefined}>{categoryFor(vehicle) === "icons" ? <><Image src="/brand/icons/icons-3d.webp" alt="" width={18} height={18} />Icons</> : <><Image src={vehicle.driveType === "electric" ? "/brand/icons/elektrisch-3d.webp" : "/brand/icons/hybride-3d.webp"} alt="" width={18} height={18} />{driveLabels[vehicle.driveType]}</>}</span></div><div className={styles.cardBody}><div className={styles.cardHeading}><div><h2>{vehicle.brand} {vehicle.model}</h2></div><strong>{vehicle.priceCents > 0 ? money.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"}</strong><VehicleHighlights trim={vehicle.trim} compact className={styles.cardPresentation} /></div><div className={styles.meta}><span>{vehicle.year}</span><span>{number.format(vehicle.mileageKm)} km</span><span>{vehicle.transmission}</span><span>{vehicle.fuelType}</span></div><span className={styles.cardAction}>Bekijk auto <b aria-hidden="true">→</b></span></div></Link>)}</div>}
       </section>
     </div>
   </>;
