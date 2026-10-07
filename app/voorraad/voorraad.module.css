@@ -32,6 +32,10 @@
   cursor:pointer;
 }
 .intro h1 em{color:#168bff;font-style:normal}
+.filters label,.filters fieldset{color:#168bff;font-family:var(--font-manrope),Manrope,sans-serif;font-weight:700}
+.filters select,.filters input{font-family:var(--font-manrope),Manrope,sans-serif;font-weight:550}
+.filters select{padding-right:48px;appearance:none;-webkit-appearance:none;background-image:url("/brand/vv-symbol.svg");background-repeat:no-repeat;background-position:right 13px center;background-size:24px 11px;cursor:pointer}
+.filters select::-ms-expand{display:none}
 .categoryChoice::before {
   content:"";
   position:absolute;

@@ -29,6 +29,19 @@ describe("publieke voorraadpagina", () => {
     expect(styles).toContain(".intro h1 em{color:#168bff;font-style:normal}");
   });
 
+  it("gebruikt de VV-huisstijl in het filterblok", () => {
+    const browser = read("components/InventoryBrowser.tsx");
+    const styles = read("app/voorraad/voorraad.module.css");
+
+    expect(browser).toContain("<label>Brandstof<select");
+    expect(browser).toContain('value="">Alle brandstoffen</option>');
+    expect(browser).toContain("<label>Uitvoering<select");
+    expect(browser).not.toContain("<label>Trim<select");
+    expect(styles).toContain("color:#168bff;font-family:var(--font-manrope),Manrope,sans-serif");
+    expect(styles).toContain("background-image:url(\"/brand/vv-symbol.svg\")");
+    expect(styles).toContain("appearance:none;-webkit-appearance:none");
+  });
+
   it("opent het volledige aanbod vanuit desktop- en mobiele navigatie", () => {
     const header = read("components/Header.tsx");
 
