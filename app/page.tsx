@@ -28,12 +28,12 @@ export default async function HomePage() {
         <div className="container hero heroRefresh">
           <div className="heroCopy">
             <p className="eyebrow">Volt &amp; Vroom · Groningen</p>
-            <h1 id="hero-title">Slim rijden.<br /><em>Meer genieten.</em></h1>
-            <p className="heroDescriptor">Hybride en elektrische occasions in Groningen.</p>
+            <h1 id="hero-title"><em>Slim rijden.</em><br />Meer genieten.</h1>
+            <p className="heroDescriptor">Expert in hybride en elektrisch rijden.</p>
             <p className="heroEvidence">Prijs, kilometerstand en uitvoering direct inzichtelijk.</p>
             <div className="actions heroActions">
               <a className="button heroPrimaryButton" href="/voorraad">Bekijk de voorraad <span aria-hidden="true">→</span></a>
-              <a className="button secondary" href="/keuzehulp">Help mij kiezen</a>
+              <a className="button secondary" href="/keuzehulp">Doe de keuzetest</a>
             </div>
           </div>
           <div className="heroVisual heroVisualRefresh">

@@ -41,7 +41,9 @@ describe("publieke Volt & Vroom website", () => {
     const homepage = read("app/page.tsx");
     expect(homepage).toContain("Slim rijden.");
     expect(homepage).toContain("Meer genieten.");
-    expect(homepage).toContain("Hybride en elektrische occasions in Groningen.");
+    expect(homepage).toContain("Expert in hybride en elektrisch rijden.");
+    expect(homepage).toContain('href="/keuzehulp">Doe de keuzetest</a>');
+    expect(read("app/frontend-refresh.css")).toContain(".homepageHero h1 em{color:var(--vv-electric)}");
     expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
 

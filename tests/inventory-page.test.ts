@@ -17,6 +17,13 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryBrowser).toContain("vehicle.slug");
     expect(inventoryBrowser).toContain('value="all">Hele voorraad');
     expect(inventoryBrowser).toContain('value="icons"');
+    expect(inventoryBrowser).toContain('/brand/icons/hybride.svg');
+    expect(inventoryBrowser).toContain('/brand/icons/elektrisch.svg');
+    expect(inventoryBrowser).toContain('aria-label="Snel naar een aanbodcategorie"');
+    const inventoryStyles = read("app/voorraad/voorraad.module.css");
+    expect(inventoryStyles).toContain('/editorial/home-hybrid-card-v1.jpg');
+    expect(inventoryStyles).toContain('/editorial/home-electric-card-v1.jpg');
+    expect(inventoryStyles).toContain('/editorial/home-icons-card-v1.jpg');
     expect(inventoryPage).not.toContain('@/lib/public-vehicles');
   });
 

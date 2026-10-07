@@ -211,7 +211,7 @@
 .homepageHero{background:var(--vv-paper)}
 .homepageHero .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;min-height:0;padding:64px 0}
 .homepageHero h1{font-size:clamp(2.5rem,4.6vw,3.7rem);line-height:1.06;letter-spacing:-.05em;margin:16px 0 24px}
-.homepageHero h1 em{color:inherit}
+.homepageHero h1 em{color:var(--vv-electric)}
 .homepageHero .heroDescriptor{max-width:32ch;font-size:1.25rem;line-height:1.5;color:var(--vv-ink)}
 .homepageHero .heroEvidence{max-width:42ch;margin:14px 0 0;font-size:.95rem;line-height:1.65;color:var(--vv-graphite)}
 .homepageHero .heroActions{gap:12px;margin-top:28px}
