@@ -47,6 +47,14 @@ describe("publieke Volt & Vroom website", () => {
     expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
 
+  it("toont de over-deze-auto-kop nergens op de openbare voertuigpagina", () => {
+    const detail = read("app/voorraad/[slug]/page.tsx");
+
+    expect(detail).not.toContain("Over deze auto");
+    expect(detail).toContain('aria-label="Voertuigbeschrijving en specificaties"');
+    expect(detail).toContain("className={styles.storyLead}");
+  });
+
   it("toont uitsluitend repository-backed publiceerbare voorraad", () => {
     const homepage = read("app/page.tsx");
     const repository = read("lib/repositories/public-vehicle-repository.ts");

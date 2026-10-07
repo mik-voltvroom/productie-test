@@ -117,9 +117,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
           <div className={styles.ctaStack}><a className={styles.primary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
       </section>
-      <section className={styles.story}>
+      <section className={styles.story} aria-label="Voertuigbeschrijving en specificaties">
         <div>
-          <h2>Over deze auto</h2>
           <p className={styles.storyLead}>{summary}</p>
           {needsMore && <details className={styles.allHighlights}><summary>Lees de volledige beschrijving</summary><p className={styles.storyLead}>{description}</p></details>}
           {highlights.length > 0 && <details className={styles.allHighlights}><summary>Opties en uitrusting ({highlights.length})</summary><ul className={styles.highlightGrid}>{highlights.map(item => <li key={item}>{item}</li>)}</ul></details>}
