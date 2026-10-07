@@ -1,4 +1,5 @@
 import { BrandLogo } from "@/components/BrandLogo";
+import { CookiePreferencesButton } from "@/components/CookiePreferencesButton";
 
 export function SiteFooter() {
   const routeHref = "https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving";
@@ -20,6 +21,6 @@ export function SiteFooter() {
         <a className="footerRouteLink" href={routeHref} target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps" data-vv-event="route_click">Plan route via Google Maps ↗</a>
       </div>
     </div>
-    <div className="container footerBottom"><span>© 2026 Volt &amp; Vroom</span><div><a href="/privacy">Privacy</a><a href="/login">VVOS-login</a></div></div>
+    <div className="container footerBottom"><span>© 2026 Volt &amp; Vroom</span><div><a href="/privacy">Privacy</a><CookiePreferencesButton /><a href="/login">VVOS-login</a></div></div>
   </footer>;
 }

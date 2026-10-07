@@ -16,6 +16,9 @@ env:
   - variable: NEXT_PUBLIC_SITE_URL
     value: https://www.voltvroom.nl
     availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID
+    value: GTM-P2882R3H
+    availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_WHATSAPP_NUMBER
     value: "31646585468"
     availability: [BUILD, RUNTIME]

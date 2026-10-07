@@ -13,6 +13,7 @@ function inferEvent(anchor: HTMLAnchorElement): string | null {
   const href = anchor.getAttribute("href") || "";
   if (href.startsWith("tel:")) return "phone_click";
   if (href.startsWith("mailto:")) return "email_click";
+  if (href.startsWith("https://wa.me/")) return "whatsapp_click";
   if (href.includes("google.com/maps/dir")) return "route_click";
   if (href.startsWith("/keuzehulp")) return "match_started";
   if (href.includes("#voorraad")) return "inventory_click";

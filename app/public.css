@@ -23,6 +23,7 @@ h1,h2,h3,.brandLogo,.price,.metric strong{font-family:"Manrope Variable",Manrope
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button{transition:none}}
 .contactForm .wide{background:var(--vv-ink);border-color:var(--vv-ink)}
 .contactForm .wide:hover{background:#1b2833}
+.footerConsentButton{min-height:44px;margin:-14px 0;padding:0;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}.footerConsentButton:hover{color:var(--vv-paper)}.footerConsentButton:focus-visible{outline:2px solid #78baff;outline-offset:3px}
 
 /* Public content and conversion pages */
 .navlinks{gap:22px}.navCta{min-width:162px}

@@ -338,10 +338,18 @@ describe("publieke Volt & Vroom website", () => {
 
   it("maakt kernconversies provider-neutraal meetbaar", () => {
     const analytics = read("components/PublicAnalytics.tsx");
+    const tagManager = read("components/GoogleTagManager.tsx");
+    const layout = read("app/layout.tsx");
     expect(analytics).toContain("phone_click");
     expect(analytics).toContain("email_click");
+    expect(analytics).toContain("whatsapp_click");
     expect(analytics).toContain("route_click");
     expect(analytics).toContain("match_started");
     expect(analytics).toContain("lead_submitted");
+    expect(tagManager).toContain("analytics_storage");
+    expect(tagManager).toContain('ad_storage: "denied"');
+    expect(tagManager).toContain("googletagmanager.com/gtm.js");
+    expect(tagManager).toContain("vv:consent-reset");
+    expect(layout).toContain("NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID");
   });
 });
