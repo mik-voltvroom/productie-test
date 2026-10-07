@@ -1,0 +1,25 @@
+name: Public vehicle images
+on:
+  workflow_dispatch:
+    inputs:
+      vehicle_url:
+        description: Public Volt & Vroom vehicle detail URL
+        required: true
+        type: string
+  push:
+    branches: [agent/mobilox-frontend-source]
+permissions:
+  contents: read
+jobs:
+  public-images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Check public photo responses
+        env:
+          VEHICLE_URL: ${{ inputs.vehicle_url || 'https://www.voltvroom.nl/voorraad/land-rover-range-rover-velar-2-0-p400e-awd-dynamic-hse-phev-2023-56821730' }}
+        run: node scripts/check-vehicle-images.mjs

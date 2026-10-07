@@ -5,7 +5,6 @@ import { adminDb } from "@/lib/firebase-admin";
 import { vehicles as demoVehicles } from "@/lib/sample-data";
 import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import { deduplicateVehiclesByIdentity } from "@/lib/vehicle/identity";
-import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import { publicVehicleProjection } from "@/lib/vehicle/editorial";
 import { isPublishedOnWebsite } from "@/lib/vehicle/publication";
 import type { Vehicle } from "@/types";
@@ -19,8 +18,8 @@ function newestFirst(left: Vehicle, right: Vehicle): number {
 }
 
 export async function listPublicVehicles(limit = 12): Promise<Vehicle[]> {
-  // VVOS saves directly to Firestore. Read current publication data on each
-  // request so photo order/visibility changes cannot remain in a cached page.
+  // Read the last accepted Mobilox snapshot on every request. Provider failures
+  // leave that snapshot intact; no provider credentials reach the browser.
   noStore();
   if (process.env.VVOS_DATA_MODE !== "firebase") {
     return deduplicateVehiclesByIdentity(demoVehicles.filter(vehicle => vehicle.status === "available").map(publicProjection).sort(newestFirst)).slice(0, limit);
@@ -53,6 +52,7 @@ export async function getPublicVehicleBySlug(slug: string): Promise<Vehicle | un
 
 /** Direct lookup avoids the public inventory list's pagination limit. */
 export async function getPublicVehicleById(id: string): Promise<Vehicle | undefined> {
+  noStore();
   if (process.env.VVOS_DATA_MODE !== "firebase") {
     const vehicle = demoVehicles.find(candidate => candidate.id === id && candidate.status === "available");
     return vehicle ? publicProjection(vehicle) : undefined;

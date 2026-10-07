@@ -1,6 +1,8 @@
 # Validatie Mobilox-herstel — 6 oktober 2026
 
-## Status
+## Historische status van de eerste implementatie
+
+Dit verslag beschrijft de archiefcontrole van 6 oktober, niet de actuele main of deployment. De vervolguitwerking staat in [MOBILOX_FRONTEND_PUBLICATION.md](./MOBILOX_FRONTEND_PUBLICATION.md).
 
 Geïmplementeerd op branch `agent/mobilox-authoritative-inventory`, gebaseerd op het aangeleverde archief van productiecommit `2987642039c302a8b15ec29c07f408ac9333c84b`. Op 7 oktober is GitHub-toegang tot `mik-voltvroom/productie` bevestigd: main staat exact op deze archiefcommit. Geen productiegegevens gemuteerd en geen deploy/merge uitgevoerd.
 
@@ -23,7 +25,7 @@ De lokale Git-baseline is opgebouwd uit het ZIP-bestand en heeft niet de origine
 | Herstel-CLI offline | Dry-run op expliciet synthetische XML + documentexport: `would-repair`, 1 foto, 0 opties; plan geschreven, geen database gebruikt |
 | Herstel-idempotentie/concurrentie | Planfunctie en interne concurrentiecontrole getest; productie-apply niet uitgevoerd |
 | Visueel mobiel/tablet/desktop | Niet uitgevoerd: lokale Next-server kan niet luisteren (`EPERM` op 127.0.0.1:3117) |
-| Ford: actuele payload ↔ Firestore ↔ publieke pagina | Niet uitgevoerd: geen actuele XML, database-export of eenduidige voertuigidentificatie aangeleverd |
+| Range Rover Velar: actuele payload ↔ Firestore ↔ publieke pagina | Niet uitgevoerd: geen actuele XML of database-export aangeleverd; controle-ID inmiddels hexon-56821730 |
 
 ## Afhankelijkheidsbeperking
 
@@ -38,7 +40,7 @@ Werkelijke lokale versies: Node 24.19.0, Next 15.5.25, Vitest 5.0.1, TypeScript 
 3. Mobiele, tablet- en desktopcontrole van het vereenvoudigde dossier, specificaties en 3:2-galerij uitvoeren.
 4. Een actuele volledige Mobilox-aanlevering bevestigen, waaronder de bronsemantiek van `change`, fotovolgorde en uitbreidingsvelden. De nieuwe velden zijn gebaseerd op reeds aanwezige adaptermappings, niet op een nieuw bevestigd providercontract.
 5. Productieproject en deploymentdoel onafhankelijk vaststellen: archiefdocumentatie/configuratie bevat stagingverwijzingen. Deze bestaande inconsistentie is niet gewijzigd.
-6. De Ford identificeren en een dry-run met de echte bron maken. Bespreek niet-gematchte legacy/VWE-voertuigen apart.
+6. De Range Rover Velar (hexon-56821730) verifiëren en een dry-run met de echte bron maken. Bespreek niet-gematchte legacy/VWE-voertuigen apart.
 7. Pull request reviewen. Merge, code-/regeldeploy en de dataherstelrun blijven afzonderlijke expliciet te autoriseren acties.
 
 Voor commando’s, schrijfgrenzen, overdracht en herstel: [MOBILOX_SOURCE_OF_TRUTH.md](./MOBILOX_SOURCE_OF_TRUTH.md).

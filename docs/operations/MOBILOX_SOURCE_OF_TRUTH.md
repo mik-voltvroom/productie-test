@@ -42,7 +42,7 @@ Deze veldnamen zijn aangetroffen in repositorycode; er is tijdens deze implement
 
 Gebruik Node 22+, `npm ci` met het ongewijzigde lockbestand en expliciet ingestelde Firebase Admin-omgeving. Bewaar XML’s, exports en herstelplannen buiten de repository. Elke XML moet een recente volledige aanlevering zijn voor precies één voertuig. De tool kan niet zelfstandig bewijzen dat een aangeleverd XML-bestand de nieuwste Mobilox-stand is.
 
-1. Maak een gecontroleerde export/back-up van de voorraad. Verzamel verse Mobilox-XML voor de beoogde voertuigen. Begin met het probleemvoertuig en identificeer dit op externalId/kenteken; de Ford is nog niet definitief geïdentificeerd.
+1. Maak een gecontroleerde export/back-up van de voorraad. Verzamel verse Mobilox-XML voor de beoogde voertuigen. Begin met het probleemvoertuig en identificeer dit op externalId/kenteken; de opgegeven controleauto is de Range Rover Velar (hexon-56821730).
 2. Voer eerst een offline dry-run uit met een JSON-object `{ "hexon-ID": <voertuigdocument> }`:
 
    ```sh
@@ -64,13 +64,13 @@ Gebruik Node 22+, `npm ci` met het ongewijzigde lockbestand en expliciet ingeste
 
 6. Alle bestanden worden vooraf gevalideerd. Per voertuig wordt de actuele documenthash opnieuw in de transactie gecontroleerd. Een gewijzigde bron, gewijzigd dossier of afwijkende bestandenset stopt de actie. Reeds herstelde records geven `noop`. Bij een conflict kan een voorgaand voertuig al zijn verwerkt: stop, onderzoek en maak opnieuw een dry-run. Er is geen alles-of-niets-transactie over de volledige voorraad.
 7. Iedere wijziging maakt in dezelfde transactie een server-only back-up in `inventoryRepairBackups` en een auditrecord. Bestaande Firestore-default-deny houdt deze back-ups buiten clienttoegang. Consolelogs bevatten alleen voertuig-ID, status en aantallen.
-8. Controleer voor de Ford én enkele andere voertuigen: payload → document → publieke pagina/feed; fotolijst/volgorde, volledige tekst, opties, specificaties, kenteken/prijs en reserveringsstatus. Herhaal de import om idempotentie te bevestigen. Controleer mobiele/tablet/desktopweergave en netwerkstatus van daadwerkelijke foto-URLs.
+8. Controleer voor de Range Rover Velar én enkele andere voertuigen: payload → document → publieke pagina/feed; fotolijst/volgorde, volledige tekst, opties, specificaties, kenteken/prijs en reserveringsstatus. Herhaal de import om idempotentie te bevestigen. Controleer mobiele/tablet/desktopweergave en netwerkstatus van daadwerkelijke foto-URLs.
 
 ## Uitrol en rollback
 
 Eerst lintconfiguratie beoordelen, clean install, tests, TypeScript, productiebuild, Firestore/Storage-regeltests en visuele controles in een geïsoleerde omgeving. Deploy code en bijbehorende regels gecoördineerd na expliciete toestemming. Oude clients krijgen bewust een fout op mutaties en moeten vernieuwen. In de bestaande `.firebaserc`, `firebase.json` en README staan stagingverwijzingen; deze zijn niet aangepast en mogen niet als bewijs van een productieproject worden gebruikt.
 
-Bij rollback: stop nieuwe bronmutaties tijdens de gecontroleerde omschakeling, herstel de vorige code/regels alleen na beoordeling en gebruik de serverback-up als bewijs voor gericht dataherstel. Schrijf niet blind een oud heel voertuig terug over nieuwere kosten of dealmutaties. Herstel bij voorkeur uit een opnieuw bevestigde actuele Mobilox-aanlevering. De parserback-up en daadwerkelijke productie-/Ford-validatie moeten vóór livegang beschikbaar zijn.
+Bij rollback: stop nieuwe bronmutaties tijdens de gecontroleerde omschakeling, herstel de vorige code/regels alleen na beoordeling en gebruik de serverback-up als bewijs voor gericht dataherstel. Schrijf niet blind een oud heel voertuig terug over nieuwere kosten of dealmutaties. Herstel bij voorkeur uit een opnieuw bevestigde actuele Mobilox-aanlevering. De parserback-up en daadwerkelijke productie-/voertuigvalidatie moeten vóór livegang beschikbaar zijn.
 
 ## Aanvullende reparatie 7 oktober 2026
 

@@ -1,7 +1,9 @@
 import "server-only";
+import { unstable_noStore as noStore } from "next/cache";
 import { adminDb } from "@/lib/firebase-admin";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
-import { publicOptions } from "@/lib/vehicle/editorial";
+import { isPublishedOnWebsite } from "@/lib/vehicle/publication";
+import { publicVehicleProjection, publicOptions } from "@/lib/vehicle/editorial";
 import type { Vehicle } from "@/types";
 
 type RawMap = Record<string, unknown>;
@@ -72,9 +74,12 @@ function websiteEnabled(vehicle: FirestoreVehicle): boolean {
 export type PublicVehicle = ReturnType<typeof projectPublicVehicle>;
 
 export function projectPublicVehicle(vehicle: FirestoreVehicle) {
-  if ((vehicle.source as RawMap)?.contentVersion === 1) {
-    const { raw, imageUrls, hybrid, ...canonical } = vehicle;
-    vehicle = canonical;
+  const canonical = (vehicle.source as RawMap)?.contentVersion === 1;
+  const source = sourceLabel(vehicle);
+  const available = canonical ? isPublishedOnWebsite(vehicle as unknown as Vehicle) : websiteEnabled(vehicle);
+  if (canonical) {
+    // The same allowlist as the website: never resurrect stale raw or hybrid fields.
+    vehicle = publicVehicleProjection(vehicle as unknown as Vehicle) as unknown as FirestoreVehicle;
   }
   const hybrid = (vehicle.hybrid ?? {}) as RawMap;
   const id = text(vehicle.id) ?? "";
@@ -89,8 +94,8 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
   return {
     id,
     slug: text(vehicle.slug) ?? id,
-    source: sourceLabel(vehicle),
-    available: websiteEnabled(vehicle) && !sold,
+    source,
+    available: available && !sold,
     reserved,
     brand: text(vehicle.brand) ?? text(rawValue(vehicle, "merk")) ?? "",
     model: text(vehicle.model) ?? text(rawValue(vehicle, "model")) ?? "",
@@ -109,8 +114,8 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
     imageUrls,
     title: text(vehicle.title) ?? text(rawValue(vehicle, "titel")),
     highlights: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle).join(", ") : list(vehicle.highlights).join(", ") || text(rawValue(vehicle, "highlights")),
-    description: (vehicle.source as RawMap)?.contentVersion === 1 ? text(vehicle.description) : (vehicle as unknown as Vehicle).editorial?.content.websiteText ?? text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
-    accessories: vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle) : list(vehicle.accessories).length ? list(vehicle.accessories) : list(rawValue(vehicle, "accessoires")),
+    description: canonical ? text(vehicle.description) : (vehicle as unknown as Vehicle).editorial?.content.websiteText ?? text(vehicle.description) ?? text(rawValue(vehicle, "opmerkingen")),
+    accessories: canonical ? list(vehicle.highlights) : vehicle.editorial ? publicOptions(vehicle as unknown as Vehicle) : list(vehicle.accessories).length ? list(vehicle.accessories) : list(rawValue(vehicle, "accessoires")),
 
     powerHp: number(vehicle.powerHp) ?? number(rawValue(vehicle, "vermogen_motor_pk")) ?? number(rawValue(vehicle, "vermogen_pk")),
     powerKw: number(vehicle.powerKw) ?? number(rawValue(vehicle, "vermogen_motor_kw")) ?? number(rawValue(vehicle, "vermogen_kw")),
@@ -126,21 +131,22 @@ export function projectPublicVehicle(vehicle: FirestoreVehicle) {
     co2GKm: number(vehicle.co2GKm) ?? number(rawValue(vehicle, "co2_uitstoot")),
     consumptionPer100Km: number(vehicle.consumptionPer100Km) ?? number(rawValue(vehicle, "gemiddeld_verbruik")) ?? number(rawValue(vehicle, "wltp_brandstofverbruik_combined")),
 
-    hybridType: text(hybrid.hybridType) ?? text(rawValue(vehicle, "type_hybride")),
+    hybridType: text(vehicle.hybridType) ?? text(hybrid.hybridType) ?? text(rawValue(vehicle, "type_hybride")),
     pluginHybrid: bool(hybrid.pluginHybrid) ?? bool(rawValue(vehicle, "plugin_hybride")),
     batteryHealthPercent: number(vehicle.batteryHealthPercent) ?? number(hybrid.batteryConditionPct) ?? number(rawValue(vehicle, "accu_conditie")),
     electricRangeKm: number(vehicle.electricRangeKm) ?? number(hybrid.electricRangeKm) ?? number(rawValue(vehicle, "actieradius_elektrisch")),
-    electricPowerKw: number(hybrid.electricPowerKw) ?? number(rawValue(vehicle, "vermogen_elektrisch_kw")),
-    electricPowerHp: number(hybrid.electricPowerHp) ?? number(rawValue(vehicle, "vermogen_elektrisch_pk")),
-    chargingPowerKw: number(hybrid.chargingPowerKw) ?? number(rawValue(vehicle, "accu_laadvermogen")),
-    connector: text(hybrid.connector) ?? text(rawValue(vehicle, "stekkeraansluiting")),
-    fastChargingSupported: bool(hybrid.fastChargingSupported) ?? bool(rawValue(vehicle, "geschikt_voor_snelladen")),
+    electricPowerKw: number(vehicle.electricPowerKw) ?? number(hybrid.electricPowerKw) ?? number(rawValue(vehicle, "vermogen_elektrisch_kw")),
+    electricPowerHp: number(vehicle.electricPowerHp) ?? number(hybrid.electricPowerHp) ?? number(rawValue(vehicle, "vermogen_elektrisch_pk")),
+    chargingPowerKw: number(vehicle.chargingPowerKw) ?? number(hybrid.chargingPowerKw) ?? number(rawValue(vehicle, "accu_laadvermogen")),
+    connector: text(vehicle.connector) ?? text(hybrid.connector) ?? text(rawValue(vehicle, "stekkeraansluiting")),
+    fastChargingSupported: bool(vehicle.fastChargingSupported) ?? bool(hybrid.fastChargingSupported) ?? bool(rawValue(vehicle, "geschikt_voor_snelladen")),
 
     updatedAt: text(vehicle.updatedAt) ?? text(vehicle.receivedAt),
   };
 }
 
 export async function listPublicVehicles(): Promise<PublicVehicle[]> {
+  noStore();
   if (!adminDb) return [];
   const snapshot = await adminDb.collection("vehicles").orderBy("updatedAt", "desc").get();
   return snapshot.docs
@@ -149,6 +155,7 @@ export async function listPublicVehicles(): Promise<PublicVehicle[]> {
 }
 
 export async function getPublicVehicle(id: string): Promise<PublicVehicle | null> {
+  noStore();
   if (!adminDb) return null;
   const snapshot = await adminDb.collection("vehicles").doc(id).get();
   if (!snapshot.exists) return null;
