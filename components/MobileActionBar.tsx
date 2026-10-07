@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { RouteIcon } from "@/components/RouteIcon";
 
 type RouteAppId = "google" | "apple" | "waze";
 
@@ -35,9 +36,7 @@ function WhatsAppIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.3-4.7a8.5 8.5 0 1 1 16.2-4.1Z" /><path d="M8.4 7.6c.3-.3.6-.3.8.1l1 2c.1.3.1.5-.1.7l-.7.8c.8 1.7 2 2.9 3.7 3.7l.8-.7c.2-.2.5-.2.7-.1l2 1c.4.2.4.5.1.8-.6.8-1.5 1.2-2.4 1.1-3.7-.5-6.7-3.5-7.2-7.2-.1-.9.3-1.8 1.3-2.2Z" /></svg>;
 }
 
-function RouteIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 16-16-5.2 14.2-3.2-5.8L4 20Z" /></svg>;
-}
+
 
 export function MobileActionBar() {
   const whatsappNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "31646585468").replace(/\D/g, "");

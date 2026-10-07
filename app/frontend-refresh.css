@@ -97,16 +97,26 @@
 .floatingContactDock .contactActionPhone,.mobileActionBar .contactActionPhone{background:#34c759!important}
 .floatingContactDock .contactActionWhatsapp,.mobileActionBar .contactActionWhatsapp{background:#25d366!important}
 .floatingContactDock .contactActionRoute{
-  background:#fff!important;
+  background:transparent!important;
   color:#075eba;
-  box-shadow:inset 0 0 0 1px rgba(22,139,255,.28),0 7px 18px rgba(13,17,23,.1);
+  box-shadow:none;
   text-shadow:none;
 }
 .floatingContactDock .contactActionRoute:hover{
-  background:#f2f8ff!important;
-  box-shadow:inset 0 0 0 1px rgba(22,139,255,.5),0 10px 24px rgba(13,17,23,.14);
+  background:transparent!important;
+  box-shadow:none;
 }
-.floatingContactDock .contactActionRoute .dockIcon{background:#e6f2ff;color:#075eba;box-shadow:none}
+.floatingContactDock .contactActionRoute .dockIcon{
+  width:42px;
+  height:42px;
+  background:transparent;
+  box-shadow:none;
+}
+.routeMapIcon{display:block;width:100%;height:100%;object-fit:contain}
+.floatingContactDock .contactActionRoute:focus-visible,.mobileActionBar .contactActionRoute:focus-visible{
+  outline:3px solid #075eba;
+  outline-offset:2px;
+}
 .floatingContactDock .dockIcon{
   width:31px;
   height:31px;
@@ -146,23 +156,18 @@
   .mobileActionBar .contactActionRoute{
     position:relative;
     overflow:hidden;
-    background:#0d1117!important;
-    color:#fff!important;
-    box-shadow:inset 0 -3px 0 #168bff,inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(13,17,23,.18);
+    background:transparent!important;
+    color:#075eba!important;
+    box-shadow:none;
     text-shadow:none;
   }
   .mobileActionBar .routeActionIcon{
     display:grid;
     place-items:center;
-    width:30px;
-    height:30px;
-    flex:0 0 30px;
-    border-radius:50%;
-    background:#e6f2ff;
-    color:#168bff;
-    box-shadow:inset 0 0 0 1px rgba(22,139,255,.12);
+    width:38px;
+    height:38px;
+    flex:0 0 38px;
   }
-  .mobileActionBar .routeActionIcon svg{width:17px;height:17px;fill:currentColor;stroke:none}
   .routeChooserBackdrop{
     position:fixed;
     inset:0;
@@ -209,7 +214,7 @@
   .mobileActionBar{left:8px;right:8px;bottom:8px}
   .mobileActionBar .contactAction{min-height:56px;font-size:.7rem}
   .mobileActionBar .contactActionRoute{flex-direction:row;gap:7px}
-  .mobileActionBar .routeActionIcon{width:28px;height:28px;flex-basis:28px}
+  .mobileActionBar .routeActionIcon{width:34px;height:34px;flex-basis:34px}
   .routeChooserSheet{left:8px;right:8px;bottom:88px;width:calc(100vw - 16px);padding:18px;border-radius:22px}
 }
 @media(prefers-reduced-motion:reduce){

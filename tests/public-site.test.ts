@@ -282,8 +282,8 @@ describe("publieke Volt & Vroom website", () => {
     const refresh = read("app/frontend-refresh.css");
     expect(refresh).toContain(".mobileActionBar .contactActionPhone{background:#34c759!important}");
     expect(refresh).toContain(".floatingContactDock .contactActionRoute{");
-    expect(refresh).toContain("background:#fff!important;");
-    expect(refresh).toContain(".floatingContactDock .contactActionRoute .dockIcon{background:#e6f2ff;color:#075eba;box-shadow:none}");
+    expect(refresh).toContain("background:transparent!important;");
+    expect(refresh).toContain(".floatingContactDock .contactActionRoute .dockIcon{");
     expect(refresh).toContain(".mobileActionBar .contactActionWhatsapp{background:#25d366!important}");
     expect(read("components/MobileActionBar.tsx")).toContain("routeActionIcon");
     expect(read("components/MobileActionBar.tsx")).toContain('role="dialog"');
@@ -291,10 +291,8 @@ describe("publieke Volt & Vroom website", () => {
     expect(read("components/MobileActionBar.tsx")).toContain("https://maps.apple.com/");
     expect(read("components/MobileActionBar.tsx")).toContain("https://www.waze.com/ul");
     expect(read("components/MobileActionBar.tsx")).toContain('data-vv-event="route_click"');
-    expect(refresh).toContain("background:#0d1117!important");
-    expect(refresh).toContain("box-shadow:inset 0 -3px 0 #168bff");
+    expect(refresh).toContain("color:#075eba!important;");
     expect(refresh).toContain("background:#e6f2ff");
-    expect(refresh).toContain("fill:currentColor;stroke:none");
     expect(refresh).toContain(".routeChooserSheet");
     expect(refresh).toContain("@media(prefers-reduced-motion:reduce)");
   });
