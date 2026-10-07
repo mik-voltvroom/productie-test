@@ -84,6 +84,20 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryPage).not.toContain('@/lib/public-vehicles');
   });
 
+  it("toont op de homepage alle auto's met categorieen maar zonder filterpaneel", () => {
+    const homepage = read("app/page.tsx");
+    const inventoryBrowser = read("components/InventoryBrowser.tsx");
+    const styles = read("app/voorraad/voorraad.module.css");
+
+    expect(homepage).toContain("const vehicles = await listPublicVehicles(100)");
+    expect(homepage).toContain("<InventoryBrowser vehicles={vehicles} showFilters={false}");
+    expect(homepage).not.toContain(".slice(0, 6)");
+    expect(inventoryBrowser).toContain("showFilters = true");
+    expect(inventoryBrowser).toContain("showFilters ? <aside");
+    expect(styles).toContain(".layoutWithoutFilters{grid-template-columns:minmax(0,1fr)}");
+    expect(styles).toContain(".layoutWithoutFilters .grid{grid-template-columns:repeat(3,minmax(0,1fr))}");
+  });
+
   it("uses the canonical Mobilox content across inventory and feeds", () => {
     expect(read("components/dashboard/VehicleForm.tsx")).not.toContain("uploadVehicleImage");
     expect(read("lib/integrations/hexon-service.ts")).toContain("buildMobiloxReplacement");

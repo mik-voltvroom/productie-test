@@ -25,7 +25,7 @@ function QuickCategory({ active, value, children, onSelect }: { active: boolean;
   return <button type="button" className={active ? styles.quickActive : undefined} aria-pressed={active} onClick={() => onSelect(value)}>{children}</button>;
 }
 
-export function InventoryBrowser({ vehicles, initialCategory = "all" }: { vehicles: Vehicle[]; initialCategory?: Category }) {
+export function InventoryBrowser({ vehicles, initialCategory = "all", showFilters = true }: { vehicles: Vehicle[]; initialCategory?: Category; showFilters?: boolean }) {
   const [category, setCategory] = useState<Category>(initialCategory);
   const [brand, setBrand] = useState(""); const [model, setModel] = useState(""); const [driveType, setDriveType] = useState("");
   const [fuelType, setFuelType] = useState(""); const [trim, setTrim] = useState(""); const [yearFrom, setYearFrom] = useState("");
@@ -49,8 +49,8 @@ export function InventoryBrowser({ vehicles, initialCategory = "all" }: { vehicl
         <span><strong>{choice.title}</strong><small>{choice.description}</small></span>
       </button>)}
     </nav>
-    <div className={styles.layout}>
-      <aside className={styles.filters} aria-label="Filter het aanbod">
+    <div className={`${styles.layout} ${showFilters ? "" : styles.layoutWithoutFilters}`}>
+      {showFilters ? <aside className={styles.filters} aria-label="Filter het aanbod">
         <div className={styles.filterHeading}><div><span>Filter</span><h2>Vind uw auto</h2></div><button type="button" onClick={resetFilters}>Wis alles</button></div>
         <label>Merk<select value={brand} onChange={e => { setBrand(e.target.value); setModel(""); }}><option value="">Alle merken</option>{brands.map(v => <option key={v}>{v}</option>)}</select></label>
         <label>Model<select value={model} onChange={e => setModel(e.target.value)}><option value="">Alle modellen</option>{models.map(v => <option key={v}>{v}</option>)}</select></label>
@@ -60,7 +60,7 @@ export function InventoryBrowser({ vehicles, initialCategory = "all" }: { vehicl
         <fieldset><legend>Bouwjaar</legend><div className={styles.range}><select aria-label="Bouwjaar vanaf" value={yearFrom} onChange={e => setYearFrom(e.target.value)}><option value="">Vanaf</option>{years.map(v => <option key={v}>{v}</option>)}</select><select aria-label="Bouwjaar tot en met" value={yearTo} onChange={e => setYearTo(e.target.value)}><option value="">Tot</option>{years.map(v => <option key={v}>{v}</option>)}</select></div></fieldset>
         <fieldset><legend>Prijs</legend><div className={styles.range}><input type="number" min="0" step="500" placeholder="Vanaf €" aria-label="Prijs vanaf" value={priceFrom} onChange={e => setPriceFrom(e.target.value)} /><input type="number" min="0" step="500" placeholder="Tot €" aria-label="Prijs tot en met" value={priceTo} onChange={e => setPriceTo(e.target.value)} /></div></fieldset>
         <label>Categorie<select value={category} onChange={e => setCategory(e.target.value as Category)}><option value="all">Hele voorraad</option><option value="hybrid">Hybride</option><option value="electric">Elektrisch</option><option value="icons">Icons</option></select></label>
-      </aside>
+      </aside> : null}
       <section id="aanbod-resultaten" className={styles.results} aria-live="polite"><div className={styles.resultHeading}><span>{filtered.length} {filtered.length === 1 ? "auto" : "auto’s"} gevonden</span><span>{category === "all" ? "Alle categorieën" : category === "hybrid" ? "Hybride" : category === "electric" ? "Elektrisch" : "Icons"}</span></div>
         {filtered.length === 0 ? <div className={styles.empty}><h2>Geen auto’s met deze filters.</h2><p>Pas één of meer filters aan om het volledige aanbod te bekijken.</p><button type="button" onClick={resetFilters}>Bekijk hele voorraad</button></div> : <div className={styles.grid}>{filtered.map(vehicle => <Link key={vehicle.id} href={`/voorraad/${encodeURIComponent(vehicle.slug)}`} className={styles.card}><div className={styles.media}>{vehicle.images[0] ? <img src={vehicle.images[0]} alt={`${vehicle.brand} ${vehicle.model}`} /> : <div>Foto volgt</div>}<span className={categoryFor(vehicle) === "icons" ? styles.iconBadge : undefined}>{categoryFor(vehicle) === "icons" ? <><b aria-hidden="true">&amp;</b>Icons</> : <><Image src={vehicle.driveType === "electric" ? "/brand/icons/elektrisch.svg" : "/brand/icons/hybride.svg"} alt="" width={18} height={18} />{driveLabels[vehicle.driveType]}</>}</span></div><div className={styles.cardBody}><div className={styles.cardHeading}><div><h2>{vehicle.brand} {vehicle.model}</h2></div><strong>{vehicle.priceCents > 0 ? money.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"}</strong><VehicleHighlights trim={vehicle.trim} compact className={styles.cardPresentation} /></div><div className={styles.meta}><span>{vehicle.year}</span><span>{number.format(vehicle.mileageKm)} km</span><span>{vehicle.transmission}</span><span>{vehicle.fuelType}</span></div><span className={styles.cardAction}>Bekijk auto <b aria-hidden="true">→</b></span></div></Link>)}</div>}
       </section>

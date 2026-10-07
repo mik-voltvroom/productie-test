@@ -2,8 +2,8 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
+import { InventoryBrowser } from "@/components/InventoryBrowser";
 import { SiteFooter } from "@/components/SiteFooter";
-import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
@@ -17,8 +17,8 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const vehicles = (await listPublicVehicles(100)).filter(isVvOfferVehicle).slice(0, 6);
-  const latestVehicle = vehicles[0];
+  const vehicles = await listPublicVehicles(100);
+  const latestVehicle = vehicles.find(isVvOfferVehicle) ?? vehicles[0];
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "AutoDealer", name: "Volt & Vroom", description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", url: "https://www.voltvroom.nl", telephone: "+31646585468", email: "sales@voltvroom.nl", address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" }, areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
@@ -57,7 +57,7 @@ export default async function HomePage() {
       <section id="voorraad" className="section container">
         <div className="sectionHeading inventoryHeading"><div><p className="eyebrow">Actueel aanbod</p><h2>Ontdek onze occasions.</h2></div><a className="textButton" href="/voorraad">Bekijk alle auto’s <span aria-hidden="true">→</span></a></div>
         {vehicles.length > 0
-          ? <div className="vehicleGrid">{vehicles.map(vehicle => <VehicleCard vehicle={vehicle} key={vehicle.id} />)}</div>
+          ? <InventoryBrowser vehicles={vehicles} showFilters={false} />
           : <div className="inventoryPlaceholder"><div><span>Voorraad in voorbereiding</span><h3>Wilt u als eerste weten welke auto’s beschikbaar komen?</h3><p>Vertel ons wat u zoekt. Wij nemen persoonlijk contact op zodra een passende auto beschikbaar is.</p></div><a className="button" href="#advies">Deel uw zoekopdracht <span aria-hidden="true">→</span></a></div>}
       </section>
       </div>

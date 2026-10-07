@@ -8,6 +8,8 @@
 .categoryActions>button{min-height:44px;padding:0 16px;border:1px solid #d9e0e7;border-radius:12px;background:#fff;color:#0d1117;font:inherit;font-size:.78rem;font-weight:750;cursor:pointer}
 .categoryActions>button:hover,.categoryActions>button.quickActive{border-color:#168bff;background:#e6f2ff}
 .categoryChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:42px}
+.layoutWithoutFilters{grid-template-columns:minmax(0,1fr)}
+.layoutWithoutFilters .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .categoryChoice {
   position:relative;
   isolation:isolate;
@@ -62,4 +64,5 @@
 .icons:hover strong,.icons.categoryActive strong{color:#9b5837}
 .iconsMark{width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(185,102,59,.35);border-radius:50%;background:rgba(255,255,255,.7);color:#b9663b;font-family:var(--font-manrope),sans-serif;font-size:1.55rem;font-weight:300}
 .media>span{min-height:34px;display:inline-flex;align-items:center;gap:7px}.media>span img{width:18px;height:18px;object-fit:contain}.media>span b{font-family:var(--font-manrope),sans-serif;font-size:17px;line-height:1}.media>span.iconBadge{color:#9b5837}
-@media(max-width:760px){.categoryChoices{grid-template-columns:1fr;margin-bottom:32px}.categoryChoice{min-height:124px}}
+@media(max-width:1050px){.layoutWithoutFilters .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.categoryChoices{grid-template-columns:1fr;margin-bottom:32px}.categoryChoice{min-height:124px}.layoutWithoutFilters .grid{grid-template-columns:1fr}}

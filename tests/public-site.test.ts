@@ -60,8 +60,9 @@ describe("publieke Volt & Vroom website", () => {
     const repository = read("lib/repositories/public-vehicle-repository.ts");
     const publication = read("lib/vehicle/publication.ts");
     expect(homepage).toContain("listPublicVehicles(100)");
-    expect(homepage).toContain("filter(isVvOfferVehicle)");
-    expect(homepage).toContain("<VehicleCard vehicle={vehicle}");
+    expect(homepage).toContain("const vehicles = await listPublicVehicles(100)");
+    expect(homepage).toContain("<InventoryBrowser vehicles={vehicles} showFilters={false}");
+    expect(homepage).not.toContain(".slice(0, 6)");
     expect(repository).toContain('vehicle.status === "available"');
     expect(repository).toContain("isPublishedOnWebsite(vehicle)");
     expect(publication).toContain('vehicle.publication?.channels.website === true');
@@ -190,7 +191,7 @@ describe("publieke Volt & Vroom website", () => {
     expect(inventoryBrowser).toContain("Hybride");
     expect(inventoryBrowser).toContain("Elektrisch");
     expect(inventoryBrowser).toContain("Icons");
-    expect(homepage).toContain("filter(isVvOfferVehicle)");
+    expect(homepage).toContain("vehicles.find(isVvOfferVehicle) ?? vehicles[0]");
     expect(vehicleForm).not.toContain("Collectie<select");
     expect(vehicleForm).not.toContain('value="icons"');
   });
