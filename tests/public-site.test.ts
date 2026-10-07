@@ -164,6 +164,7 @@ describe("publieke Volt & Vroom website", () => {
   it("publiceert de Icons-visie en koppelt die aan de actuele Icons-voorraad", () => {
     const icons = read("app/icons/page.tsx");
     const inventory = read("app/voorraad/page.tsx");
+    const inventoryBrowser = read("components/InventoryBrowser.tsx");
     const vehicleForm = read("components/dashboard/VehicleForm.tsx");
     const homepage = read("app/page.tsx");
 
@@ -173,7 +174,12 @@ describe("publieke Volt & Vroom website", () => {
     expect(icons).toContain("filter(isIconVehicle)");
     expect(icons).toContain('/voorraad?collectie=icons');
     expect(inventory).toContain('collectie === "icons"');
-    expect(inventory).toContain("allVehicles.filter(isIconsCollection ? isIconVehicle : isVvOfferVehicle)");
+    expect(inventory).toContain("<InventoryBrowser vehicles={vehicles}");
+    expect(inventoryBrowser).toContain('categoryFor(vehicle) === category');
+    expect(inventoryBrowser).toContain("Hele voorraad");
+    expect(inventoryBrowser).toContain("Hybride");
+    expect(inventoryBrowser).toContain("Elektrisch");
+    expect(inventoryBrowser).toContain("Icons");
     expect(homepage).toContain("filter(isVvOfferVehicle)");
     expect(vehicleForm).not.toContain("Collectie<select");
     expect(vehicleForm).not.toContain('value="icons"');

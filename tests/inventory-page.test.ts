@@ -7,13 +7,16 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8"
 describe("publieke voorraadpagina", () => {
   it("projecteert prijs, foto en detail-link vanuit het canonieke voertuigmodel", () => {
     const inventoryPage = read("app/voorraad/page.tsx");
+    const inventoryBrowser = read("components/InventoryBrowser.tsx");
 
     expect(inventoryPage).toContain('@/lib/repositories/public-vehicle-repository');
     expect(inventoryPage).toContain("listPublicVehicles(100)");
-    expect(inventoryPage).toContain("isIconsCollection ? isIconVehicle : isVvOfferVehicle");
-    expect(inventoryPage).toContain("vehicle.images[0]");
-    expect(inventoryPage).toContain("centsToEuros(vehicle.priceCents)");
-    expect(inventoryPage).toContain("vehicle.slug");
+    expect(inventoryPage).toContain("<InventoryBrowser vehicles={vehicles}");
+    expect(inventoryBrowser).toContain("vehicle.images[0]");
+    expect(inventoryBrowser).toContain("centsToEuros(vehicle.priceCents)");
+    expect(inventoryBrowser).toContain("vehicle.slug");
+    expect(inventoryBrowser).toContain('value="all">Hele voorraad');
+    expect(inventoryBrowser).toContain('value="icons"');
     expect(inventoryPage).not.toContain('@/lib/public-vehicles');
   });
 
