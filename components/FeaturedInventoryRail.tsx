@@ -2,6 +2,7 @@ import Link from "next/link";
 import { eur, km } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
 import type { Vehicle } from "@/types";
+import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 
 function driveLabel(value: Vehicle["driveType"]) {
   if (value === "plug-in-hybrid") return "Plug-in hybride";
@@ -35,7 +36,7 @@ export function FeaturedInventoryRail({ vehicles }: { vehicles: Vehicle[] }) {
             <div className="featuredVehicleBody">
               <div className="featuredVehicleTopline"><span>{vehicle.brand}</span><strong>{vehicle.priceCents > 0 ? eur.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"}</strong></div>
               <h3>{vehicle.model}</h3>
-              <p>{vehicle.trim}</p>
+              <VehicleHighlights trim={vehicle.trim} compact />
               <div className="featuredVehicleFacts">
                 <span>{vehicle.year}</span>
                 <span>{km.format(vehicle.mileageKm)} km</span>

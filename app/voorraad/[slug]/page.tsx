@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
+import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { Header } from "@/components/Header";
 import { LeaseCalculator } from "@/components/financial-lease/LeaseCalculator";
 
@@ -103,7 +104,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
         <aside className={styles.side}>
           <p className={styles.eyebrow}>{publicDriveType}</p>
           <h1>{vehicleName}</h1>
-          <p className={styles.trim}>{vehicle.trim}</p>
+          <VehicleHighlights trim={vehicle.trim} />
           <span className={styles.priceLabel}>Verkoopprijs</span><div className={styles.price}>{vehicle.priceCents > 0 ? eur.format(priceEur) : "Prijs op aanvraag"}</div>
           <p className={styles.priceNote}>Inclusief alle verplichte kosten.</p>
           <p className={styles.availability}>{isReserved ? "Gereserveerd" : "Beschikbaar bij Volt & Vroom in Groningen"}</p>

@@ -1,0 +1,56 @@
+.root {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+
+.root p.edition {
+  min-height: 0;
+  margin: 0;
+  color: var(--graphite);
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.root .labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label, .more {
+  max-width: 100%;
+  padding: 5px 9px;
+  border-radius: 7px;
+  color: var(--ink);
+  background: var(--ice);
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.more {
+  color: var(--graphite);
+  background: var(--soft);
+}
+
+.compact p.edition {
+  font-size: .85rem;
+}
+
+.compact .label, .compact .more {
+  font-size: .7rem;
+  padding: 4px 8px;
+}
+
+.detail {
+  margin-bottom: 22px;
+}

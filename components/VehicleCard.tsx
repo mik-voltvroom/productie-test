@@ -2,6 +2,7 @@ import Link from "next/link";
 import { eur, km } from "@/lib/format";
 import type { Vehicle } from "@/types";
 import { centsToEuros } from "@/lib/money";
+import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 
 function driveLabel(value: string): string {
   const normalized = value.toLowerCase();
@@ -26,7 +27,10 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
             {vehicle.monthlyPriceCents && <span className="monthlyPrice">Financiering {eur.format(centsToEuros(vehicle.monthlyPriceCents))} p/m</span>}
           </div>
         </div>
-        <p className="muted vehicleMeta">{vehicle.trim} · {vehicle.year} · {km.format(vehicle.mileageKm)} km</p>
+        <div className="vehicleMeta">
+          <VehicleHighlights trim={vehicle.trim} compact />
+          <p className="muted">{vehicle.year} · {km.format(vehicle.mileageKm)} km</p>
+        </div>
         <div className="badges">
           {vehicle.batteryHealthPercent && <span className="badge">Accu {vehicle.batteryHealthPercent}%</span>}
           {vehicle.annualSavingCents && <span className="badge">Bespaar ± {eur.format(centsToEuros(vehicle.annualSavingCents))}/jaar</span>}
