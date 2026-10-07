@@ -30,11 +30,11 @@ export default async function HomePage() {
           <div className="heroCopy">
             <p className="eyebrow">Volt &amp; Vroom · Groningen</p>
             <h1 id="hero-title"><em>Slim rijden.</em><br />Meer genieten.</h1>
-            <p className="heroDescriptor">Expert in hybride en elektrisch rijden.</p>
-            <p className="heroEvidence">Prijs, kilometerstand en uitvoering direct inzichtelijk.</p>
+            <p className="heroDescriptor">Hybride en elektrisch, helder uitgelegd.</p>
+            <p className="heroEvidence">Met inzicht in prijs, historie, techniek en dagelijks gebruik.</p>
             <div className="actions heroActions">
               <a className="button heroPrimaryButton" href="/voorraad">Bekijk de voorraad <span aria-hidden="true">→</span></a>
-              <a className="button secondary" href="/keuzehulp">Doe de keuzetest</a>
+              <a className="button secondary" href="/keuzehulp">Ontdek wat bij uw gebruik past</a>
             </div>
           </div>
           <div className="heroVisual heroVisualRefresh">
@@ -55,7 +55,7 @@ export default async function HomePage() {
 
       <div id="uitgelicht">
       <section id="voorraad" className="section container">
-        <div className="sectionHeading inventoryHeading"><div><p className="eyebrow">Actueel aanbod</p><h2>Ontdek onze occasions.</h2></div><a className="textButton" href="/voorraad">Bekijk alle auto’s <span aria-hidden="true">→</span></a></div>
+        <div className="sectionHeading inventoryHeading"><div><p className="eyebrow">Actueel aanbod</p><h2>Actueel aanbod, zorgvuldig geselecteerd.</h2></div><a className="textButton" href="/voorraad">Bekijk alle auto’s <span aria-hidden="true">→</span></a></div>
         {vehicles.length > 0
           ? <InventoryBrowser vehicles={vehicles} showFilters={false} />
           : <div className="inventoryPlaceholder"><div><span>Voorraad in voorbereiding</span><h3>Wilt u als eerste weten welke auto’s beschikbaar komen?</h3><p>Vertel ons wat u zoekt. Wij nemen persoonlijk contact op zodra een passende auto beschikbaar is.</p></div><a className="button" href="#advies">Deel uw zoekopdracht <span aria-hidden="true">→</span></a></div>}
@@ -72,9 +72,21 @@ export default async function HomePage() {
       </div></section>
 
 
+      <section className="section container" aria-labelledby="over-volt-vroom">
+        <div className="sectionHeading splitHeading">
+          <div><p className="eyebrow">Over Volt &amp; Vroom</p><h2 id="over-volt-vroom">Persoonlijk begeleiden. Helder adviseren.</h2></div>
+          <p className="sectionIntro">Een auto is meer dan een voertuig. Het is een investering in uw vrijheid en mobiliteit.</p>
+        </div>
+        <div className="sectionIntro">
+          <p>Als familiebedrijf in Groningen combineren we jarenlange ervaring in de autobranche met persoonlijke aandacht. We richten ons vooral op jonge, volledig onderhouden en compleet uitgevoerde auto’s.</p>
+          <p>Ons compacte team begeleidt u bij iedere stap: van het vinden van een passende auto en ondersteuning bij financiering tot de overschrijving. U kunt rekenen op vriendelijke, heldere communicatie en korte lijnen.</p>
+          <p>Onze visie is veilige en betrouwbare mobiliteit binnen hybride en elektrisch rijden. Onze missie vatten we samen in één belofte: slim rijden, meer genieten.</p>
+        </div>
+      </section>
+
 
       <section id="advies" className="section contactSection homepageContact"><div className="container">
-        <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">Een vraag of een proefrit plannen? Neem contact met ons op.</p><div className="contactFacts"><a href="tel:+31646585468"><span>Bel direct</span><strong>0646585468</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
+        <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">U hoeft nog niet precies te weten welke auto u zoekt. Vertel hoe u rijdt; wij helpen u gericht verder.</p><div className="contactFacts"><a href="tel:+31646585468"><span>Bel direct</span><strong>0646585468</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
         <a className="button" href="/contact">Neem contact op <span aria-hidden="true">→</span></a>
       </div></section>
     </main>

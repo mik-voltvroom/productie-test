@@ -14,6 +14,6 @@ export function SocialVideoHub({ videos }: { videos: PublicSocialVideo[] }) {
 
   return <>
     <div className="videoFilterBar" role="group" aria-label="Filter video's">{filters.map(([value, label]) => <button key={value} type="button" className={filter === value ? "active" : ""} onClick={() => setFilter(value)}>{label}</button>)}</div>
-    {visible.length === 0 ? <div className="videoEmptyState"><strong>Nog geen video's in deze categorie.</strong><p>Nieuwe praktijkvideo's verschijnen hier zodra ze door VVOS zijn beoordeeld en gepubliceerd.</p></div> : <div className="socialVideoHubGrid">{visible.map(video => <SocialVideo key={video.id} video={video} />)}</div>}
+    {visible.length === 0 ? <div className="videoEmptyState"><strong>Nog geen video's in deze categorie.</strong><p>Bekijk een andere categorie of kom binnenkort terug.</p></div> : <div className="socialVideoHubGrid">{visible.map(video => <SocialVideo key={video.id} video={video} />)}</div>}
   </>;
 }

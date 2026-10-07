@@ -25,11 +25,11 @@ export default async function InruilenPage({
     <main className={styles.page}>
       <section className={styles.hero}><div className="container">
         <div className={styles.heroGrid}>
-          <div><p className="eyebrow">Persoonlijke inruilindicatie</p><h1>Uw auto inruilen, zonder giswerk.</h1><p>Vertel ons welke auto u rijdt en hoe die ervoor staat. Mik beoordeelt de gegevens persoonlijk en neemt contact met u op met een onderbouwde indicatie.</p></div>
+          <div><p className="eyebrow">Persoonlijke inruilindicatie</p><h1>Uw auto inruilen, zonder giswerk.</h1><p>Vertel ons welke auto u rijdt en hoe die ervoor staat. Wij beoordelen kenteken, kilometerstand, onderhoud, uitvoering en staat persoonlijk.</p></div>
           <aside className={styles.heroAside} aria-label="Zo werkt de inruilaanvraag">
             <div><span>1</span><p><strong>Kenteken controleren</strong><small>Openbare voertuiggegevens via RDW</small></p></div>
             <div><span>2</span><p><strong>Staat omschrijven</strong><small>Onderhoud, sleutels en maximaal zes foto’s</small></p></div>
-            <div><span>3</span><p><strong>Persoonlijke beoordeling</strong><small>Geen automatisch of vrijblijvend verzonnen bod</small></p></div>
+            <div><span>3</span><p><strong>Persoonlijke beoordeling</strong><small>Persoonlijk beoordeeld en duidelijk toegelicht</small></p></div>
           </aside>
         </div>
       </div></section>

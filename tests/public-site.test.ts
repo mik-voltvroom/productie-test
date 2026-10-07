@@ -41,8 +41,8 @@ describe("publieke Volt & Vroom website", () => {
     const homepage = read("app/page.tsx");
     expect(homepage).toContain("Slim rijden.");
     expect(homepage).toContain("Meer genieten.");
-    expect(homepage).toContain("Expert in hybride en elektrisch rijden.");
-    expect(homepage).toContain('href="/keuzehulp">Doe de keuzetest</a>');
+    expect(homepage).toContain("Hybride en elektrisch, helder uitgelegd.");
+    expect(homepage).toContain('href="/keuzehulp">Ontdek wat bij uw gebruik past</a>');
     expect(read("app/frontend-refresh.css")).toContain(".homepageHero h1 em{color:var(--vv-electric)}");
     expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
@@ -74,6 +74,8 @@ describe("publieke Volt & Vroom website", () => {
     expect(homepage).not.toContain("Hybrid Intelligence");
     expect(homepage).not.toContain("Altijd dealeronderhouden");
     expect(homepage).not.toContain("Eén eigenaar");
+    expect(homepage).toContain("Als familiebedrijf in Groningen");
+    expect(homepage).toContain("jonge, volledig onderhouden en compleet uitgevoerde auto’s");
   });
 
   it("houdt de selectienorm en hero-acties compact op mobiel", () => {

@@ -16,7 +16,7 @@ export default async function UitDePraktijkPage() {
   return <>
     <Header />
     <main className="videoHubPage">
-      <section className="videoHubHero"><div className="container"><p className="eyebrow">VV Stories · Uit de praktijk</p><h1>Geen verkooppraat.<br /><em>Laat maar zien.</em></h1><p className="lead">Kijk mee met selectie, techniek, batterijcontrole, rijervaring en auto's die bij Volt &amp; Vroom binnenkomen.</p></div></section>
+      <section className="videoHubHero"><div className="container"><p className="eyebrow">VV Stories · Uit de praktijk</p><h1>Van accudata tot proefrit.<br /><em>Kijk mee in de praktijk.</em></h1><p className="lead">Kijk mee met selectie, techniek, batterijcontrole, rijervaring en auto's die bij Volt &amp; Vroom binnenkomen.</p></div></section>
       <section className="section container"><SocialVideoHub videos={videos} /></section>
     </main>
     <SiteFooter />

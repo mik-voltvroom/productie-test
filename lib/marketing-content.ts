@@ -99,7 +99,7 @@ export const marketingLandings: Record<string, MarketingLanding> = {
     title: "Auto inruilen in Groningen | Persoonlijke indicatie",
     description: "Uw auto inruilen in Groningen? Vraag bij Volt & Vroom een persoonlijke indicatie aan op basis van kenteken, kilometerstand, onderhoud, uitvoering en staat.",
     eyebrow: "Auto inruilen · Groningen",
-    heading: "Een inruilindicatie die naar de echte auto kijkt.",
+    heading: "Een inruilindicatie op basis van uw specifieke auto.",
     lead: "Kenteken en kilometerstand zijn het begin. Onderhoud, uitvoering, staat, schade en foto’s maken het beeld completer. Daarom beoordeelt Volt & Vroom iedere aanvraag persoonlijk.",
     promise: "U ontvangt een onderbouwde indicatie; de definitieve waarde volgt na controle van de auto.",
     primary: { label: "Start mijn inruilaanvraag", href: "/inruilen" },
