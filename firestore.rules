@@ -84,5 +84,8 @@ service cloud.firestore {
     // Social Video is deliberately server-only. Public access goes through the
     // allow-listed Next.js API; VVOS mutations use Firebase Admin after API auth.
     match /socialVideos/{videoId} { allow read, write: if false; }
+    // Internal certificates are accessed exclusively through authorized VVOS APIs.
+    match /sohCertificates/{reportId} { allow read, write: if false; }
+    match /vehicleSohReports/{vehicleId} { allow read, write: if false; }
   }
 }

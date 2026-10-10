@@ -9,6 +9,7 @@ import { CommercialPanel } from "./CommercialPanel";
 import { defaultVehicleCommercial } from "@/lib/vehicle/business";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import { vehicleSpecifications } from "@/lib/vehicle/specifications";
+import { VehicleSohPanel } from "@/components/soh/VehicleSohPanel";
 import styles from "./VehicleEditorialPanel.module.css";
 
 export function VehicleForm({ initial }: { initial?: Vehicle }) {
@@ -35,6 +36,7 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
       </section>
       <section className="panel"><h2>Voertuigfoto’s · {photos.length}</h2><div className="photoGrid">{photos.map((src, index) => <figure key={src}><img src={src} alt={`${vehicle.brand} ${vehicle.model} — foto ${index + 1}`} width={1920} height={1280} loading="lazy" /></figure>)}</div></section>
       <section className="panel"><h2>Advertentietekst</h2><p style={{ whiteSpace: "pre-line" }}>{vehicle.description || "Geen advertentietekst aangeleverd."}</p><h2>Opties en uitrusting</h2><ul>{vehicle.highlights.map(option => <li key={option}>{option}</li>)}</ul></section>
+      <VehicleSohPanel vehicle={vehicle} />
       <fieldset disabled={busy} className={styles.fields}>
         <legend>Interne gegevens</legend>
         <MarginPanel priceCents={vehicle.priceCents} costs={vehicle.costs ?? emptyCosts} targetMarginCents={vehicle.commercial?.targetMarginCents} onChange={costs => setVehicle(v => v && ({ ...v, costs }))} />

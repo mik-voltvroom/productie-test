@@ -75,12 +75,28 @@ describe("Firestore Rules commercial boundaries", () => {
       "dealDocuments",
       "financeApplications",
       "socialVideos",
+      "sohCertificates",
+      "vehicleSohReports",
     ];
 
     for (const collection of collections) {
       await seed(`${collection}/record`, { status: "test" });
       await assertFails(getDoc(doc(ownerDb, collection, "record")));
       await assertFails(setDoc(doc(ownerDb, collection, "new-record"), { status: "test" }));
+    }
+  });
+
+  it("keeps SOH documents inaccessible to anonymous users and every client role", async () => {
+    for (const collection of ["sohCertificates", "vehicleSohReports"]) {
+      await seed(`${collection}/record`, { status: "verified" });
+      const contexts = [environment.unauthenticatedContext(), ...["owner", "admin", "sales", "workshop", "marketing", "finance", "readonly"].map(roleContext)];
+      for (const context of contexts) {
+        const db = context.firestore();
+        await assertFails(getDoc(doc(db, collection, "record")));
+        await assertFails(setDoc(doc(db, collection, "new"), { status: "verified" }));
+        await assertFails(updateDoc(doc(db, collection, "record"), { sohPercent: 100 }));
+        await assertFails(deleteDoc(doc(db, collection, "record")));
+      }
     }
   });
 
