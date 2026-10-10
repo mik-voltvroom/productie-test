@@ -1,4 +1,5 @@
 import type { Vehicle } from "@/types";
+import { vehicleRange } from "@/lib/vehicle/range";
 import type { ApiActor } from "@/lib/auth/api";
 import { sohSaveSchema, validateSohCertificate, vehicleSohSnapshotSchema, type SohSaveInput, type SohVehicleSnapshot } from "./certificate";
 export class SohError extends Error {
@@ -12,7 +13,10 @@ export function sohVehicleSnapshot(vehicle: Vehicle): SohVehicleSnapshot {
       battery.push({ label, value: `${value.toLocaleString("nl-NL")} ${unit}` });
   };
   number("Accuconditie (Mobilox-opgave)", vehicle.batteryHealthPercent, "%");
-  number("Elektrische actieradius (opgave)", vehicle.electricRangeKm, "km");
+  if (vehicle.wltpRangeKm === undefined && vehicle.rangeOverrides?.wltpRangeKm === undefined)
+    number("Elektrische actieradius (opgave)", vehicle.electricRangeKm, "km");
+  number(vehicle.rangeOverrides?.wltpRangeKm !== undefined ? "WLTP (intern ingevuld)" : "WLTP (Mobilox-opgave)", vehicleRange(vehicle, "wltpRangeKm"), "km");
+  number(vehicle.rangeOverrides?.realisticRangeKm !== undefined ? "Praktijkbereik (intern ingevuld)" : "Praktijkbereik (Mobilox Eigen identificatie)", vehicleRange(vehicle, "realisticRangeKm"), "km");
   number("Laadvermogen (opgave)", vehicle.chargingPowerKw, "kW");
   if (vehicle.connector) battery.push({ label: "Stekkeraansluiting", value: vehicle.connector });
   const firstPhoto = vehicle.images?.[0];

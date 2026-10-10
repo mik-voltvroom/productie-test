@@ -12,7 +12,8 @@ export async function updateVehicleInternal(id: string, input: InternalVehicleIn
     if (!snapshot.exists) throw new Error("Voertuig niet gevonden.");
     const now = new Date().toISOString();
     const next = applyInternalVehicleUpdate(normalizeVehicleDocument(id, snapshot.data()!), input, now);
-    transaction.update(ref, { costs: next.costs!, commercial: next.commercial!, updatedAt: now });
+    transaction.update(ref, { costs: next.costs!, commercial: next.commercial!,
+      ...(next.rangeOverrides !== undefined ? { rangeOverrides: next.rangeOverrides } : {}), updatedAt: now });
     transaction.create(audit, { action: "vehicle.internal.update", entityType: "vehicle", entityId: id,
       actor, outcome: "success", createdAt: now });
     return next;

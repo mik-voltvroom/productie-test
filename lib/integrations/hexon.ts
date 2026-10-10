@@ -220,6 +220,14 @@ function firstInteger(root: unknown, names: string[]): number | undefined {
   return number === undefined ? undefined : Math.round(number);
 }
 
+/** VV uses Mobilox's own identification as a whole-kilometre practice range. */
+function practiceRange(root: unknown): number | undefined {
+  const value = firstText(root, ["eigen_identificatie", "custom_id", "voertuignr_klant"]);
+  if (!value || !/^\d+$/.test(value)) return undefined;
+  const range = Number(value);
+  return Number.isSafeInteger(range) && range > 0 ? range : undefined;
+}
+
 function parseRoadTax(root: unknown): VehicleRoadTax | undefined {
   const modern = firstField(root, ["motorrijtuigen_belasting"]);
   const legacy = firstField(root, ["wegenbelasting_kwartaal"]);
@@ -382,6 +390,7 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
   const description = sanitizeProviderDescription(sourceTexts.advertentietekst ?? sourceTexts.opmerkingen ?? sourceTexts.omschrijving);
   const batteryHealthPercent = firstInteger(parsed, ["accu_conditie"]);
   const wltpRangeKm = firstInteger(parsed, ["wltp_actieradius_elektrisch_combined"]);
+  const realisticRangeKm = practiceRange(parsed);
   const electricRangeKm = wltpRangeKm ?? firstInteger(parsed, ["actieradius_elektrisch"]);
   const roadTax = parseRoadTax(parsed);
   const consumptionPer100Km = firstNumber(parsed, ["wltp_brandstofverbruik_combined_weighted", "wltp_brandstofverbruik_combined", "gemiddeld_verbruik"]);
@@ -418,6 +427,7 @@ export function parseHexonMutation(xml: string, now = new Date()): HexonMutation
     ...(batteryHealthPercent !== undefined ? { batteryHealthPercent } : {}),
     ...(electricRangeKm !== undefined ? { electricRangeKm } : {}),
     ...(wltpRangeKm !== undefined ? { wltpRangeKm } : {}),
+    ...(realisticRangeKm !== undefined ? { realisticRangeKm } : {}),
     ...(roadTax ? { roadTax } : {}),
     ...(consumptionPer100Km !== undefined ? { consumptionPer100Km } : {}),
     ...(warrantyMonths !== undefined ? { warrantyMonths } : {}),

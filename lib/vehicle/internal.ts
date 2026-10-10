@@ -6,6 +6,10 @@ const cents = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const date = z.string().datetime().nullable();
 export const internalVehicleSchema = z.object({
   expectedUpdatedAt: z.string().min(1),
+  rangeOverrides: z.object({
+    wltpRangeKm: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable().optional(),
+    realisticRangeKm: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable().optional(),
+  }).strict().optional(),
   costs: z.object({ purchasePriceCents: cents, transportCents: cents, preparationCents: cents,
     maintenanceCents: cents, warrantyReserveCents: cents, advertisingCents: cents,
     financingCents: cents, otherCents: cents }).strict(),
@@ -23,5 +27,5 @@ export function applyInternalVehicleUpdate(current: Vehicle, input: InternalVehi
   const commercial = { ...(current.commercial ?? { ...defaultVehicleCommercial, priceHistory: [] }), ...editable };
   if (acquiredAt === null) delete commercial.acquiredAt; else commercial.acquiredAt = acquiredAt;
   if (stockEnteredAt === null) delete commercial.stockEnteredAt; else commercial.stockEnteredAt = stockEnteredAt;
-  return { ...current, costs: parsed.costs, commercial, updatedAt: now };
+  return { ...current, ...(parsed.rangeOverrides !== undefined ? { rangeOverrides: parsed.rangeOverrides } : {}), costs: parsed.costs, commercial, updatedAt: now };
 }

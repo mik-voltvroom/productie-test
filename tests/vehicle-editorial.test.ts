@@ -17,6 +17,11 @@ const incoming = () => parseHexonMutation(xml, new Date(now)).vehicle!;
 async function fresh() { return buildMobiloxReplacement(undefined, incoming(), (await prepareHexonImages([photo])).photos, now); }
 
 describe("Mobilox authoritative public inventory", () => {
+  it("keeps practice range from own identification out of public vehicle fields", () => {
+    const vehicle = parseHexonMutation(xml.replace('</voertuig>', '<voertuignr_klant>320</voertuignr_klant></voertuig>')).vehicle!;
+    expect(vehicle.realisticRangeKm).toBe(320);
+    expect(publicVehicleProjection(vehicle)).not.toHaveProperty('realisticRangeKm');
+  });
   it("replaces stale photos, text, options and absent specifications while preserving internal costs", async () => {
     const old = await fresh();
     old.images = ["https://storage.example.test/old.jpg"];

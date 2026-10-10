@@ -5,10 +5,10 @@ export function SohVehicleCard({ vehicle }: { vehicle: SohVehicleSnapshot }) {
   return <section className={styles.vehicle} aria-label="Voertuiggegevens">
     <div><p className={styles.label}>Voertuig</p><h2>{vehicle.brand} {vehicle.model}</h2><p className={styles.trim}>{vehicle.trim || "Uitvoering niet aangeleverd"}</p>
       <dl className={styles.details}>
-        <div><dt>Kenteken</dt><dd>{vehicle.licensePlate || "Niet aangeleverd"}</dd></div>
+        <div><dt>Chassisnummer (VIN)</dt><dd>{vehicle.vin || "Niet aangeleverd"}</dd></div>
         <div><dt>Bouwjaar</dt><dd>{vehicle.year}</dd></div>
         <div><dt>Kilometerstand</dt><dd>{vehicle.mileageKm.toLocaleString("nl-NL")} km</dd></div>
-        <div><dt>VIN / chassisnummer</dt><dd>{vehicle.vin || "Niet aangeleverd"}</dd></div>
+        {vehicle.licensePlate && <div><dt>Kenteken</dt><dd>{vehicle.licensePlate}</dd></div>}
       </dl>
     </div>
     {vehicle.photoUrl && <img className={styles.photo} src={vehicle.photoUrl} width={360} height={240} alt={`${vehicle.brand} ${vehicle.model} — eerste voertuigfoto`} />}

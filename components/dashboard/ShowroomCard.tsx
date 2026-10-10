@@ -2,6 +2,7 @@
 
 import { QRCodeSVG } from "qrcode.react";
 import type { Vehicle } from "@/types";
+import { vehicleRange } from "@/lib/vehicle/range";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import { driveTypeLabel, monthlyRoadTaxLabel, showroomAdvertisementUrl } from "@/lib/vehicle/showroom-card";
 import styles from "./ShowroomCard.module.css";
@@ -25,8 +26,8 @@ export function ShowroomCard({ vehicle }: { vehicle: Vehicle }) {
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl",
   );
   const facts = [
-    { label: "WLTP", value: factValue(vehicle.wltpRangeKm), icon: "/brand/icons/elektrisch.svg" },
-    { label: "Praktijkbereik", value: factValue(vehicle.realisticRangeKm), icon: "/brand/icons/praktijkverbruik.svg" },
+    { label: "WLTP", value: factValue(vehicleRange(vehicle, "wltpRangeKm")), icon: "/brand/icons/elektrisch.svg" },
+    { label: "Praktijkbereik", value: factValue(vehicleRange(vehicle, "realisticRangeKm")), icon: "/brand/icons/praktijkverbruik.svg" },
     { label: "Wegenbelasting", value: monthlyRoadTaxLabel(vehicle.roadTax), icon: "/brand/icons/financiering.svg" },
     { label: "Kilometerstand", value: factValue(vehicle.mileageKm), icon: "/brand/icons/kilometerstand.svg" },
   ];

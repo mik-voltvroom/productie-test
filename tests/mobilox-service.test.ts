@@ -15,6 +15,14 @@ const photo = 'https://media-eigenwebsiteincrementeel.export.dv.nl/test.jpg';
 const xml = `<voertuig><voertuignr_hexon>service-test</voertuignr_hexon><merk>Test</merk><model>Test</model><type>Test</type><bouwjaar>2022</bouwjaar><tellerstand>0</tellerstand><brandstof>E</brandstof><verkoopprijs_particulier>100</verkoopprijs_particulier><advertentietekst>New</advertentietekst><afbeeldingen><afbeelding><url>${photo}</url></afbeelding></afbeeldingen></voertuig>`;
 beforeEach(() => { mock.data.clear(); mock.writes.length = 0; });
 describe('Mobilox database replacement', () => {
+  it('synchronizes and clears practice range with the own identification source field', async () => {
+    await processHexonInventoryXml(xml.replace('</voertuig>', '<voertuignr_klant>320</voertuignr_klant></voertuig>'));
+    expect(mock.data.get('vehicles/hexon-service-test').realisticRangeKm).toBe(320);
+    await processHexonInventoryXml(xml.replace('</voertuig>', '<voertuignr_klant>385</voertuignr_klant></voertuig>'));
+    expect(mock.data.get('vehicles/hexon-service-test').realisticRangeKm).toBe(385);
+    await processHexonInventoryXml(xml);
+    expect(mock.data.get('vehicles/hexon-service-test').realisticRangeKm).toBeUndefined();
+  });
   it('replaces full source state and writes the event atomically; duplicates are no-ops', async () => {
     mock.data.set('vehicles/hexon-service-test', { id: 'hexon-service-test', priceCents: 50000, images: ['old'], description: 'Old', powerKw: 99, raw: { secret: 'old' }, publication: { channels: { website: false, merchant: true }, publicImageUrls: [] }, updatedAt: 'old', createdAt: 'old' });
     const first = await processHexonInventoryXml(xml);

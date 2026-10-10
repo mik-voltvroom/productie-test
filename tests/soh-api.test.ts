@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ auth:vi.fn(), get:vi.fn(), save:vi.fn() }));
 vi.mock("@/lib/auth/api", () => ({ authorizeApi:mocks.auth }));
 vi.mock("@/lib/repositories/soh-repository", () => ({ getVehicleSohReport:mocks.get, saveVehicleSohReport:mocks.save }));
@@ -8,8 +8,15 @@ const context = { params:Promise.resolve({ id:"car-1" }) };
 const url = "https://example.test/api/vvos/vehicles/car-1/soh";
 const input = { sohPercent:91, method:"Diagnostic", measuredAt:"2026-10-10", expectedVehicleUpdatedAt:"old", expectedRevision:0 };
 const post = (body:unknown, origin:string | null = "https://example.test") => new Request(url, { method:"POST", headers:origin ? { origin } : {}, body:JSON.stringify(body) });
-beforeEach(() => { vi.resetAllMocks(); mocks.auth.mockResolvedValue({ actor:{ uid:"staff", role:"sales", email:null } }); });
+beforeEach(() => { vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://site.example.test"); vi.resetAllMocks(); mocks.auth.mockResolvedValue({ actor:{ uid:"staff", role:"sales", email:null } }); });
+afterEach(() => vi.unstubAllEnvs());
 describe("SOH API boundary", () => {
+  it("saves behind a TLS-terminating proxy for the configured site origin", async () => {
+    mocks.save.mockResolvedValue({ report:{ id:"report" }, revision:1 });
+    const request = new Request("http://internal:8080/api/vvos/vehicles/car-1/soh", { method:"POST", headers:{ origin:"https://site.example.test", "sec-fetch-site":"same-origin" }, body:JSON.stringify(input) });
+    expect((await POST(request, context)).status).toBe(200);
+    expect(mocks.save).toHaveBeenCalledWith("car-1", input, expect.objectContaining({ uid:"staff" }));
+  });
   it.each([GET, POST])("authorizes before accessing any report", async handler => {
     mocks.auth.mockResolvedValue({ response:new Response(null, { status:403 }), actor:null });
     expect((await handler(post(input), context)).status).toBe(403);

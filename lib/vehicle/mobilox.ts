@@ -21,6 +21,7 @@ export function buildMobiloxReplacement(current: Vehicle | undefined, incoming: 
     stockEnteredAt: commercial.stockEnteredAt ?? current?.createdAt ?? now };
   next.createdAt = current?.createdAt ?? now;
   if (current?.costs !== undefined) next.costs = current.costs;
+  if (current?.rangeOverrides !== undefined) next.rangeOverrides = current.rangeOverrides;
   // Accepted deals must not be made available again by a provider refresh.
   for (const key of ["reservedDealId", "reservedAt", "soldDealId", "soldAt"] as const) {
     if (current?.[key] !== undefined) next[key] = current[key];

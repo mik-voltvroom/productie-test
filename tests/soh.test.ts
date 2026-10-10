@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createSohCertificate, sohVehicleSnapshot } from "@/lib/soh/business";
 import { sohSaveSchema, validateSohCertificate } from "@/lib/soh/certificate";
-import { SohCertificate } from "@/components/soh/SohCertificate";
+import { SohCertificate, SohVehicleCard } from "@/components/soh/SohCertificate";
 import { hasPermission } from "@/lib/auth/permissions";
 import type { Vehicle } from "@/types";
 import { sohPrintScale } from "@/lib/soh/print";
@@ -15,6 +15,25 @@ export const input = { sohPercent:92.5, method:"Diagnosetest", measuredAt:"2026-
 export const actor = { uid:"staff-1", email:null, role:"workshop" as const };
 export const report = createSohCertificate(vehicle, input, actor, "12345678-1234-4234-8234-123456789012", "2026-10-10T12:00:00.000Z");
 describe("Internal SOH certificate", () => {
+  it("identifies a vehicle by chassis number when no license plate was supplied", () => {
+    const snapshot = sohVehicleSnapshot({ ...vehicle, vin:"SYNTHETIC-VIN-001", licensePlate:undefined });
+    const markup = renderToStaticMarkup(createElement(SohVehicleCard, { vehicle:snapshot }));
+    expect(markup).toContain("Chassisnummer (VIN)"); expect(markup).toContain("SYNTHETIC-VIN-001");
+    expect(markup).not.toContain("Kenteken");
+  });
+  it("uses saved range overrides with clear provenance without duplicate WLTP source rows", () => {
+    const snapshot = sohVehicleSnapshot({ ...vehicle, wltpRangeKm:418, electricRangeKm:418, realisticRangeKm:320,
+      rangeOverrides:{ wltpRangeKm:400, realisticRangeKm:300 } });
+    expect(snapshot.battery).toContainEqual({ label:"WLTP (intern ingevuld)", value:"400 km" });
+    expect(snapshot.battery).toContainEqual({ label:"Praktijkbereik (intern ingevuld)", value:"300 km" });
+    expect(snapshot.battery.some(item => item.value === '418 km')).toBe(false);
+    expect(sohVehicleSnapshot({ ...vehicle, wltpRangeKm:418 }).battery).toContainEqual({ label:"WLTP (Mobilox-opgave)", value:"418 km" });
+  });
+  it("includes the practice range as a source statement in the internal certificate", () => {
+    const snapshot = sohVehicleSnapshot({ ...vehicle, realisticRangeKm:320, electricRangeKm:418 });
+    expect(snapshot.battery).toContainEqual({ label:"Praktijkbereik (Mobilox Eigen identificatie)", value:"320 km" });
+    expect(snapshot.battery).toContainEqual({ label:"Elektrische actieradius (opgave)", value:"418 km" });
+  });
   it("fits long source text on A4 without enlarging shorter certificates", () => {
     expect(sohPrintScale(900, 1000)).toBe(1); expect(sohPrintScale(1500, 1000)).toBeCloseTo(2 / 3);
     expect(() => sohPrintScale(0, 1000)).toThrow();

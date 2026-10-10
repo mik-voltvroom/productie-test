@@ -36,7 +36,7 @@ export async function saveVehicle(vehicle: Vehicle, expectedUpdatedAt?: string):
   if (!expectedUpdatedAt) throw new Error("Nieuwe voertuigen worden uitsluitend in Mobilox aangemaakt.");
   const commercial = vehicle.commercial;
   if (!commercial || !vehicle.costs) throw new Error("Interne voertuiggegevens ontbreken.");
-  const body = { expectedUpdatedAt, costs: vehicle.costs, commercial: {
+  const body = { expectedUpdatedAt, rangeOverrides: vehicle.rangeOverrides ?? {}, costs: vehicle.costs, commercial: {
     acquisitionSource: commercial.acquisitionSource, acquiredAt: commercial.acquiredAt ?? null,
     stockEnteredAt: commercial.stockEnteredAt ?? null, targetMarginCents: commercial.targetMarginCents,
     maxStockDays: commercial.maxStockDays, viewCount: commercial.viewCount, leadCount: commercial.leadCount,

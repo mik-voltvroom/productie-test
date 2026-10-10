@@ -22,6 +22,16 @@ afterEach(() => {
 });
 
 describe("Mobilox/Hexon incremental inventory", () => {
+  it.each(["voertuignr_klant", "custom_id", "eigen_identificatie"])("maps own identification %s to practice range, independently of official figures", field => {
+    const xml = vehicleXml.replace("</voertuig>", `<${field}>320</${field}><wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><gemiddeld_verbruik>5.2</gemiddeld_verbruik></voertuig>`);
+    const mutation = parseHexonMutation(xml);
+    expect(mutation.externalId).toBe("5016729");
+    expect(mutation.vehicle).toMatchObject({ realisticRangeKm:320, wltpRangeKm:418, consumptionPer100Km:5.2 });
+  });
+  it.each(["", "0", "-320", "320 km", "5,2 l/100 km", "stock-320", "320.5", "1e3", "9007199254740992"])("does not invent a range from invalid own identification %s", value => {
+    const xml = vehicleXml.replace("</voertuig>", `<voertuignr_klant>${value}</voertuignr_klant><wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined></voertuig>`);
+    expect(parseHexonMutation(xml).vehicle?.realisticRangeKm).toBeUndefined();
+  });
   it("maps a publishable VVOS vehicle in cents", () => {
     const mutation = parseHexonMutation(vehicleXml, new Date("2026-08-18T12:00:00.000Z"));
     expect(mutation.action).toBe("upsert");

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { authorizeApi } from "@/lib/auth/api";
+import { isTrustedRequestOrigin } from "@/lib/auth/request-origin";
 import { SohError } from "@/lib/soh/business";
 import { sohSaveSchema } from "@/lib/soh/certificate";
 import { getVehicleSohReport, saveVehicleSohReport } from "@/lib/repositories/soh-repository";
@@ -12,7 +13,7 @@ async function handle(request: Request, context: Context, write: boolean) {
   const auth = await authorizeApi(request, write ? "vehicles.soh.write" : "vehicles.read");
   if (auth.response) return auth.response;
   if (!auth.actor) return json({ ok: false }, 401);
-  if (write && request.headers.get("origin") !== new URL(request.url).origin) return json({ ok: false, error: "Ongeldige herkomst." }, 403);
+  if (write && !isTrustedRequestOrigin(request)) return json({ ok: false, error: "Ongeldige herkomst." }, 403);
   const { id } = await context.params;
   if (!/^[\w-]{1,120}$/.test(id)) return json({ ok: false, error: "Ongeldig voertuig." }, 400);
   try {

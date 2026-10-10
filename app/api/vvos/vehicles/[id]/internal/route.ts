@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { authorizeApi } from "@/lib/auth/api";
+import { isTrustedRequestOrigin } from "@/lib/auth/request-origin";
 import { VehicleEditConflict, internalVehicleSchema } from "@/lib/vehicle/internal";
 import { updateVehicleInternal } from "@/lib/repositories/vehicle-internal-repository";
 
@@ -9,8 +10,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const auth = await authorizeApi(request, "vehicles.internal.write");
   if (auth.response) return auth.response;
   if (!auth.actor) return NextResponse.json({ ok: false }, { status: 401 });
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!isTrustedRequestOrigin(request)) return NextResponse.json({ ok: false, error: "Ongeldige herkomst." }, { status: 403 });
   const { id } = await context.params;
   if (!/^[\w-]{1,120}$/.test(id)) return NextResponse.json({ ok: false, error: "Ongeldig voertuig." }, { status: 400 });
   try {

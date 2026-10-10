@@ -130,6 +130,8 @@ export interface Vehicle extends SourceSpecifications {
   locationCode: string;
   costs?: VehicleCosts;
   commercial?: VehicleCommercial;
+  /** Internal manual values; missing keys follow Mobilox, null deliberately leaves a field blank. */
+  rangeOverrides?: { wltpRangeKm?: number | null; realisticRangeKm?: number | null };
   publication?: VehiclePublication;
   source?: VehicleSource;
   createdAt?: string;

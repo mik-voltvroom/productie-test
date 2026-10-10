@@ -9,7 +9,7 @@ import { buildMobiloxReplacement } from "@/lib/vehicle/mobilox";
 import type { Vehicle, VehicleImage } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-export const HEXON_PROCESSOR_VERSION = "6-mobilox-content-guard";
+export const HEXON_PROCESSOR_VERSION = "7-mobilox-practice-range";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
