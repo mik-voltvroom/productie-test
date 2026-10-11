@@ -28,5 +28,8 @@ export const sohCertificateSchema = z.object({
 export type SohCertificate = z.infer<typeof sohCertificateSchema>;
 export type SohSaveInput = z.infer<typeof sohSaveSchema>;
 export type SohVehicleSnapshot = z.infer<typeof vehicleSohSnapshotSchema>;
-export type SohReportState = { report: SohCertificate | null; revision: number };
+export const sohHistoryPointSchema = z.object({ id:z.string().uuid(), measuredAt:sohMeasurementSchema.shape.measuredAt,
+  verifiedAt:z.string().datetime(), sohPercent:sohMeasurementSchema.shape.sohPercent, method:sohMeasurementSchema.shape.method }).strict();
+export type SohHistoryPoint = z.infer<typeof sohHistoryPointSchema>;
+export type SohReportState = { report: SohCertificate | null; revision: number; history?: SohHistoryPoint[]; historyUnavailable?: boolean };
 export function validateSohCertificate(input: unknown): SohCertificate { return sohCertificateSchema.parse(input); }

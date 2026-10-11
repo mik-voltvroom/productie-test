@@ -20,7 +20,20 @@ export async function getVehicleSohReport(vehicleId: string): Promise<SohReportS
     if (!snapshot.exists) throw new Error("SOH rapport ontbreekt.");
     const report = validateSohCertificate(snapshot.data());
     if (report.vehicleId !== vehicleId || report.id !== snapshot.id) throw new Error("SOH voertuig mismatch.");
-    return { report, revision: data.revision };
+    let history;
+    try { history = await transaction.get(db.collection("sohCertificates").where("vehicleId", "==", vehicleId).orderBy("verifiedAt", "desc").limit(12)); }
+    catch (error) {
+      // A not-yet-deployed history index must not block printing the latest certificate.
+      if ((error as { code?:number })?.code !== 9) throw error;
+      return { report, revision:data.revision, history:[], historyUnavailable:true };
+    }
+    const points = history.docs.map(doc => {
+      const item = validateSohCertificate(doc.data());
+      if (item.vehicleId !== vehicleId || item.id !== doc.id) throw new Error("SOH voertuig mismatch.");
+      return item;
+    }).filter(item => item.vehicle.vin === report.vehicle.vin).map(item => ({ id:item.id, measuredAt:item.measuredAt,
+      verifiedAt:item.verifiedAt, method:item.method, sohPercent:item.sohPercent }));
+    return { report, revision: data.revision, history:points };
   });
 }
 export async function saveVehicleSohReport(vehicleId: string, input: SohSaveInput, actor: ApiActor): Promise<SohReportState> {

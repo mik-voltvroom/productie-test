@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ get:vi.fn(), create:vi.fn(), set:vi.fn(), runTransaction:vi.fn() }));
 vi.mock("@/lib/firebase-admin", () => ({ adminDb:{
-  collection:(collection:string) => ({ doc:(id = "generated") => ({ id, path:`${collection}/${id}` }) }),
+  collection:(collection:string) => ({ doc:(id = "generated") => ({ id, path:`${collection}/${id}` }),
+    where:() => ({ orderBy:() => ({ limit:(count:number) => ({ collection, count }) }) }) }),
   runTransaction:mocks.runTransaction,
 } }));
 vi.mock("node:crypto", () => ({ randomUUID:() => "12345678-1234-4234-8234-123456789012" }));
@@ -16,6 +17,22 @@ beforeEach(() => {
   mocks.get.mockResolvedValueOnce(snapshot(vehicle)).mockResolvedValueOnce(snapshot(null));
 });
 describe("SOH transactional repository", () => {
+  it("reads at most twelve historical reports and excludes a different chassis identity", async () => {
+    const saved = await saveVehicleSohReport("car-1", input, actor);
+    const report = saved.report!;
+    mocks.get.mockReset().mockResolvedValueOnce(snapshot(vehicle)).mockResolvedValueOnce(snapshot({ reportId:report.id, revision:1 }))
+      .mockResolvedValueOnce(snapshot(report)).mockResolvedValueOnce({ docs:[snapshot(report), snapshot({ ...report, vehicle:{ ...report.vehicle, vin:'DIFFERENT-VIN' } })] });
+    const state = await getVehicleSohReport('car-1');
+    expect(state.history).toHaveLength(1);
+    expect(state.history?.[0]).toMatchObject({ sohPercent:91, method:'Diagnostic' });
+    expect(mocks.get).toHaveBeenLastCalledWith({ collection:'sohCertificates', count:12 });
+  });
+  it("preserves the latest certificate while the history index is unavailable", async () => {
+    const saved = await saveVehicleSohReport("car-1", input, actor);
+    mocks.get.mockReset().mockResolvedValueOnce(snapshot(vehicle)).mockResolvedValueOnce(snapshot({ reportId:saved.report!.id, revision:1 }))
+      .mockResolvedValueOnce(snapshot(saved.report)).mockRejectedValueOnce({ code:9 });
+    expect(await getVehicleSohReport('car-1')).toMatchObject({ report:saved.report, historyUnavailable:true, history:[] });
+  });
   it("atomically creates an immutable certificate, pointer and audit without writing vehicle/public data", async () => {
     const state = await saveVehicleSohReport("car-1", input, actor);
     expect(state.revision).toBe(1); expect(state.report?.vehicleId).toBe("car-1");

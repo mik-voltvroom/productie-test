@@ -121,3 +121,21 @@ final result: passed
 - Browser console: no errors introduced by this change.
 
 final result: passed
+
+---
+
+# SOH layout V3 — design QA
+
+Result: passed (2026-10-11).
+
+Scope: the existing internal VVOS certificate preview and print flow. The selected white certificate direction from “Vormgeving versie 3” was compared beside the rendered implementation. Issue #86 deliberately changes that portrait reference to landscape A4, with photo left, measured SOH ring in the centre and vehicle details right. No QR code, signature, condition verdict or invented capacity/cycles were copied from the concept. Official existing VV logo, Manrope and Inter are reused.
+
+Browser checks used synthetic vehicle data, never a live dossier. At 1200px desktop, 768px tablet and 390px mobile there was no horizontal overflow. Empty photo/specification states were checked. The browser reported no warnings or errors. Screenshots and the side-by-side reference comparison were saved outside the repository in the local `work/soh-v3-qa` directory.
+
+The print preparation was checked with 297 × 210mm geometry, loaded fonts/images and the same content scaling as the print page. The normal fixture fits with approximately 100% content scale; the long-field fixture (maximum name/method lengths and twelve source specifications) fits with approximately 75% scale, including its footer. Long names/specifications shorten visually while their complete values remain in the certificate snapshot and on-screen title attributes. A physical printer or exported browser PDF was not exercised.
+
+History includes only genuine records for the same vehicle VIN and current measurement method, one latest validated point per measurement date, at most twelve records. A single comparable date produces an explicit insufficient-data state. The chart exposes exact point values in SVG text alternatives. It never derives battery capacity from SOH.
+
+No outstanding P0–P2 design findings. Local screenshots are synthetic previews, not proof of a production deployment.
+
+Operational note: the new bounded history query requires the `sohCertificates` composite index in `firestore.indexes.json`. Deploying that index is separate from this PR; until available, the latest certificate remains readable/printable and history shows its unavailable state. Existing server-side authorization, certificate validation and Firestore rules remain unchanged.
