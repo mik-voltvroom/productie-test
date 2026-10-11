@@ -1,4 +1,17 @@
 .manager { min-width: 0; }
+.dossier { min-width:0; grid-template-columns:minmax(0,1fr); }
+.dossier :global(.panelHeader) { flex-wrap:wrap; }
+.dossier :global(.panelHeader) > div { min-width:0; flex:1 1 240px; overflow-wrap:anywhere; }
+.dossier .fields { display:grid; gap:20px; }
+.topic { padding:0; min-width:0; }
+.topic > summary { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 24px; min-height:56px; cursor:pointer; list-style:none; }
+.topic > summary::-webkit-details-marker { display:none; }
+.topic > summary::after { content:"+"; font-size:24px; color:var(--graphite); flex-shrink:0; }
+.topic[open] > summary::after { content:"−"; }
+.topic > summary h2 { margin:0; font-size:1.1rem; overflow-wrap:anywhere; }
+.topic > summary:focus-visible { outline:2px solid var(--electric); outline-offset:3px; border-radius:var(--radius); }
+.topicBody { padding:0 24px 24px; min-width:0; overflow-wrap:anywhere; }
+.topicBody > :global(.panel) { padding:0; border:0; margin-top:0; }
 .layout > :global(.editorMain), .layout > :global(.editorSide) { min-width: 0; }
 .layout > :global(.editorMain) { grid-template-columns: minmax(0, 1fr); }
 .layout :global(.panel) { min-width: 0; }
