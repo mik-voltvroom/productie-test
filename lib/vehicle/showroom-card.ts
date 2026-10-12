@@ -1,4 +1,5 @@
 import type { VehicleRoadTax } from "@/types";
+import { hasMonthlyRoadTax, usableRoadTax } from "./road-tax";
 
 const wholeEuro = new Intl.NumberFormat("nl-NL", {
   style: "currency",
@@ -11,12 +12,15 @@ export function showroomAdvertisementUrl(slug: string, baseUrl = "https://www.vo
   return `${base}/voorraad/${encodeURIComponent(slug)}`;
 }
 
-export function monthlyRoadTaxLabel(roadTax: VehicleRoadTax | undefined): string {
+export function monthlyRoadTaxLabel(value: VehicleRoadTax | undefined): string {
+  const roadTax = usableRoadTax(value);
   if (!roadTax) return "Niet opgegeven";
-  const minimum = Math.round(roadTax.quarterlyMinCents / 3);
-  const maximum = Math.round(roadTax.quarterlyMaxCents / 3);
-  if (minimum === maximum) return `${wholeEuro.format(minimum / 100)} p/m`;
-  return `${wholeEuro.format(minimum / 100)}–${wholeEuro.format(maximum / 100).replace("€ ", "")} p/m`;
+  const supplied = hasMonthlyRoadTax(roadTax);
+  const minimum = supplied ? roadTax.monthlyMinCents! : Math.round(roadTax.quarterlyMinCents / 3);
+  const maximum = supplied ? roadTax.monthlyMaxCents! : Math.round(roadTax.quarterlyMaxCents / 3);
+  const format = supplied ? new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 2 }) : wholeEuro;
+  if (minimum === maximum) return `${format.format(minimum / 100)} p/m`;
+  return `${format.format(minimum / 100)}–${format.format(maximum / 100).replace("€ ", "")} p/m`;
 }
 
 export function driveTypeLabel(driveType: string): string {
@@ -25,3 +29,4 @@ export function driveTypeLabel(driveType: string): string {
   if (driveType === "full-hybrid") return "Hybride";
   return "Icons";
 }
+

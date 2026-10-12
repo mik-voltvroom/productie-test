@@ -70,7 +70,7 @@ describe("Mobilox/Hexon incremental inventory", () => {
   it("imports the current Mobilox road-tax range and keeps the quarterly source period", () => {
     const xml = vehicleXml.replace(
       "</voertuig>",
-      "<wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><motorrijtuigen_belasting><min>198</min><max>216</max></motorrijtuigen_belasting></voertuig>",
+      "<wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><motorrijtuigen_belasting><kwartaal_min><prijs nr=\"1\"><bedrag>198</bedrag><munteenheid>EUR</munteenheid></prijs></kwartaal_min><kwartaal_max><prijs nr=\"1\"><bedrag>216</bedrag><munteenheid>EUR</munteenheid></prijs></kwartaal_max></motorrijtuigen_belasting></voertuig>",
     );
     const mutation = parseHexonMutation(xml);
     expect(mutation.vehicle).toMatchObject({
@@ -169,3 +169,4 @@ describe("Mobilox/Hexon incremental inventory", () => {
     expect(verifyHexonAuthorization(`Basic ${Buffer.from("feed:Volt1").toString("base64")}`)).toBe(false);
   });
 });
+

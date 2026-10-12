@@ -71,7 +71,7 @@ describe("Mobilox authoritative public inventory", () => {
     expect(() => applyEditorialCommand(incoming(), { type: "text", text: "override", revision: 0 }, now)).toThrow("Mobilox");
   });
   it("projects supported source specifications without leaking raw or financial data", async () => {
-    const source = parseHexonMutation(xml.replace('</voertuig>', '<vermogen_motor_kw>150</vermogen_motor_kw><aantal_deuren>5</aantal_deuren><geschikt_voor_snelladen>n</geschikt_voor_snelladen><wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><motorrijtuigen_belasting><min>198</min><max>216</max></motorrijtuigen_belasting></voertuig>')).vehicle!;
+    const source = parseHexonMutation(xml.replace('</voertuig>', '<vermogen_motor_kw>150</vermogen_motor_kw><aantal_deuren>5</aantal_deuren><geschikt_voor_snelladen>n</geschikt_voor_snelladen><wltp_actieradius_elektrisch_combined>418</wltp_actieradius_elektrisch_combined><motorrijtuigen_belasting><kwartaal_min><prijs nr="1"><bedrag>198</bedrag><munteenheid>EUR</munteenheid></prijs></kwartaal_min><kwartaal_max><prijs nr="1"><bedrag>216</bedrag><munteenheid>EUR</munteenheid></prijs></kwartaal_max></motorrijtuigen_belasting></voertuig>')).vehicle!;
     const next = buildMobiloxReplacement(undefined, source, (await prepareHexonImages([photo])).photos, now);
     const projected = publicVehicleProjection(next);
     expect(projected).toMatchObject({ powerKw: 150, doors: 5, fastChargingSupported: false, wltpRangeKm: 418, roadTax: { quarterlyMinCents: 19800 } });
@@ -99,3 +99,4 @@ describe("Mobilox authoritative public inventory", () => {
     expect(source.highlights).toEqual(['Nieuwe optie', 'Extra']);
   });
 });
+

@@ -13,6 +13,7 @@ describe("VVOS showroom card", () => {
       quarterlyMaxCents: 21_600,
       source: "mobilox-hexon",
       sourceField: "motorrijtuigen_belasting",
+      schemaVersion: 2,
     })).toBe("€ 66–72 p/m");
   });
 
@@ -20,3 +21,4 @@ describe("VVOS showroom card", () => {
     expect(monthlyRoadTaxLabel(undefined)).toBe("Niet opgegeven");
   });
 });
+

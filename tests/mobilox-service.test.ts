@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createHash } from "node:crypto";
 const mock = vi.hoisted(() => ({ data: new Map<string, any>(), writes: [] as any[] }));
 vi.mock('@/lib/firebase-admin', () => {
   function doc(path: string): any { return { path, id: path.split('/').at(-1), get: async () => ({ exists: mock.data.has(path), data: () => mock.data.get(path) }) }; }
@@ -15,6 +16,17 @@ const photo = 'https://media-eigenwebsiteincrementeel.export.dv.nl/test.jpg';
 const xml = `<voertuig><voertuignr_hexon>service-test</voertuignr_hexon><merk>Test</merk><model>Test</model><type>Test</type><bouwjaar>2022</bouwjaar><tellerstand>0</tellerstand><brandstof>E</brandstof><verkoopprijs_particulier>100</verkoopprijs_particulier><advertentietekst>New</advertentietekst><afbeeldingen><afbeelding><url>${photo}</url></afbeelding></afbeeldingen></voertuig>`;
 beforeEach(() => { mock.data.clear(); mock.writes.length = 0; });
 describe('Mobilox database replacement', () => {
+  it('reprocesses an unchanged payload after the road-tax parser version changes', async () => {
+    const amount = (field: string, value: number) => `<${field}><prijs nr="1"><bedrag>${value}</bedrag><munteenheid>EUR</munteenheid></prijs></${field}>`;
+    const payload = xml.replace('</voertuig>', `<motorrijtuigen_belasting>${amount('maand_min', 66)}${amount('maand_max', 72)}${amount('kwartaal_min', 198)}${amount('kwartaal_max', 216)}</motorrijtuigen_belasting></voertuig>`);
+    const payloadHash = createHash('sha256').update(payload).digest('hex');
+    const oldEventHash = createHash('sha256').update(`7-mobilox-practice-range\0${payload}`).digest('hex');
+    mock.data.set(`integrationEvents/hexon-${oldEventHash}`, { payloadSha256: payloadHash });
+    mock.data.set('vehicles/hexon-service-test', { source: { payloadSha256: payloadHash }, roadTax: { quarterlyMinCents: 6600, quarterlyMaxCents: 6600, source: 'mobilox-hexon' } });
+    expect((await processHexonInventoryXml(payload)).duplicate).toBe(false);
+    expect(mock.data.get('vehicles/hexon-service-test').roadTax).toMatchObject({ quarterlyMinCents: 19800, quarterlyMaxCents: 21600, monthlyMinCents: 6600, monthlyMaxCents: 7200, schemaVersion: 2 });
+    expect((await processHexonInventoryXml(payload)).duplicate).toBe(true);
+  });
   it('synchronizes and clears practice range with the own identification source field', async () => {
     await processHexonInventoryXml(xml.replace('</voertuig>', '<voertuignr_klant>320</voertuignr_klant></voertuig>'));
     expect(mock.data.get('vehicles/hexon-service-test').realisticRangeKm).toBe(320);
@@ -93,3 +105,4 @@ describe('Mobilox database replacement', () => {
     } finally { delete process.env.VWE_WEBHOOK_SECRET; }
   });
 });
+

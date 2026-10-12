@@ -9,7 +9,7 @@ import { buildMobiloxReplacement } from "@/lib/vehicle/mobilox";
 import type { Vehicle, VehicleImage } from "@/types";
 
 export const HEXON_MAX_BODY_BYTES = 2_000_000;
-export const HEXON_PROCESSOR_VERSION = "7-mobilox-practice-range";
+export const HEXON_PROCESSOR_VERSION = "8-mobilox-road-tax-periods";
 
 const DUPLICATE_ARCHIVE_REASON = "Vervangen door actueler Mobilox/Hexon-voertuigrecord";
 
@@ -215,3 +215,4 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
 
   return { duplicate, externalId: mutation.externalId, action: mutation.action, providerAction: mutation.providerAction, archivedDuplicates };
 }
+

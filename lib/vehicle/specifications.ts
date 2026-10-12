@@ -1,11 +1,12 @@
 import { numericSourceSpecs, textSourceSpecs } from "./source-specifications";
 import type { Vehicle } from "@/types";
+import { usableRoadTax } from "./road-tax";
 const number = new Intl.NumberFormat("nl-NL");
 const money = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" });
 /** Only mapped source fields; no estimates or missing-as-zero values. */
 export function vehicleSpecifications(vehicle: Vehicle): [string, string][] {
   const value = (amount: number | undefined, unit: string) => amount === undefined ? null : `${number.format(amount)} ${unit}`;
-  const tax = vehicle.roadTax;
+  const tax = usableRoadTax(vehicle.roadTax);
   const fields = [
     ["Bouwjaar", value(vehicle.year, "")], ["Kilometerstand", value(vehicle.mileageKm, "km")],
     ["Verkoopprijs", money.format(vehicle.priceCents / 100)], ["Kenteken", vehicle.licensePlate],
@@ -21,3 +22,4 @@ export function vehicleSpecifications(vehicle: Vehicle): [string, string][] {
   if (vehicle.fastChargingSupported !== undefined) fields.push(["Snelladen (aangeleverd)", vehicle.fastChargingSupported ? "Ja" : "Nee"]);
   return fields.filter((item): item is [string, string] => typeof item[1] === "string" && !!item[1] && item[1] !== "Onbekend");
 }
+

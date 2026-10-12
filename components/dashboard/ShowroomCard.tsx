@@ -5,6 +5,7 @@ import type { Vehicle } from "@/types";
 import { vehicleRange } from "@/lib/vehicle/range";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
 import { driveTypeLabel, monthlyRoadTaxLabel, showroomAdvertisementUrl } from "@/lib/vehicle/showroom-card";
+import { roadTaxSourceLabel } from "@/lib/vehicle/road-tax";
 import styles from "./ShowroomCard.module.css";
 
 const price = new Intl.NumberFormat("nl-NL", {
@@ -31,9 +32,7 @@ export function ShowroomCard({ vehicle }: { vehicle: Vehicle }) {
     { label: "Wegenbelasting", value: monthlyRoadTaxLabel(vehicle.roadTax), icon: "/brand/icons/financiering.svg" },
     { label: "Kilometerstand", value: factValue(vehicle.mileageKm), icon: "/brand/icons/kilometerstand.svg" },
   ];
-  const roadTaxSource = vehicle.roadTax?.source === "manual"
-    ? "Wegenbelasting: handmatig ingevoerd kwartaalbedrag, omgerekend naar maandbedrag."
-    : "Wegenbelasting: bron Mobilox / Hexon, omgerekend van kwartaal- naar maandbedrag.";
+  const roadTaxSource = roadTaxSourceLabel(vehicle.roadTax);
 
   return (
     <article className={`${styles.sheet} showroomCardSheet`} aria-label={`Showroomkaart voor ${vehicle.brand} ${vehicle.model}`}>
@@ -90,3 +89,4 @@ export function ShowroomCard({ vehicle }: { vehicle: Vehicle }) {
     </article>
   );
 }
+

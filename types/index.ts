@@ -63,6 +63,11 @@ export interface VehicleRoadTax {
   /** Quarterly amount or range. Mobilox values take precedence when supplied. */
   quarterlyMinCents: number;
   quarterlyMaxCents: number;
+  /** Direct provider monthly amounts; do not divide these by three. */
+  monthlyMinCents?: number;
+  monthlyMaxCents?: number;
+  /** Version 2 reads explicit period fields from the Hexon schema. */
+  schemaVersion?: 2;
   source: "manual" | "mobilox-hexon";
   sourceField?: "motorrijtuigen_belasting" | "wegenbelasting_kwartaal";
 }
@@ -527,3 +532,4 @@ export interface LedgerEntry {
   id: string; bookedAt: string; type: LedgerEntryType; description: string; debitAccount: string; creditAccount: string; amountCents: number;
   vatCode?: string; invoiceId?: string; vehicleId?: string; workOrderId?: string; immutable: boolean;
 }
+
