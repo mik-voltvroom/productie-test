@@ -52,7 +52,9 @@ describe("publieke Volt & Vroom website", () => {
 
     expect(detail).not.toContain("Over deze auto");
     expect(detail).toContain('aria-label="Voertuigbeschrijving en specificaties"');
-    expect(detail).toContain("className={styles.storyLead}");
+    expect(detail).toContain("styles.storyLead");
+    expect(detail).toContain("descriptionBlocks(authored)");
+    expect(detail).not.toContain("Lees de volledige beschrijving");
   });
 
   it("toont uitsluitend repository-backed publiceerbare voorraad", () => {

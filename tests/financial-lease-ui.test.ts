@@ -13,9 +13,13 @@ describe("financial lease UI", () => {
     expect(component).not.toContain("rekenrente");
   });
 
-  it("places the calculator directly before the final appointment section", () => {
-    expect(page.indexOf("<LeaseCalculator")).toBeGreaterThan(page.indexOf("className={styles.story}"));
-    expect(page.indexOf("<LeaseCalculator")).toBeLessThan(page.indexOf("className={styles.contact}"));
+  it("places the compact calculator directly after the asking price", () => {
+    expect(page).toMatch(/className=\{styles\.price\}[\s\S]*?<LeaseCalculator[^>]* compact \/>/);
+    expect(page.indexOf("<LeaseCalculator")).toBeLessThan(page.indexOf("className={styles.priceNote}"));
+    expect((page.match(/<LeaseCalculator/g) ?? []).length).toBe(1);
+    expect(component).toContain('"Direct aanvragen"');
+    expect(component).toContain('id="lease-lead-form"');
+    expect(component).toContain("formHeading.current?.focus()");
     expect(page).toContain("De auto gezien.");
     expect(page).toContain("Nu het verhaal erachter.");
   });

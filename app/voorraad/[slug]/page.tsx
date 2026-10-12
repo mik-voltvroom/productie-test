@@ -12,6 +12,7 @@ import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
 import { vehicleContactHref } from "@/lib/contact/business";
 import { vehicleSpecifications } from "@/lib/vehicle/specifications";
+import { descriptionBlocks, vehicleDescription } from "@/lib/vehicle/description";
 import styles from "./vehicle.module.css";
 
 // VVOS publication data changes at runtime; never serve a prerendered offer.
@@ -69,10 +70,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   const specs = vehicleSpecifications(vehicle);
 
   const description = publicDescription(vehicle.description, vehicleName);
-  const paragraphs = description.split(/\n\s*\n/).filter(Boolean);
-  const firstParagraph = paragraphs[0] ?? description;
-  const needsMore = description.length > 320;
-  const summary = needsMore ? `${firstParagraph.slice(0, 280).replace(/\s+\S*$/, "")}…` : description;
+  const { authored, generated } = vehicleDescription(description);
+  const blocks = descriptionBlocks(authored);
   const highlights = [...new Set(vehicle.highlights)];
   const priceEur = centsToEuros(vehicle.priceCents);
   const isReserved = vehicle.status === "reserved";
@@ -100,12 +99,13 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
     <main className={styles.shell}>
       <div className={styles.breadcrumb}><Link href="/voorraad">← Terug naar voorraad</Link><span>Volt & Vroom Selectie · Groningen</span></div>
       <section className={styles.hero}>
-        <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} reserved={isReserved} />
+        <div className={`${styles.vehicleContent} ${styles.vehicleSidebar}`}>
         <aside className={styles.side}>
           <p className={styles.eyebrow}>{publicDriveType}</p>
           <h1>{vehicleName}</h1>
           <VehicleHighlights trim={vehicle.trim} />
           <span className={styles.priceLabel}>Verkoopprijs</span><div className={styles.price}>{vehicle.priceCents > 0 ? eur.format(priceEur) : "Prijs op aanvraag"}</div>
+          {eligibleForLease(vehicle) && <LeaseCalculator vehicleId={vehicle.id} priceCents={vehicle.priceCents} annualRateBps={leaseRate()} compact />}
           <p className={styles.priceNote}>Inclusief alle verplichte kosten.</p>
           <p className={styles.availability}>{isReserved ? "Gereserveerd" : "Beschikbaar bij Volt & Vroom in Groningen"}</p>
           <div className={styles.quickFacts}>
@@ -116,16 +116,21 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
           </div>
           <div className={styles.ctaStack}><a className={styles.primary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
-      </section>
-      <section className={styles.story} aria-label="Voertuigbeschrijving en specificaties">
-        <div>
-          <p className={styles.storyLead}>{summary}</p>
-          {needsMore && <details className={styles.allHighlights}><summary>Lees de volledige beschrijving</summary><p className={styles.storyLead}>{description}</p></details>}
-          {highlights.length > 0 && <details className={styles.allHighlights}><summary>Opties en uitrusting ({highlights.length})</summary><ul className={styles.highlightGrid}>{highlights.map(item => <li key={item}>{item}</li>)}</ul></details>}
-        </div>
         <aside className={styles.factsCard}><h2>Specificaties</h2><dl>{specs.map(([label, fact]) => <div className={styles.factRow} key={label}><dt>{label}</dt><dd>{fact}</dd></div>)}</dl></aside>
+        </div>
+        <div className={styles.vehicleContent} aria-label="Voertuigbeschrijving en specificaties">
+          <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} reserved={isReserved} />
+          <article className={styles.story} aria-label="Voertuigbeschrijving">
+            {blocks.map((block, index) => block.type === "heading"
+              ? <h2 key={index}>{block.lines[0]}</h2>
+              : block.type === "list"
+                ? <ul className={styles.highlightGrid} key={index}>{block.lines.map((line, item) => <li key={item}>{line}</li>)}</ul>
+                : <p className={index === 1 ? styles.storyLead : styles.storyParagraph} key={index}>{block.lines[0]}</p>)}
+          </article>
+          {highlights.length > 0 && <details className={styles.allHighlights}><summary>Opties en uitrusting ({highlights.length})</summary><ul className={styles.highlightGrid}>{highlights.map(item => <li key={item}>{item}</li>)}</ul></details>}
+          {generated && <details className={styles.allHighlights}><summary>Aanvullende Mobilox-gegevens</summary><p className={styles.storyParagraph}>{generated}</p></details>}
+        </div>
       </section>
-      {eligibleForLease(vehicle) && <LeaseCalculator vehicleId={vehicle.id} priceCents={vehicle.priceCents} annualRateBps={leaseRate()} />}
       <section className={styles.contact} id="afspraak">
         <p className={styles.contactEyebrow}>Bekijk hem in Groningen</p>
         <h2>De auto gezien.<br />Nu het verhaal erachter.</h2>

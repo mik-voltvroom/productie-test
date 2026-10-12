@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { calculateLease, defaultSelection, leaseTerms, type LeaseSelection } from "@/lib/financial-lease/business";
 import styles from "./lease.module.css";
 
@@ -19,10 +19,12 @@ export function LeaseCalculator({
   vehicleId,
   priceCents,
   annualRateBps,
+  compact = false,
 }: {
   vehicleId: string;
   priceCents: number;
   annualRateBps: number;
+  compact?: boolean;
 }) {
   const [selection, setSelection] = useState<LeaseSelection>(defaultSelection);
   const [downPayment, setDownPayment] = useState("");
@@ -31,6 +33,10 @@ export function LeaseCalculator({
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const inFlight = useRef(false);
+  const formHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (open) formHeading.current?.focus();
+  }, [open]);
 
   let quote;
   let calculationError = "";
@@ -84,11 +90,7 @@ export function LeaseCalculator({
     }
   }
 
-  return <section className={styles.card} id="financial-lease" aria-labelledby="lease-heading">
-    <p className="eyebrow">Voor ondernemers</p>
-    <h2 id="lease-heading">Financial lease</h2>
-    <p>Verkoopprijs <strong>{money(priceCents)}</strong></p>
-
+  const controls = <>
     <div className={styles.fields}>
       <label>Looptijd
         <select
@@ -128,20 +130,28 @@ export function LeaseCalculator({
     </div>
 
     <p className={styles.help}>De slottermijn betaalt u aan het einde nog terug. Inruilwaarde is onder voorbehoud van beoordeling.</p>
+  </>;
+
+  return <section className={compact ? styles.compact : styles.card} id="financial-lease" aria-labelledby="lease-heading">
+    {!compact && <p className="eyebrow">Voor ondernemers</p>}
+    <h2 id="lease-heading">Financial lease{compact ? " · zakelijk" : ""}</h2>
+    {!compact && <p>Verkoopprijs <strong>{money(priceCents)}</strong></p>}
+    {!compact && controls}
     {calculationError && <p role="alert">{calculationError}</p>}
     <div className={styles.result} aria-live="polite">
       {quote && <>
         <span>Indicatieve maandtermijn</span>
         <strong>{money(quote.monthlyCents)} <small>p/m</small></strong>
-        <span>{quote.termMonths} maanden</span>
+        <span>{quote.termMonths} maanden · {money(selection.downPaymentCents)} aanbetaling · {money(selection.balloonCents)} slottermijn</span>
       </>}
     </div>
     <p className={styles.help}>Uitsluitend zakelijk. Indicatieve annuïtaire berekening, geen offerte of kredietgoedkeuring. Definitieve rente, looptijd, kosten en acceptatie worden door de financier bepaald. Onderhoud, verzekering en belastingen zijn niet inbegrepen.</p>
 
     {state === "done" ? <p role="status">Uw aanvraag is ontvangen. Volt &amp; Vroom neemt contact met u op voor een persoonlijk leasevoorstel.</p> : <>
-      {!open && <button className="button" type="button" onClick={() => setOpen(true)}>Vraag vrijblijvend leasevoorstel aan</button>}
-      {open && <form onSubmit={submit} className={styles.form}>
-        <h3>Uw zakelijke aanvraag</h3>
+      {!open && <button className="button" type="button" aria-expanded={open} aria-controls="lease-lead-form" onClick={() => setOpen(true)}>{compact ? "Direct aanvragen" : "Vraag vrijblijvend leasevoorstel aan"}</button>}
+      {compact && <details className={styles.adjust}><summary>Pas uw leaseberekening aan</summary>{controls}</details>}
+      {open && <form id="lease-lead-form" onSubmit={submit} className={styles.form}>
+        <h3 ref={formHeading} tabIndex={-1}>Uw zakelijke aanvraag</h3>
         <fieldset disabled={state === "sending"}>
           <div className={styles.fields}>
             <label>Bedrijfsnaam<input name="companyName" autoComplete="organization" required minLength={2} maxLength={160} /></label>

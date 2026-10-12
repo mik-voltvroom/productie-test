@@ -1,12 +1,12 @@
 .card{padding:clamp(24px,4vw,40px);margin:32px 0;border:1px solid #dce5eb;border-radius:24px;background:#fff;color:#101820;scroll-margin-top:100px}
-.card h2{font-family:Manrope,Inter,sans-serif;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.1;margin:10px 0 20px;letter-spacing:-.04em}
+.card h2{font-family:"Manrope Variable",Manrope,sans-serif;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.1;margin:10px 0 20px;letter-spacing:-.04em}
 .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:18px}
 .fields label{display:grid;gap:8px;font-size:.875rem;font-weight:650;min-width:0}
 .fields input,.fields select{width:100%;min-height:48px;padding:12px;border:1px solid #dce5eb;border-radius:12px;background:#fff;color:#101820;font:inherit;font-size:1rem}
 .fields input:focus-visible,.fields select:focus-visible{outline:3px solid #168bff;outline-offset:2px}
 .help{font-size:.8rem;color:#60717e;line-height:1.65}
 .result{display:grid;gap:8px;background:#f6f9fb;padding:24px;border-radius:14px;margin:24px 0;font-size:.875rem}
-.result strong{font-family:Manrope,Inter,sans-serif;font-size:clamp(2rem,5vw,2.75rem);line-height:1.2;letter-spacing:-.03em}
+.result strong{font-family:"Manrope Variable",Manrope,sans-serif;font-size:clamp(2rem,5vw,2.75rem);line-height:1.2;letter-spacing:-.03em}
 .result small{font-size:1rem;font-weight:500}
 .form{border-top:1px solid #dce5eb;margin-top:24px;padding-top:16px}
 .form fieldset{border:0;margin:0;padding:0;min-width:0}
@@ -15,4 +15,15 @@
 .consent input{width:20px;height:20px;flex-shrink:0}
 .consent a{text-decoration:underline}
 .card button{white-space:normal;text-align:center;max-width:100%;padding:12px 20px}
+.compact{margin:16px 0;padding:16px 0;border-top:1px solid #dce5eb;border-bottom:1px solid #dce5eb;min-width:0}
+.compact h2{font-family:"Manrope Variable",Manrope,sans-serif;font-size:.9rem;margin:0;color:#24323d}
+.compact .result{background:transparent;padding:0;margin:10px 0;gap:5px}
+.compact .result strong{font-size:1.55rem}
+.compact .help{margin:12px 0}
+.compact button{width:100%;white-space:normal;min-height:46px}
+.compact .fields,.compact .form .fields{grid-template-columns:minmax(0,1fr)}
+.adjust{margin-top:12px}
+.adjust summary{cursor:pointer;min-height:44px;align-content:center;color:#0a7eb8;font-weight:650;font-size:.875rem}
+.adjust .fields{margin-top:12px}
+.compact :is(button,summary,a,h3):focus-visible{outline:3px solid #168bff;outline-offset:3px}
 @media(max-width:600px){.form .fields{grid-template-columns:minmax(0,1fr)}.card{margin:24px 0;border-radius:22px;padding:20px}}
