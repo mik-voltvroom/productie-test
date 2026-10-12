@@ -145,6 +145,7 @@ export interface Vehicle extends SourceSpecifications {
 
 export type LeadStatus = "new" | "contacted" | "qualified" | "appointment" | "won" | "lost";
 export interface Lead {
+  notification?: { status: import("@/lib/communications/business").NotificationStatus; updatedAt: string };
   type?: "general" | "financial_lease";
   companyName?: string;
   kvk?: string;

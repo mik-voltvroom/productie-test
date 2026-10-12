@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({ enabled: vi.fn(), save: vi.fn(), inventory: vi.fn(), quota: vi.fn(), notify: vi.fn() }));
-vi.mock("@/lib/repositories/server-collection", () => ({ productionDataEnabled: mocks.enabled, createServerDocument: mocks.save }));
+vi.mock("@/lib/repositories/server-collection", () => ({ updateServerDocument: vi.fn(), productionDataEnabled: mocks.enabled, createServerDocument: mocks.save }));
 vi.mock("@/lib/repositories/public-vehicle-repository", () => ({ getPublicVehicleById: mocks.inventory }));
 vi.mock("@/lib/security/public-rate-limit", () => ({ consumePublicLeadQuota: mocks.quota }));
 vi.mock("@/lib/communications/lead-notification", () => ({ sendLeadNotification: mocks.notify }));
@@ -121,3 +121,4 @@ describe("publieke contactleadroute (uitsluitend gemockte opslag en notificaties
     expect(JSON.stringify(log.mock.calls)).not.toContain("test@example.com");
   });
 });
+

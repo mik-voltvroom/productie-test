@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Lead, LeadStatus } from "@/types";
 import { listLeads, saveLead } from "@/lib/repositories/lead-repository";
+import { notificationWarning } from "@/lib/communications/business";
 import { responseDeadline, scoreLead } from "@/lib/sales-engine";
 
 const columns: { id: LeadStatus; label: string }[] = [
@@ -19,9 +20,18 @@ export function SalesPipeline() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [loadError, setLoadError] = useState(false);
+
   useEffect(() => {
-    listLeads()
+    let active = true;
+    let inFlight = false;
+    async function refresh() {
+      if (inFlight) return;
+      inFlight = true;
+      await listLeads()
       .then((items) => {
+        if (!active) return;
+        setLoadError(false);
         setLeads(
           items.map((lead) => {
             const scored = scoreLead(lead);
@@ -40,7 +50,13 @@ export function SalesPipeline() {
           }),
         );
       })
-      .finally(() => setLoading(false));
+      .catch(() => { if (active) setLoadError(true); })
+      .finally(() => { inFlight = false; if (active) setLoading(false); });
+    }
+    void refresh();
+    const interval = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    return () => { active = false; window.clearInterval(interval); window.removeEventListener("focus", refresh); };
   }, []);
 
   const hot = useMemo(
@@ -58,6 +74,8 @@ export function SalesPipeline() {
 
   return (
     <>
+      {loadError ? <p className="panel" role="alert">Leads konden niet worden ververst. De getoonde lijst is mogelijk niet actueel. Controleer uw verbinding; VVOS probeert het elke 30 seconden opnieuw.</p> : null}
+      {leads.some(lead => (lead.status ?? "new") === "new" && notificationWarning(lead)) ? <p className="panel" role="alert">Er zijn nieuwe websiteaanvragen zonder bevestigde Chat-melding. Open de onderstaande leads en volg ze rechtstreeks op; laat klanten hun aanvraag niet opnieuw versturen.</p> : null}
       <div className="salesSummary">
         <div className="metric"><span>Hot leads</span><strong>{hot}</strong></div>
         <div className="metric"><span>Open pipeline</span><strong>{leads.filter((lead) => !["won", "lost"].includes(lead.status ?? "new")).length}</strong></div>
@@ -76,6 +94,7 @@ export function SalesPipeline() {
                     <span className={`temperature ${lead.sales?.temperature}`}>{lead.sales?.score ?? 0}</span>
                   </div>
                   <h3><Link href={`/dashboard/leads/${lead.id}`}>{lead.name}</Link></h3>
+                  {notificationWarning(lead) ? <p role="status">{notificationWarning(lead)}</p> : null}
                   <p>{lead.message}</p>
                   <small>{lead.phone || lead.email}</small>
                   <label>
@@ -92,3 +111,4 @@ export function SalesPipeline() {
     </>
   );
 }
+

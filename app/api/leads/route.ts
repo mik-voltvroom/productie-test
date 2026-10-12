@@ -3,9 +3,10 @@ import { financialLeaseFields } from "@/lib/financial-lease/validation";
 import { calculateLease, eligibleForLease } from "@/lib/financial-lease/business";
 import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleById } from "@/lib/repositories/public-vehicle-repository";
-import { createServerDocument, productionDataEnabled } from "@/lib/repositories/server-collection";
+import { createServerDocument, productionDataEnabled, updateServerDocument } from "@/lib/repositories/server-collection";
 import { scoreLead, responseDeadline } from "@/lib/sales-engine";
 import { consumePublicLeadQuota } from "@/lib/security/public-rate-limit";
+import { notificationOutcome } from "@/lib/communications/business";
 import { sendLeadNotification } from "@/lib/communications/lead-notification";
 
 export async function POST(request: Request) {
@@ -103,6 +104,7 @@ export async function POST(request: Request) {
   try {
     lead = await createServerDocument("leads", id, {
       ...Object.fromEntries(Object.entries({ ...leadInput, ...contactFields, ...leaseFields }).filter(([, value]) => value !== undefined)),
+      notification: { status: "pending", updatedAt: now },
       status: "new",
       sales: { ...sales, responseDueAt: responseDeadline(sales.score) },
       createdAt: now,
@@ -122,7 +124,14 @@ export async function POST(request: Request) {
     message,
     createdAt: now,
   }).catch(() => ({ configured: true, sent: 0, failed: 1 }));
-  if (!notification.configured || notification.failed > 0) {
+  const outcome = notificationOutcome(notification);
+  try {
+    await updateServerDocument("leads", id, { notification: { status: outcome, updatedAt: new Date().toISOString() } });
+  } catch {
+    // The durable pending marker remains visible; never turn a saved lead into a retry.
+    console.error("Lead notification status persistence failed", { operation: "recordLeadNotification" });
+  }
+  if (outcome !== "sent") {
     console.error("Lead notification incomplete", {
       operation: "sendLeadNotification",
       reason: notification.configured ? "provider_failure" : "not_configured",
@@ -130,7 +139,9 @@ export async function POST(request: Request) {
     });
   }
 
+  const { notification: _internalNotification, ...publicLead } = lead;
   return Response.json(leadInput.type === "financial_lease"
     ? { ok: true, mode: "firebase", id: lead.id }
-    : { ok: true, mode: "firebase", lead }, { status: 201 });
+    : { ok: true, mode: "firebase", lead: publicLead }, { status: 201 });
 }
+

@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   notify: vi.fn(),
 }));
 
-vi.mock("@/lib/repositories/server-collection", () => ({ createServerDocument: mocks.create, productionDataEnabled: mocks.enabled }));
+vi.mock("@/lib/repositories/server-collection", () => ({ createServerDocument: mocks.create, productionDataEnabled: mocks.enabled, updateServerDocument: vi.fn() }));
 vi.mock("@/lib/security/public-rate-limit", () => ({ consumePublicLeadQuota: mocks.quota }));
 vi.mock("@/lib/repositories/public-vehicle-repository", () => ({ getPublicVehicleById: mocks.vehicle }));
 vi.mock("@/lib/financial-lease/config", () => ({ leaseRate: mocks.rate }));
@@ -76,3 +76,4 @@ describe("financial lease intake", () => {
     expect((await send(body)).status).toBe(503);
   });
 });
+

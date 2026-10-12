@@ -19,5 +19,8 @@ export async function saveLead(lead: Lead): Promise<void> {
     return saveLeads(leads);
   }
   const id = lead.id ?? crypto.randomUUID();
-  await setDoc(doc(db, "leads", id), { ...lead, id }, { merge: true });
+  // Do not overwrite a newer server delivery result with a stale cockpit snapshot.
+  const { notification: _serverNotification, ...editableLead } = lead;
+  await setDoc(doc(db, "leads", id), { ...editableLead, id }, { merge: true });
 }
+
