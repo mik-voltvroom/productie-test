@@ -116,7 +116,7 @@ export function MobileActionBar() {
   return <>
     <div className={`mobileActionBar${formInView ? " isHidden" : ""}`} aria-label="Snelle acties" aria-hidden={formInView || undefined}>
       <a className="contactAction contactActionPhone" href="tel:+31646585468" data-vv-event="phone_click" aria-label="Bel Volt & Vroom"><span className="contactActionIcon"><PhoneIcon /></span><span>Bel</span></a>
-      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht"><span className="contactActionIcon"><WhatsAppIcon /></span><span>WhatsApp</span></a>
+      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="whatsapp_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht"><span className="contactActionIcon"><WhatsAppIcon /></span><span>WhatsApp</span></a>
       <button ref={routeTriggerRef} className="contactAction contactActionRoute" type="button" aria-label="Kies een navigatie-app voor de route naar Volt & Vroom" aria-haspopup="dialog" aria-expanded={routeChooserOpen} aria-controls="mobile-route-chooser" onClick={() => setRouteChooserOpen(true)}><span className="routeActionIcon"><RouteIcon /></span><span>Route</span></button>
     </div>
     {routeChooserOpen && <>

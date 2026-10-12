@@ -11,7 +11,7 @@ export function FloatingContactDock() {
       <a className="contactAction contactActionPhone" href="tel:+31646585468" data-vv-event="phone_click" aria-label="Bel Volt & Vroom">
         <span className="dockIcon"><PhoneIcon /></span><span>Bel</span>
       </a>
-      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="chat_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht">
+      <a className="contactAction contactActionWhatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-vv-event="whatsapp_click" aria-label="Stuur Volt & Vroom een WhatsApp-bericht">
         <span className="dockIcon"><WhatsAppIcon /></span><span>WhatsApp</span>
       </a>
       <a className="contactAction contactActionRoute" href={routeHref} target="_blank" rel="noopener noreferrer" data-vv-event="route_click" aria-label="Plan route naar Volt & Vroom">
