@@ -112,6 +112,8 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryBrowser).toContain('href={`/voorraad/${encodeURIComponent(vehicle.slug)}`}');
     expect(styles).toContain(".card:focus-visible");
     expect(styles).toContain(".homepageCard .media{aspect-ratio:16/11}");
+    expect(styles).toContain(".homepageCard .media>span{left:auto;right:16px;width:38px;height:38px");
+    expect(styles).toContain(".homepageCard .media>span img{width:20px;height:20px}");
     expect(styles).toContain("@media(prefers-reduced-motion:reduce)");
   });
 

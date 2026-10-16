@@ -79,6 +79,8 @@
 .homepageCard{border-color:#dde3e8;border-radius:22px;box-shadow:0 12px 34px rgba(13,17,23,.055);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 .homepageCard:hover{border-color:#a8d4fb;box-shadow:0 18px 42px rgba(13,17,23,.09)}
 .homepageCard .media{aspect-ratio:16/11}
+.homepageCard .media>span{left:auto;right:16px;width:38px;height:38px;min-height:38px;padding:0;justify-content:center;gap:0;border:1px solid rgba(82,96,107,.14);border-radius:50%;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(13,17,23,.1);font-size:0;letter-spacing:0}
+.homepageCard .media>span img{width:20px;height:20px}
 .homepageCard .media img{transition:transform .28s ease}
 .homepageCard:hover .media img{transform:scale(1.015)}
 .homepageCard .cardBody{padding:24px 24px 22px}
