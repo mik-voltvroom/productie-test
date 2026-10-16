@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import cta from "@/components/vehicles/vehicle-cta.module.css";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
 import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { Header } from "@/components/Header";
 import { LeaseCalculator } from "@/components/financial-lease/LeaseCalculator";
 
 import { centsToEuros } from "@/lib/money";
-import { eligibleForLease } from "@/lib/financial-lease/business";
+import { eligibleForLease, vehicleLeaseDefaults } from "@/lib/financial-lease/business";
 import { leaseRate } from "@/lib/financial-lease/config";
 import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-repository";
 import { vehicleContactHref } from "@/lib/contact/business";
@@ -74,6 +75,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   const blocks = descriptionBlocks(authored);
   const highlights = [...new Set(vehicle.highlights)];
   const priceEur = centsToEuros(vehicle.priceCents);
+  const leaseDefaults = vehicleLeaseDefaults(vehicle.priceCents);
   const isReserved = vehicle.status === "reserved";
   const tradeInHref = `/inruilen?vehicleId=${encodeURIComponent(vehicle.id)}&vehicleLabel=${encodeURIComponent(vehicleName + " " + vehicle.trim)}`;
 
@@ -105,7 +107,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
           <h1>{vehicleName}</h1>
           <VehicleHighlights trim={vehicle.trim} />
           <span className={styles.priceLabel}>Verkoopprijs</span><div className={styles.price}>{vehicle.priceCents > 0 ? eur.format(priceEur) : "Prijs op aanvraag"}</div>
-          {eligibleForLease(vehicle) && <LeaseCalculator vehicleId={vehicle.id} priceCents={vehicle.priceCents} annualRateBps={leaseRate()} compact />}
+          {eligibleForLease(vehicle) && <LeaseCalculator key={vehicle.id} vehicleId={vehicle.id} priceCents={vehicle.priceCents} annualRateBps={leaseRate()} initialSelection={leaseDefaults.selection} initialNotice={leaseDefaults.notice} compact />}
           <p className={styles.priceNote}>Inclusief alle verplichte kosten.</p>
           <p className={styles.availability}>{isReserved ? "Gereserveerd" : "Beschikbaar bij Volt & Vroom in Groningen"}</p>
           <div className={styles.quickFacts}>
@@ -114,12 +116,12 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
             <div><span>Aandrijving</span><strong>{publicDriveType}</strong></div>
             {vehicle.transmission ? <div><span>Transmissie</span><strong>{vehicle.transmission}</strong></div> : null}
           </div>
-          <div className={styles.ctaStack}><a className={styles.primary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
+          <div className={styles.ctaStack}><a className={`${styles.primary} ${cta.dark}`} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><a className={styles.secondary} href="tel:+31646585468">Bel 06 4658 5468</a><Link className={styles.textLink} href={tradeInHref}>Auto inruilen →</Link></div>
         </aside>
         <aside className={styles.factsCard}><h2>Specificaties</h2><dl>{specs.map(([label, fact]) => <div className={styles.factRow} key={label}><dt>{label}</dt><dd>{fact}</dd></div>)}</dl></aside>
         </div>
         <div className={styles.vehicleContent} aria-label="Voertuigbeschrijving en specificaties">
-          <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} reserved={isReserved} />
+          <VehicleGallery images={vehicle.images} name={`${vehicleName} ${vehicle.trim}`} />
           <article className={styles.story} aria-label="Voertuigbeschrijving">
             {blocks.map((block, index) => block.type === "heading"
               ? <h2 key={index}>{block.lines[0]}</h2>
@@ -135,7 +137,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
         <p className={styles.contactEyebrow}>Bekijk hem in Groningen</p>
         <h2>De auto gezien.<br />Nu het verhaal erachter.</h2>
         <p>Plan een persoonlijke proefrit. We nemen de auto en de beschikbare voertuigdata rustig met u door.</p>
-        <div className={styles.contactActions}><a className={styles.contactPrimary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><Link className={styles.contactSecondary} href={vehicleContactHref(vehicle.id, "vraag")}>Stel een vraag</Link></div>
+        <div className={styles.contactActions}><a className={styles.contactPrimary} href={contactHref} data-vv-event="test_drive_click">Plan een proefrit</a><Link className={`${styles.contactSecondary} ${cta.dark}`} href={vehicleContactHref(vehicle.id, "vraag")}>Stel een vraag</Link></div>
       </section>
       <nav className={styles.footerLinks} aria-label="Aanvullende informatie"><Link href="/voorraad">Alle auto’s</Link><Link href="/contact">Bedrijfsgegevens</Link><Link href="/privacy">Privacy</Link></nav>
     </main>

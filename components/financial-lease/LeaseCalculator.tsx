@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { calculateLease, defaultSelection, leaseTerms, type LeaseSelection } from "@/lib/financial-lease/business";
 import styles from "./lease.module.css";
+import cta from "@/components/vehicles/vehicle-cta.module.css";
 
 const money = (cents: number) => new Intl.NumberFormat("nl-NL", {
   style: "currency",
@@ -20,15 +21,19 @@ export function LeaseCalculator({
   priceCents,
   annualRateBps,
   compact = false,
+  initialSelection = defaultSelection,
+  initialNotice,
 }: {
   vehicleId: string;
   priceCents: number;
   annualRateBps: number;
   compact?: boolean;
+  initialSelection?: LeaseSelection;
+  initialNotice?: string;
 }) {
-  const [selection, setSelection] = useState<LeaseSelection>(defaultSelection);
-  const [downPayment, setDownPayment] = useState("");
-  const [balloon, setBalloon] = useState("");
+  const [selection, setSelection] = useState<LeaseSelection>(initialSelection);
+  const [downPayment, setDownPayment] = useState(initialSelection.downPaymentCents ? String(initialSelection.downPaymentCents / 100) : "");
+  const [balloon, setBalloon] = useState(initialSelection.balloonCents ? String(initialSelection.balloonCents / 100) : "");
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
@@ -137,6 +142,7 @@ export function LeaseCalculator({
     <h2 id="lease-heading">Financial lease{compact ? " · zakelijk" : ""}</h2>
     {!compact && <p>Verkoopprijs <strong>{money(priceCents)}</strong></p>}
     {!compact && controls}
+    {initialNotice && <p className={styles.help}>{initialNotice}</p>}
     {calculationError && <p role="alert">{calculationError}</p>}
     <div className={styles.result} aria-live="polite">
       {quote && <>
@@ -148,7 +154,7 @@ export function LeaseCalculator({
     <p className={styles.help}>Uitsluitend zakelijk. Indicatieve annuïtaire berekening, geen offerte of kredietgoedkeuring. Definitieve rente, looptijd, kosten en acceptatie worden door de financier bepaald. Onderhoud, verzekering en belastingen zijn niet inbegrepen.</p>
 
     {state === "done" ? <p role="status">Uw aanvraag is ontvangen. Volt &amp; Vroom neemt contact met u op voor een persoonlijk leasevoorstel.</p> : <>
-      {!open && <button className="button" type="button" aria-expanded={open} aria-controls="lease-lead-form" onClick={() => setOpen(true)}>{compact ? "Direct aanvragen" : "Vraag vrijblijvend leasevoorstel aan"}</button>}
+      {!open && <button className={`button ${compact ? cta.dark : ""}`} disabled={!quote} type="button" aria-expanded={open} aria-controls="lease-lead-form" onClick={() => setOpen(true)}>{compact ? "Direct aanvragen" : "Vraag vrijblijvend leasevoorstel aan"}</button>}
       {compact && <details className={styles.adjust}><summary>Pas uw leaseberekening aan</summary>{controls}</details>}
       {open && <form id="lease-lead-form" onSubmit={submit} className={styles.form}>
         <h3 ref={formHeading} tabIndex={-1}>Uw zakelijke aanvraag</h3>
@@ -162,7 +168,7 @@ export function LeaseCalculator({
           </div>
           <div hidden><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
           <label className={styles.consent}><input type="checkbox" name="consent" required /> <span>Ik vraag zakelijk aan en ga akkoord met contact over deze aanvraag. Lees ons <a href="/privacy" target="_blank" rel="noreferrer">privacybeleid</a>.</span></label>
-          <button className="button" disabled={Boolean(calculationError)}>{state === "sending" ? "Aanvraag versturen…" : "Verstuur mijn aanvraag"}</button>
+          <button className={`button ${compact ? cta.dark : ""}`} disabled={Boolean(calculationError)}>{state === "sending" ? "Aanvraag versturen…" : "Verstuur mijn aanvraag"}</button>
         </fieldset>
         {error && <p role="alert">{error}</p>}
       </form>}

@@ -1,0 +1,6 @@
+/* Opt-in variant: public vehicle pages only, not global site buttons. */
+.dark.dark{background:var(--vv-ink);color:var(--vv-electric);border-color:var(--vv-ink)}
+.dark.dark:hover:not(:disabled){background:var(--vv-ink);color:var(--vv-ice)}
+.dark.dark:active:not(:disabled){background:var(--vv-ink);color:var(--vv-electric)}
+.dark.dark:focus-visible{outline:3px solid var(--vv-electric);outline-offset:3px}
+.dark.dark:disabled{opacity:.55;cursor:not-allowed;transform:none}
