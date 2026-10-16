@@ -111,9 +111,9 @@ describe("publieke voorraadpagina", () => {
     expect(inventoryBrowser).toContain('role="img" aria-label={`Foto van ${vehicle.brand} ${vehicle.model} volgt`}');
     expect(inventoryBrowser).toContain('href={`/voorraad/${encodeURIComponent(vehicle.slug)}`}');
     expect(styles).toContain(".card:focus-visible");
-    expect(styles).toContain(".homepageCard .media{aspect-ratio:16/11}");
-    expect(styles).toContain(".homepageCard .media>span{left:auto;right:16px;width:38px;height:38px");
-    expect(styles).toContain(".homepageCard .media>span img{width:20px;height:20px}");
+    expect(styles).toContain("aspect-ratio:4/3");
+    expect(inventoryBrowser).not.toContain("styles.categoryIcon");
+    expect(styles).not.toContain(".categoryIcon");
     expect(styles).toContain("@media(prefers-reduced-motion:reduce)");
   });
 
