@@ -1,4 +1,5 @@
 import { z } from "zod";
+export { vehicleContactHref } from "@/lib/contact/links";
 
 export const contactInterests = ["Adviesgesprek", "Proefrit plannen", "Inruil bespreken", "Vraag over voorraad"] as const;
 export const daypartLabels = { morning: "Ochtend", afternoon: "Middag", any: "Geen voorkeur" } as const;
@@ -10,10 +11,6 @@ export const vehicleIdSchema = z.string().trim().min(1).max(120)
 
 export function contactVehicle(vehicle: { id: string; brand: string; model: string; trim: string }): ContactVehicle {
   return { id: vehicle.id, label: [vehicle.brand, vehicle.model, vehicle.trim].filter(Boolean).join(" ") };
-}
-
-export function vehicleContactHref(vehicleId: string, intent: "proefrit" | "vraag") {
-  return `/contact?${new URLSearchParams({ vehicleId, intent })}#aanvraag`;
 }
 
 export function contactContext(vehicles: ContactVehicle[], params: { vehicleId?: unknown; intent?: unknown }) {

@@ -42,7 +42,8 @@ describe("publieke Volt & Vroom website", () => {
     expect(homepage).toContain("Slim rijden.");
     expect(homepage).toContain("Meer genieten.");
     expect(homepage).toContain("Hybride en elektrisch, helder uitgelegd.");
-    expect(homepage).toContain('href="/keuzehulp">Ontdek wat bij uw gebruik past</a>');
+    expect(homepage).toContain("Bekijk onze auto&apos;s");
+    expect(homepage).toContain('href="/keuzehulp" data-vv-event="match_started">Vind mijn ideale auto</a>');
     expect(read("app/frontend-refresh.css")).toContain(".homepageHero h1 em{color:var(--vv-electric)}");
     expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
@@ -175,17 +176,21 @@ describe("publieke Volt & Vroom website", () => {
     expect(read("app/sitemap.ts")).toContain('"/inruilen"');
   });
 
-  it("biedt afzonderlijke landingspagina's, FAQ's en een gevalideerde keuzehulp", () => {
+  it("biedt afzonderlijke landingspagina's, FAQ's en een servergevalideerde keuzehulp", () => {
     expect(read("app/hybride/page.tsx")).toContain("Hybride wanneer dat slimmer is");
     expect(read("app/elektrisch/page.tsx")).toContain("Elektrisch wanneer het klopt");
     expect(read("app/icons/page.tsx")).toContain("Meer karakter.");
     expect(read("app/icons/page.tsx")).toContain("Dezelfde standaard.");
     expect(read("components/SegmentPage.tsx")).toContain("Veelgestelde vragen");
     const match = read("components/MatchForm.tsx");
+    expect(match).toContain('fetch("/api/vehicle-finder"');
     expect(match).toContain('fetch("/api/leads"');
     expect(match).toContain('name="consent"');
     expect(match).toContain('name="website"');
-    expect(match).toContain("getRecommendation");
+    expect(match).toContain("Stap {stepIndex + 1} van {steps.length}");
+    expect(match).toContain("We vragen pas om contactgegevens");
+    expect(read("app/api/vehicle-finder/route.ts")).toContain("vehicleFinderAnswersSchema.safeParse");
+    expect(read("app/api/vehicle-finder/route.ts")).toContain("listPublicVehicles(100)");
   });
 
   it("publiceert de Icons-visie en koppelt die aan de actuele Icons-voorraad", () => {

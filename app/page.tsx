@@ -34,8 +34,8 @@ export default async function HomePage() {
             <p className="heroDescriptor">Hybride en elektrisch, helder uitgelegd.</p>
             <p className="heroEvidence">Met inzicht in prijs, historie, techniek en dagelijks gebruik.</p>
             <div className="actions heroActions">
-              <a className="button heroPrimaryButton" href="/voorraad">Bekijk de voorraad <span aria-hidden="true">→</span></a>
-              <a className="button secondary" href="/keuzehulp">Ontdek wat bij uw gebruik past</a>
+              <a className="button heroPrimaryButton" href="/voorraad" data-vv-event="inventory_click">Bekijk onze auto&apos;s <span aria-hidden="true">→</span></a>
+              <a className="button secondary" href="/keuzehulp" data-vv-event="match_started">Vind mijn ideale auto</a>
             </div>
           </div>
           <div className="heroVisual heroVisualRefresh">
