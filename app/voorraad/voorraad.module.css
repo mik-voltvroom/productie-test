@@ -68,3 +68,30 @@
 @media(max-width:760px){.categoryChoices{grid-template-columns:1fr;margin-bottom:32px}.categoryChoice{min-height:124px}.layoutWithoutFilters .grid{grid-template-columns:1fr}}
 
 .icons.categoryChoice>img{filter:drop-shadow(0 1px 2px rgba(13,17,23,.2))}
+
+/* The homepage reuses the inventory data and card markup, but gives the cards
+   a calmer, more editorial presentation without changing the inventory page. */
+.card:focus-visible{outline:3px solid #075eba;outline-offset:4px}
+.cardBrand{display:block;color:#168bff;font-size:.68rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.homepageLayout .resultHeading{margin-bottom:24px}
+.layoutWithoutFilters .homepageGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:22px}
+.layoutWithoutFilters .homepageGrid:has(.homepageCard:only-child){grid-template-columns:minmax(0,520px)}
+.homepageCard{border-color:#dde3e8;border-radius:22px;box-shadow:0 12px 34px rgba(13,17,23,.055);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.homepageCard:hover{border-color:#a8d4fb;box-shadow:0 18px 42px rgba(13,17,23,.09)}
+.homepageCard .media{aspect-ratio:16/11}
+.homepageCard .media img{transition:transform .28s ease}
+.homepageCard:hover .media img{transform:scale(1.015)}
+.homepageCard .cardBody{padding:24px 24px 22px}
+.homepageCard .cardHeading{gap:16px}
+.homepageCard .cardHeading h2{margin-top:2px;font-size:1.48rem;line-height:1.15;letter-spacing:-.025em}
+.homepageCard .cardHeading>strong{font-size:1.28rem;font-weight:650;letter-spacing:-.025em}
+.homepageCard .cardPresentation{margin-top:10px}
+.homepageCard .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-top:20px;padding-top:0;border-top:0}
+.homepageCard .meta span{display:inline-flex;align-items:center}
+.homepageCard .cardAction{margin-top:22px;padding-top:16px;border-top:1px solid #e8edf0;color:#0d1117;font-size:.82rem}
+.homepageCard .cardAction b{color:#168bff;font-size:1.05rem}
+
+@media(max-width:760px){.homepageCard .media{aspect-ratio:4/3}.homepageCard .cardBody{padding:20px}.homepageCard .cardHeading{grid-template-columns:minmax(0,1fr) auto}.homepageCard .cardHeading h2{font-size:1.35rem}.homepageCard .cardHeading>strong{font-size:1.15rem}}
+@media(max-width:430px){.homepageCard .cardHeading{grid-template-columns:1fr}.homepageCard .cardHeading>strong{margin-top:4px}}
+@media(prefers-reduced-motion:reduce){.homepageCard,.homepageCard .media img{transition:none}.homepageCard:hover,.homepageCard:hover .media img{transform:none}}
+

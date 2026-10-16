@@ -60,7 +60,7 @@ export default async function HomePage() {
       <section id="voorraad" className="section container">
         <div className="sectionHeading inventoryHeading"><div><p className="eyebrow">Actueel aanbod</p><h2>Actueel aanbod, zorgvuldig geselecteerd.</h2></div><a className="textButton" href="/voorraad">Bekijk alle auto’s <span aria-hidden="true">→</span></a></div>
         {vehicles.length > 0
-          ? <InventoryBrowser vehicles={vehicles} showFilters={false} />
+          ? <InventoryBrowser vehicles={vehicles} showFilters={false} surface="homepage" />
           : <div className="inventoryPlaceholder"><div><span>Voorraad in voorbereiding</span><h3>Wilt u als eerste weten welke auto’s beschikbaar komen?</h3><p>Vertel ons wat u zoekt. Wij nemen persoonlijk contact op zodra een passende auto beschikbaar is.</p></div><a className="button" href="#advies">Deel uw zoekopdracht <span aria-hidden="true">→</span></a></div>}
       </section>
       </div>
@@ -96,3 +96,4 @@ export default async function HomePage() {
     <SiteFooter />
   </>;
 }
+

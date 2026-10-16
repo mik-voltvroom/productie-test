@@ -90,12 +90,29 @@ describe("publieke voorraadpagina", () => {
     const styles = read("app/voorraad/voorraad.module.css");
 
     expect(homepage).toContain("const vehicles = await listPublicVehicles(100)");
-    expect(homepage).toContain("<InventoryBrowser vehicles={vehicles} showFilters={false}");
+    expect(homepage).toContain('<InventoryBrowser vehicles={vehicles} showFilters={false} surface="homepage"');
     expect(homepage).not.toContain(".slice(0, 6)");
     expect(inventoryBrowser).toContain("showFilters = true");
     expect(inventoryBrowser).toContain("showFilters ? <aside");
     expect(styles).toContain(".layoutWithoutFilters{grid-template-columns:minmax(0,1fr)}");
     expect(styles).toContain(".layoutWithoutFilters .grid{grid-template-columns:repeat(3,minmax(0,1fr))}");
+  });
+
+  it("geeft alleen homepagekaarten een premium, toegankelijke presentatie", () => {
+    const homepage = read("app/page.tsx");
+    const inventoryPage = read("app/voorraad/page.tsx");
+    const inventoryBrowser = read("components/InventoryBrowser.tsx");
+    const styles = read("app/voorraad/voorraad.module.css");
+
+    expect(homepage).toContain('surface="homepage"');
+    expect(inventoryPage).not.toContain('surface="homepage"');
+    expect(inventoryBrowser).toContain('surface?: "inventory" | "homepage"');
+    expect(inventoryBrowser).toContain('loading="lazy" decoding="async"');
+    expect(inventoryBrowser).toContain('role="img" aria-label={`Foto van ${vehicle.brand} ${vehicle.model} volgt`}');
+    expect(inventoryBrowser).toContain('href={`/voorraad/${encodeURIComponent(vehicle.slug)}`}');
+    expect(styles).toContain(".card:focus-visible");
+    expect(styles).toContain(".homepageCard .media{aspect-ratio:16/11}");
+    expect(styles).toContain("@media(prefers-reduced-motion:reduce)");
   });
 
   it("uses the canonical Mobilox content across inventory and feeds", () => {
@@ -105,3 +122,4 @@ describe("publieke voorraadpagina", () => {
     expect(read("lib/merchant.ts")).toContain("getPublicVehicleImages");
   });
 });
+
