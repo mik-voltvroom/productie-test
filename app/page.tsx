@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
 import { InventoryBrowser } from "@/components/InventoryBrowser";
 import { SiteFooter } from "@/components/SiteFooter";
+import { TrustSignals } from "@/components/TrustSignals";
 import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { eur } from "@/lib/format";
 import { centsToEuros } from "@/lib/money";
@@ -52,6 +53,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <TrustSignals />
 
       <div id="uitgelicht">
       <section id="voorraad" className="section container">
