@@ -39,7 +39,7 @@ export function VehicleGallery({ images, name, reserved }: { images: string[]; n
         if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) move(dx < 0 ? 1 : -1);
       }} onTouchCancel={() => { touch.current = null; }}>
         <button ref={opener} type="button" className="open" onClick={() => setExpanded(true)} aria-label={`Vergroot foto ${current + 1} van ${name}`} aria-haspopup="dialog"><img src={images[current]} alt={`${name} — foto ${current + 1} van ${images.length}`} width={1920} height={1280} className="photo" /><span className="hint">Foto vergroten ↗</span></button>
-        <span className="badge">{reserved ? "Gereserveerd" : "Beschikbaar"}</span>
+        {reserved && <span className="badge">Gereserveerd</span>}
       </div>
       <div className="controls">
     {images.length > 1 && <button type="button" onClick={() => move(-1)} aria-label="Vorige foto">←</button>}
