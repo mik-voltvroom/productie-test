@@ -47,6 +47,18 @@ describe("publieke Volt & Vroom website", () => {
     expect(homepage.indexOf('href="/voorraad"')).toBeLessThan(homepage.indexOf('href="/keuzehulp"'));
   });
 
+  it("houdt de hero compact met gereserveerde beeldruimte en uitsluitend homepage-spacing", () => {
+    const styles = read("app/frontend-refresh.css");
+    const homepage = read("app/page.tsx");
+    expect(styles).toContain(".homepageHero + #uitgelicht > #voorraad{padding-top:64px}");
+    expect(styles).toContain(".homepageHero + #uitgelicht > #voorraad{padding-top:48px}");
+    expect(styles).toContain(".homepageHero .latestHeroMedia{aspect-ratio:3/2}");
+    expect(styles).toContain(".homepageHero .latestHeroMedia img{display:block;object-fit:contain;");
+    expect(styles).toContain(".homepageHero .heroVisual{padding:0;min-width:0}");
+    expect(styles).toContain(".homepageHero .heroActions .button{min-height:48px;");
+    expect(homepage).toContain("width={1920} height={1280} priority");
+  });
+
   it("toont de over-deze-auto-kop nergens op de openbare voertuigpagina", () => {
     const detail = read("app/voorraad/[slug]/page.tsx");
 

@@ -41,7 +41,7 @@ export default async function HomePage() {
             {latestVehicle ? <a className="latestHeroVehicle" href={`/voorraad/${latestVehicle.slug}`} aria-label={`Bekijk ${latestVehicle.brand} ${latestVehicle.model}`}>
               <div className="latestHeroMedia">
                 {latestVehicle.images[0]
-                  ? <Image src={latestVehicle.images[0]} alt={`${latestVehicle.brand} ${latestVehicle.model} ${latestVehicle.trim}`} width={1920} height={1440} priority sizes="(max-width: 900px) calc(100vw - 32px), (max-width: 1220px) calc((100vw - 104px) / 2), 558px" unoptimized={!latestVehicle.images[0].startsWith("https://media-eigenwebsiteincrementeel.export.dv.nl/")} />
+                  ? <Image src={latestVehicle.images[0]} alt={`${latestVehicle.brand} ${latestVehicle.model} ${latestVehicle.trim}`} width={1920} height={1280} priority sizes="(max-width: 900px) calc(100vw - 32px), (max-width: 1220px) calc((100vw - 104px) / 2), 558px" unoptimized={!latestVehicle.images[0].startsWith("https://media-eigenwebsiteincrementeel.export.dv.nl/")} />
                   : <div className="latestHeroFallback"><span>V&amp;V</span></div>}
               </div>
               <div className="latestHeroInfo">

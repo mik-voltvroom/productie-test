@@ -221,9 +221,12 @@
   .floatingContactDock a,.mobileActionBar .contactAction,.routeChoice{transition:none}
 }
 
-/* Homepage hero: only public VVOS imagery, reserved 4:3 space and two actions. */
+/* Homepage hero: public VVOS imagery in the standard 3:2 frame and two actions. */
 .homepageHero{background:var(--vv-paper)}
-.homepageHero .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;min-height:0;padding:64px 0}
+.homepageHero .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;min-height:0;padding:48px 0}
+/* Only the section immediately after this hero: 48 + 64px instead of 64 + 96px. */
+.homepageHero + #uitgelicht > #voorraad{padding-top:64px}
+.homepageHero .heroCopy{min-width:0}
 .homepageHero h1{font-size:clamp(2.5rem,4.6vw,3.7rem);line-height:1.06;letter-spacing:-.05em;margin:16px 0 24px}
 .homepageHero h1 em{color:var(--vv-electric)}
 .homepageHero .heroDescriptor{max-width:32ch;font-size:1.25rem;line-height:1.5;color:var(--vv-ink)}
@@ -233,20 +236,21 @@
 .homepageHero .heroVisual{padding:0;min-width:0}
 .homepageHero .heroVisual::before{display:none}
 .homepageHero .latestHeroVehicle{border-radius:var(--vv-radius-card);box-shadow:0 16px 40px rgba(13,17,23,.06)}
-.homepageHero .latestHeroMedia{aspect-ratio:4/3}
+.homepageHero .latestHeroMedia{aspect-ratio:3/2}
 .homepageHero .latestHeroMedia img{display:block;object-fit:contain;transform:none!important;transition:none}
 .homepageHero .latestHeroInfo{gap:16px;padding:18px 20px;align-items:start}
 .homepageHero .latestHeroInfo h2{font-size:1.25rem;line-height:1.3}
 .homepageHero .latestHeroInfo>strong{font-size:1.1rem}
-.homepageHero .heroEmpty{aspect-ratio:4/3;display:grid;align-content:center;justify-items:center;border:1px solid var(--vv-border);border-radius:var(--vv-radius-card);background:var(--vv-soft);color:var(--vv-graphite)}
+.homepageHero .heroEmpty{aspect-ratio:3/2;display:grid;align-content:center;justify-items:center;border:1px solid var(--vv-border);border-radius:var(--vv-radius-card);background:var(--vv-soft);color:var(--vv-graphite)}
 .homepageHero .heroEmpty span{font-family:Manrope,sans-serif;font-size:1.5rem;color:var(--vv-ink)}
 @media(max-width:900px){
-  .homepageHero .hero{grid-template-columns:minmax(0,1fr);gap:32px;padding:40px 0}
+  .homepageHero .hero{grid-template-columns:minmax(0,1fr);gap:32px;padding:32px 0}
   .homepageHero .heroCopy{max-width:640px}
   .homepageHero h1{font-size:clamp(2.5rem,7vw,3.7rem)}
 }
 @media(max-width:640px){
-  .homepageHero .hero{gap:28px;padding:28px 0 36px}
+  .homepageHero .hero{gap:28px;padding:28px 0}
+  .homepageHero + #uitgelicht > #voorraad{padding-top:48px}
   .homepageHero h1{font-size:clamp(2.2rem,10vw,3.25rem);margin:12px 0 18px}
   .homepageHero .heroDescriptor{font-size:1.1rem}
   .homepageHero .heroEvidence{font-size:.875rem}
