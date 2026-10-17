@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), redirect: vi.fn((url: string) => { throw new Error(`REDIRECT ${url}`); }), notFound: vi.fn(() => { throw new Error("NOT_FOUND"); }) }));
-vi.mock("@/lib/repositories/public-vehicle-repository", () => ({ listPublicVehicles: mocks.list }));
+vi.mock("@/lib/repositories/public-vehicle-repository", () => ({ getPublicVehicleById: async (id: string) => (await mocks.list()).find((vehicle: { id: string }) => vehicle.id === id), PublicInventoryUnavailable: class extends Error {} }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect, notFound: mocks.notFound }));
 import Page from "../app/voertuigen/[id]/page";
 
@@ -26,5 +26,9 @@ describe("Mobilox landing links", () => {
   it("rejects invalid IDs before reading inventory", async () => {
     await expect(open("invalid/path")).rejects.toThrow("NOT_FOUND");
     expect(mocks.list).not.toHaveBeenCalled();
+  });
+  it("fails closed if two public vehicles claim the same external ID", async () => {
+    mocks.list.mockResolvedValue([{ id: "hexon-123456", slug: "a" }, { id: "123456", slug: "b" }]);
+    await expect(open("123456")).rejects.toThrow(); expect(mocks.redirect).not.toHaveBeenCalled();
   });
 });

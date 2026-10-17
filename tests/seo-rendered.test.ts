@@ -2,12 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 const mock = vi.hoisted(() => ({ lookup: vi.fn() }));
 vi.mock('@/lib/repositories/public-vehicle-repository', () => ({ getPublicVehicleBySlug: mock.lookup }));
-vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); } }));
+vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); }, redirect: (url: string) => { throw new Error(`REDIRECT:${url}`); } }));
 import Page, { generateMetadata } from '@/app/voorraad/[slug]/page';
 import { publicPageMetadata } from '@/lib/seo/metadata';
 const fixture = { id:'synthetic',slug:'test-slug',brand:'Test',model:'Model',trim:'Edition',year:2022,mileageKm:0,priceCents:1234567,status:'available',images:['https://example.test/photo.jpg'],highlights:[],description:'Zichtbare brontekst </script> & é',driveType:'electric',fuelType:'Elektrisch' };
 afterEach(() => vi.unstubAllEnvs());
 describe('rendered vehicle and route metadata', () => {
+  it('redirects observed aliases before rendering an Offer and preserves repeated attribution', async () => {
+    mock.lookup.mockResolvedValue(fixture);
+    const params = Promise.resolve({ slug: 'old-slug' });
+    await expect(Page({ params, searchParams: Promise.resolve({ utm_source: ['google', 'test'], gclid: 'a&b' }) })).rejects.toThrow('REDIRECT:/voorraad/test-slug?utm_source=google&utm_source=test&gclid=a%26b');
+    expect((await generateMetadata({ params })).alternates?.canonical).toContain('/voorraad/test-slug');
+  });
   it('server-renders exactly one coherent vehicle entity, visible price and breadcrumb', async () => {
     mock.lookup.mockResolvedValue(fixture);
     const params = Promise.resolve({ slug: fixture.slug });

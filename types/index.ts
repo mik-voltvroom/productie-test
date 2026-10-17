@@ -98,6 +98,8 @@ export interface VehicleEditorial {
 }
 
 export interface Vehicle extends SourceSpecifications {
+  /** Server-maintained lookup data; never part of the public vehicle projection. */
+  publicLookup?: import("@/lib/vehicle-lookup/business").PublicVehicleLookup;
   id: string;
   slug: string;
   brand: string;

@@ -1,5 +1,6 @@
 import { siteConfiguration, type SiteEnvironment } from "@/lib/environment/business";
 import type { Vehicle } from "@/types";
+import { publicStockCondition } from "@/lib/vehicle/business";
 
 export function seoConfiguration(env: SiteEnvironment = process.env) {
   return siteConfiguration(env);
@@ -52,7 +53,6 @@ export function vehicleSeo(vehicle: Vehicle, env: SiteEnvironment = process.env)
     ...(!brand || !model ? ["Merk of model ontbreekt."] : []), ...(!trim ? ["Uitvoering ontbreekt."] : []),
     ...(year === undefined ? ["Geldig bouwjaar ontbreekt."] : []), ...(mileage === undefined ? ["Geldige kilometerstand ontbreekt."] : []),
     ...(price === undefined ? ["Geen geldige positieve prijs: geen Offer."] : []), ...(!images.length ? ["Publieke HTTPS-foto ontbreekt."] : []),
-    "Nieuw/gebruikte conditie ontbreekt als expliciet bronveld; UsedCondition niet vastgesteld.",
     ...(title.length > 70 ? ["Controleer de lange title in de preview; dit is een redactiewaarschuwing."] : []),
     ...(description.length > 180 ? ["Controleer de lange description in de preview; dit is een redactiewaarschuwing."] : []),
   ];
@@ -70,7 +70,7 @@ export function vehicleSchema(vehicle: Vehicle, visibleDescription: string, env:
     image: seo.images, description: visibleDescription,
     ...(seo.year === undefined ? {} : { vehicleModelDate: String(seo.year) }),
     ...(seo.mileage === undefined ? {} : { mileageFromOdometer: { "@type": "QuantitativeValue", value: seo.mileage, unitCode: "KMT" } }),
-    // The public source has no explicit new/used field. Mileage alone does not prove condition.
+    itemCondition: publicStockCondition.schema,
     ...(seo.price !== undefined && vehicle.status === "available" ? { offers: { "@type": "Offer", url: seo.url,
       price: (seo.price / 100).toFixed(2), priceCurrency: "EUR", availability: "https://schema.org/InStock", seller: dealerIdentity(env) } } : {}),
   };

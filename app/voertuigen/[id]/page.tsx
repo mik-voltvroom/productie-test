@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
-import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
+import { getPublicVehicleById, PublicInventoryUnavailable } from "@/lib/repositories/public-vehicle-repository";
+import { publicVehicleHref } from "@/lib/vehicle-lookup/business";
 
 export const dynamic = "force-dynamic";
 
@@ -10,15 +11,9 @@ export default async function MobiloxVehiclePage({ params, searchParams }: {
 }) {
   const { id } = await params;
   if (!/^\d{1,20}$/.test(id)) notFound();
-  const vehicles = await listPublicVehicles();
-  // Resolve only website-published vehicles; never expose internal inventory.
-  const vehicle = vehicles.find(item => item.id === `hexon-${id}` || item.id === id);
+  const candidates = (await Promise.all([getPublicVehicleById(`hexon-${id}`), getPublicVehicleById(id)])).filter(vehicle => vehicle !== undefined);
+  if (candidates.length > 1) throw new PublicInventoryUnavailable();
+  const vehicle = candidates[0];
   if (!vehicle?.slug) notFound();
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(await searchParams)) {
-    if (Array.isArray(value)) value.forEach(item => query.append(key, item));
-    else if (value !== undefined) query.append(key, value);
-  }
-  const suffix = query.toString();
-  redirect(`/voorraad/${encodeURIComponent(vehicle.slug)}${suffix ? `?${suffix}` : ""}`);
+  redirect(publicVehicleHref(vehicle.slug, await searchParams));
 }

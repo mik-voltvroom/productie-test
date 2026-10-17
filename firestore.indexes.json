@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "publicLookup.identityKeys", "arrayConfig": "CONTAINS" }
+      ]
+    },
+    {
       "collectionGroup": "sohCertificates",
       "queryScope": "COLLECTION",
       "fields": [

@@ -1,15 +1,15 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import type { Vehicle } from "@/types";
-const mock = vi.hoisted(() => ({ docs: [] as { id: string; data: () => Record<string, unknown> }[], failPage: -1, reads: 0 }));
+const mock = vi.hoisted(() => ({ docs: [] as { id: string; data: () => Record<string, unknown> }[], failPage: -1, reads: 0, marker: undefined as unknown }));
 vi.mock('server-only', () => ({}));
-vi.mock('@/lib/firebase-admin', () => ({ adminDb: { collection: () => ({
-  where: () => {
-    const query = (offset: number) => ({ limit: () => query(offset), startAfter: (doc: { id: string }) => query(mock.docs.findIndex(d => d.id === doc.id) + 1),
-      get: async () => { mock.reads++; if (offset === mock.failPage) throw new Error('synthetic failure'); return { docs: mock.docs.slice(offset, offset + 250) }; } });
-    return query(0);
-  },
-  doc: (id: string) => ({ get: async () => { const doc = mock.docs.find(d => d.id === id); return { exists: !!doc, id, data: () => doc?.data() }; } }),
-}) } }));
+vi.mock('@/lib/firebase-admin', () => {
+  const query = (offset: number): any => ({ limit: () => query(offset), startAfter: (doc: { id: string }) => query(mock.docs.findIndex(d => d.id === doc.id) + 1),
+    get: async () => { mock.reads++; if (offset === mock.failPage) throw new Error('synthetic failure'); return { docs: mock.docs.slice(offset, offset + 250) }; } });
+  return { adminDb: { runTransaction: async (fn: (tx: unknown) => unknown) => fn({ get: (ref: { get: () => unknown }) => ref.get() }), collection: (name: string) => ({
+    ...query(0), where: () => query(0),
+    doc: (id: string) => ({ get: async () => { const doc = mock.docs.find(d => d.id === id); return { exists: !!doc, id, data: () => name === 'seoState' ? mock.marker : doc?.data() }; } }),
+  }) } };
+});
 import { listPublicVehicles, getPublicVehicleBySlug, getPublicVehicleById, PublicInventoryUnavailable } from '@/lib/repositories/public-vehicle-repository';
 import sitemap from '@/app/sitemap';
 

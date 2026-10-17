@@ -8,6 +8,14 @@ import type {
 import { assertEurocents } from "@/lib/money";
 import { emptyCosts, grossMargin } from "@/lib/business";
 
+/** Owner confirmed 2026-10-17: website stock consists exclusively of used occasions,
+ * including 0 km. See docs/seo-lookup.md; never derive condition from mileage. */
+export const publicStockCondition = {
+  merchant: "used",
+  schema: "https://schema.org/UsedCondition",
+  confirmedAt: "2026-10-17",
+} as const;
+
 export const defaultVehicleCommercial: VehicleCommercial = {
   targetMarginCents: 300_000,
   maxStockDays: 45,

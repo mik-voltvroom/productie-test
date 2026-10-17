@@ -1,6 +1,7 @@
 import type { Vehicle } from "@/types";
 import { centsToEuros } from "@/lib/money";
 import { getPublicVehicleImages } from "@/lib/vehicle/photos";
+import { publicStockCondition } from "@/lib/vehicle/business";
 
 const escapeXml = (value: unknown) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -21,7 +22,7 @@ export function createVehicleFeed(vehicles: Vehicle[], baseUrl: string): string 
         <link>${escapeXml(`${baseUrl}/voorraad/${vehicle.slug}`)}</link>
         <g:image_link>${escapeXml(publicImages[0])}</g:image_link>
         <g:availability>in_stock</g:availability>
-        <g:condition>used</g:condition>
+        <g:condition>${publicStockCondition.merchant}</g:condition>
         <g:price>${centsToEuros(vehicle.priceCents).toFixed(2)} EUR</g:price>
         <g:brand>${escapeXml(vehicle.brand)}</g:brand>
         <g:product_type>Vehicles &gt; Cars</g:product_type>

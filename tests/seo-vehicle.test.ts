@@ -12,7 +12,7 @@ describe("public vehicle SEO", () => {
     expect(schema.offers?.price).toBe("12345.67");
     expect(schema.offers?.priceCurrency).toBe("EUR");
     expect(schema.mileageFromOdometer?.value).toBe(0);
-    expect(schema).not.toHaveProperty("itemCondition");
+    expect(schema.itemCondition).toBe("https://schema.org/UsedCondition");
     expect(metadata.alternates?.canonical).toBe(seo.url);
     expect(schema.url).toBe(seo.url); expect(schema.image).toEqual(seo.images);
     expect(schema.description).toBe("Zichtbare bronbeschrijving");
@@ -26,9 +26,9 @@ describe("public vehicle SEO", () => {
   it.each(["reserved", "sold", "archived", "draft"] as const)("never offers a non-available car: %s", status => {
     expect(vehicleSchema(car({ status }), "Bron").offers).toBeUndefined();
   });
-  it("uses a stable identity across slug changes and never guesses condition from mileage", () => {
+  it("uses a stable identity and the confirmed stock policy, including zero/unknown mileage", () => {
     expect(vehicleSchema(car(), "Bron")['@id']).toBe(vehicleSchema(car({ slug: "new" }), "Bron")['@id']);
-    expect(vehicleSchema(car({ mileageKm: 12 }), "Bron")).not.toHaveProperty("itemCondition");
+    for (const mileageKm of [0, 12, undefined, NaN]) expect(vehicleSchema(car({ mileageKm }), "Bron").itemCondition).toBe("https://schema.org/UsedCondition");
   });
   it("bounds extreme trim text, removes HTML in metadata, and preserves special text", () => {
     const seo = vehicleSeo(car({ model: "Test Model", trim: '<b>Édition & "Plus"</b> ' + "lang ".repeat(500) + '<script>alert(1)</script>' }));

@@ -77,6 +77,7 @@ describe("Firestore Rules commercial boundaries", () => {
       "socialVideos",
       "sohCertificates",
       "vehicleSohReports",
+      "seoState",
     ];
 
     for (const collection of collections) {

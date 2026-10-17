@@ -3,6 +3,7 @@ import type { Vehicle, VehicleImage } from "@/types";
 import { mergeImportedEditorial } from "./editorial";
 import { recordVehiclePrice } from "./business";
 import { validateVehicle } from "@/lib/business";
+import { buildVehicleLookup } from "@/lib/vehicle-lookup/business";
 
 /** Full document replacement: only these internal fields survive a source refresh. */
 export function buildMobiloxReplacement(current: Vehicle | undefined, incoming: Vehicle, photos: VehicleImage[], now: string, presence?: HexonMutation["contentPresence"]): Vehicle {
@@ -39,5 +40,6 @@ export function buildMobiloxReplacement(current: Vehicle | undefined, incoming: 
   };
   next.source = { contentVersion: 1, inventoryStatus: incoming.status, provider: "mobilox-hexon", externalId: incoming.id.replace(/^hexon-/, ""),
     lastMutationAt: now, imageStorage: next.images.length ? "mobilox" : "none", imageFailures: 0 };
+  next.publicLookup = buildVehicleLookup(current, next);
   return next;
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import cta from "@/components/vehicles/vehicle-cta.module.css";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
 import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
@@ -17,6 +17,7 @@ import { vehicleSpecifications } from "@/lib/vehicle/specifications";
 import { descriptionBlocks, vehicleDescription } from "@/lib/vehicle/description";
 import { canonicalUrl, serializeJsonLd, vehicleSchema } from "@/lib/seo/business";
 import { vehicleMetadata } from "@/lib/seo/metadata";
+import { publicVehicleHref } from "@/lib/vehicle-lookup/business";
 import styles from "./vehicle.module.css";
 
 // VVOS publication data changes at runtime; never serve a prerendered offer.
@@ -53,10 +54,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return vehicleMetadata(vehicle);
 }
 
-export default async function VehiclePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function VehiclePage({ params, searchParams }: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
   const vehicle = await getVehicle(slug);
   if (!vehicle) notFound();
+  // The alias is observed history; availability and its current destination remain mutable.
+  if (vehicle.slug !== slug) redirect(publicVehicleHref(vehicle.slug, await searchParams ?? {}));
 
   const publicDriveType = driveLabel(vehicle.driveType, vehicle.fuelType);
   const vehicleName = `${vehicle.brand} ${vehicle.model}`;
