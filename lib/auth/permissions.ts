@@ -21,6 +21,8 @@ export type VvosPermission =
   | "integrations.manage"
   | "audit.read"
   | "communications.send"
+  | "stockAlerts.read"
+  | "stockAlerts.manage"
   | "socialVideos.read"
   | "socialVideos.write";
 
@@ -28,21 +30,21 @@ const rolePermissions: Record<VvosRole, ReadonlySet<VvosPermission>> = {
   owner: new Set<VvosPermission>([
     "dashboard.read", "vehicles.read", "vehicles.write", "vehicles.internal.write", "leads.read", "leads.write",
     "deals.read", "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "workshop.read", "workshop.write", "finance.read",
-    "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send",
+    "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send", "stockAlerts.read", "stockAlerts.manage",
     "socialVideos.read", "socialVideos.write", "vehicles.soh.write",
   ]),
   admin: new Set<VvosPermission>([
     "dashboard.read", "vehicles.read", "vehicles.write", "vehicles.internal.write", "leads.read", "leads.write",
     "deals.read", "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "workshop.read", "workshop.write", "finance.read",
-    "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send",
+    "finance.write", "integrations.read", "integrations.manage", "audit.read", "communications.send", "stockAlerts.read", "stockAlerts.manage",
     "socialVideos.read", "socialVideos.write", "vehicles.soh.write",
   ]),
   sales: new Set<VvosPermission>([
     "dashboard.read", "vehicles.read", "vehicles.internal.write", "leads.read", "leads.write", "deals.read",
-    "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "communications.send", "socialVideos.read", "vehicles.soh.write",
+    "deals.create", "deals.changeStatus", "delivery.write", "payments.create", "communications.send", "stockAlerts.read", "stockAlerts.manage", "socialVideos.read", "vehicles.soh.write",
   ]),
   marketing: new Set<VvosPermission>([
-    "dashboard.read", "vehicles.read", "vehicles.write", "leads.read", "integrations.read",
+    "dashboard.read", "vehicles.read", "vehicles.write", "leads.read", "integrations.read", "stockAlerts.read",
     "socialVideos.read", "socialVideos.write",
   ]),
   workshop: new Set<VvosPermission>([

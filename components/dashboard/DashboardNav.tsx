@@ -28,6 +28,7 @@ export function DashboardNav() {
           <Link href="/dashboard/automatisering">Automation</Link>
           <Link href="/dashboard/audit">Audit</Link>
           <Link href="/dashboard/seo">SEO</Link>
+          <a href="/dashboard/voorraadalerts">Voorraadalerts</a>
         </div>
       </details>
     </nav>

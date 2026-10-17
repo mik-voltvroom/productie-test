@@ -41,7 +41,7 @@ export function GoogleTagManager({ containerId }: { containerId?: string }) {
   const [consent, setConsent] = useState<"accepted" | "rejected" | null>(null);
 
   useEffect(() => {
-    if (!containerId) return;
+    if (!containerId || window.location.pathname.startsWith("/voorraadalert/")) return;
     pushConsent("default", "denied");
     const storedConsent = window.localStorage.getItem(CONSENT_KEY);
     if (storedConsent === "accepted" || storedConsent === "rejected") {

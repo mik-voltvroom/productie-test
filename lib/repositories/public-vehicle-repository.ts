@@ -25,7 +25,7 @@ function newestFirst(left: Vehicle, right: Vehicle): number {
   return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 }
 
-async function publicRecords(): Promise<Vehicle[]> {
+export async function listPublishedVehicleRecords(): Promise<Vehicle[]> {
   // Read the last accepted Mobilox snapshot on every request. Provider failures
   // leave that snapshot intact; no provider credentials reach the browser.
   noStore();
@@ -55,7 +55,7 @@ async function publicRecords(): Promise<Vehicle[]> {
 }
 
 export async function listPublicVehicles(limit?: number): Promise<Vehicle[]> {
-  return (await publicRecords()).slice(0, limit).map(publicProjection);
+  return (await listPublishedVehicleRecords()).slice(0, limit).map(publicProjection);
 }
 
 const componentLimit = 1000;
@@ -97,7 +97,7 @@ async function lookup(kind: "slug" | "id", value: string): Promise<Vehicle | und
   noStore();
   let vehicles: Vehicle[] | undefined;
   if (publicInventoryMode(process.env) !== "firebase") {
-    vehicles = await publicRecords();
+    vehicles = await listPublishedVehicleRecords();
   } else {
     if (!adminDb) throw new PublicInventoryUnavailable();
     try {

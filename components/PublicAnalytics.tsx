@@ -23,6 +23,7 @@ function inferEvent(anchor: HTMLAnchorElement): string | null {
 export function PublicAnalytics() {
   useEffect(() => {
     function push(eventName: string, detail: Record<string, unknown> = {}) {
+      if(window.location.pathname.startsWith("/voorraadalert/"))return;
       const payload = { event: eventName, ...detail };
       if (window.localStorage.getItem("vv_analytics_consent") === "accepted") {
         window.dataLayer = window.dataLayer || [];
@@ -46,9 +47,13 @@ export function PublicAnalytics() {
 
     window.addEventListener("click", handleClick);
     window.addEventListener("vv:lead-submitted", handleLead);
+    function handleAlert(event:Event){const name=(event as CustomEvent).detail?.event;if(["stock_alert_form_opened","stock_alert_signup_submitted","stock_alert_confirmed"].includes(name))push(name);}
+    window.addEventListener("vv:stock-alert",handleAlert);
+    if(window.location.pathname.startsWith("/voorraad/")&&new URLSearchParams(window.location.search).get("utm_source")==="voorraadalert")push("stock_alert_vehicle_viewed");
     return () => {
       window.removeEventListener("click", handleClick);
       window.removeEventListener("vv:lead-submitted", handleLead);
+      window.removeEventListener("vv:stock-alert",handleAlert);
     };
   }, []);
 

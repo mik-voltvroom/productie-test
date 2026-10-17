@@ -12,7 +12,15 @@ const nextConfig: NextConfig = {
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
       ],
-    }];
+    }, {
+      source: "/voorraadalert/:path*",
+      headers: [
+        {key:"Cache-Control",value:"no-store, private"},
+        {key:"Referrer-Policy",value:"no-referrer"},
+        {key:"X-Robots-Tag",value:"noindex, nofollow"},
+        {key:"Content-Security-Policy",value:"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"},
+      ],
+    }, { source: "/dashboard/voorraadalerts/:path*", headers: [ {key:"Cache-Control",value:"no-store, private"}, {key:"Referrer-Policy",value:"no-referrer"}, {key:"X-Robots-Tag",value:"noindex, nofollow"} ] }];
   },
   images: {
     remotePatterns: [

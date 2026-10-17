@@ -78,6 +78,8 @@ describe("Firestore Rules commercial boundaries", () => {
       "sohCertificates",
       "vehicleSohReports",
       "seoState",
+      "stockAlertSubscriptions", "stockAlertTokens", "stockAlertCandidates", "stockAlertJobs",
+      "stockAlertAttempts", "stockAlertDeliveries", "stockAlertAudit", "stockAlertRateLimits", "stockAlertControl", "stockAlertWebhooks",
     ];
 
     for (const collection of collections) {
@@ -112,4 +114,19 @@ describe("Firestore Rules commercial boundaries", () => {
     await assertFails(getDoc(doc(salesDb, "audit_logs/event")));
     await assertFails(setDoc(doc(ownerDb, "audit_logs/client-event"), { action: "forged" }));
   });
+
+  it("keeps all stock alert records server-only for anonymous visitors and every client role", async () => {
+    const contexts = [environment.unauthenticatedContext(), ...["owner", "admin", "sales", "workshop", "marketing", "finance", "readonly"].map(roleContext)];
+    for (const suffix of ["Subscriptions", "Tokens", "Candidates", "Jobs", "Attempts", "Deliveries", "Audit", "RateLimits", "Control", "Webhooks"]) {
+      const collection = `stockAlert${suffix}`;
+      await seed(`${collection}/record`, { status: "synthetic" });
+      for (const context of contexts) {
+        const db = context.firestore();
+        await assertFails(getDoc(doc(db, collection, "record")));
+        await assertFails(setDoc(doc(db, collection, "new"), { status: "synthetic" }));
+        await assertFails(updateDoc(doc(db, collection, "record"), { status: "forged" }));
+        await assertFails(deleteDoc(doc(db, collection, "record")));
+      }
+    }
+  }, 30000);
 });

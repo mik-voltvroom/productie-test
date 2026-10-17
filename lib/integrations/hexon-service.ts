@@ -197,6 +197,8 @@ export async function processHexonInventoryXml(xml: string): Promise<{ duplicate
       transaction.set(vehicleRef, replacement);
     }
 
+    if(process.env.STOCK_ALERT_MATCHING_ENABLED === "true") transaction.set(adminDb!.collection("stockAlertControl").doc("reconcile"), { requestedAt: now }, { merge: true });
+
     transaction.set(eventRef, {
       provider: "mobilox-hexon",
       type: `vehicle.${mutation.providerAction}`,

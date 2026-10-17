@@ -87,5 +87,15 @@ service cloud.firestore {
     // Internal certificates are accessed exclusively through authorized VVOS APIs.
     match /sohCertificates/{reportId} { allow read, write: if false; }
     match /vehicleSohReports/{vehicleId} { allow read, write: if false; }
+    match /stockAlertSubscriptions/{recordId} { allow read, write: if false; }
+    match /stockAlertTokens/{recordId} { allow read, write: if false; }
+    match /stockAlertCandidates/{recordId} { allow read, write: if false; }
+    match /stockAlertJobs/{recordId} { allow read, write: if false; }
+    match /stockAlertAttempts/{recordId} { allow read, write: if false; }
+    match /stockAlertDeliveries/{recordId} { allow read, write: if false; }
+    match /stockAlertAudit/{recordId} { allow read, write: if false; }
+    match /stockAlertRateLimits/{recordId} { allow read, write: if false; }
+    match /stockAlertControl/{recordId} { allow read, write: if false; }
+    match /stockAlertWebhooks/{recordId} { allow read, write: if false; }
   }
 }
