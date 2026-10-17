@@ -3,21 +3,23 @@ import { renderToStaticMarkup } from "react-dom/server";
 const mocks = vi.hoisted(() => ({ session: vi.fn(), inventory: vi.fn(), redirect: vi.fn((url: string) => { throw new Error(url); }) }));
 vi.mock('@/lib/auth/session', () => ({ requireVerifiedSession: mocks.session }));
 vi.mock('@/lib/repositories/public-vehicle-repository', () => ({ listPublicVehicles: mocks.inventory }));
+vi.mock('@/lib/search-console/service', () => ({ getSearchConsoleReport: vi.fn(async () => ({ status: 'disabled', property: 'https://www.voltvroom.nl/', checkedAt: '2026-10-17T12:00:00Z', startDate: '2026-09-17', endDate: '2026-10-14', totals: null, pages: [], queries: [] })) }));
 vi.mock('next/navigation', () => ({ redirect: mocks.redirect }));
 vi.mock('next/cache', () => ({ unstable_noStore: vi.fn() }));
 import Page from '@/app/dashboard/seo/page';
+import { getSearchConsoleReport } from '@/lib/search-console/service';
 beforeEach(() => { vi.stubEnv('VVOS_ENV', 'production'); vi.stubEnv('VVOS_DATA_MODE', 'firebase'); vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://www.voltvroom.nl'); vi.clearAllMocks(); mocks.inventory.mockResolvedValue([]); });
 afterEach(() => vi.unstubAllEnvs());
 describe('read-only SEO dashboard', () => {
   it.each(['owner', 'admin', 'marketing'])('permits the existing integration/vehicle permissions for %s', async role => {
     mocks.session.mockResolvedValue({ role }); const html = renderToStaticMarkup(await Page());
-    expect(html).toContain('SEO-controle'); expect(html).toContain('Niet gekoppeld'); expect(html).toContain('Core Web Vitals: onbekend');
+    expect(html).toContain('SEO-controle'); expect(html).toContain('Google Search Console'); expect(html).toContain('Core Web Vitals: onbekend');
   });
   it.each(['sales', 'workshop', 'finance', 'readonly'])('denies %s before reading data', async role => {
-    mocks.session.mockResolvedValue({ role }); await expect(Page()).rejects.toThrow('forbidden'); expect(mocks.inventory).not.toHaveBeenCalled();
+    mocks.session.mockResolvedValue({ role }); await expect(Page()).rejects.toThrow('forbidden'); expect(mocks.inventory).not.toHaveBeenCalled(); expect(getSearchConsoleReport).not.toHaveBeenCalled();
   });
   it('denies a missing or invalid session before accessing inventory', async () => {
-    mocks.session.mockResolvedValue(null); await expect(Page()).rejects.toThrow('/login'); expect(mocks.inventory).not.toHaveBeenCalled();
+    mocks.session.mockResolvedValue(null); await expect(Page()).rejects.toThrow('/login'); expect(mocks.inventory).not.toHaveBeenCalled(); expect(getSearchConsoleReport).not.toHaveBeenCalled();
   });
   it('shows a source failure as unknown rather than zero public vehicles', async () => {
     mocks.session.mockResolvedValue({ role: 'owner' }); mocks.inventory.mockRejectedValue(new Error('synthetic private payload'));

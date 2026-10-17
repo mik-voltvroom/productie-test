@@ -86,3 +86,7 @@ env:
   - variable: HEXON_IMAGE_HOST_ALLOWLIST
     value: media-eigenwebsiteincrementeel.export.dv.nl
     availability: [RUNTIME]
+
+  - variable: GOOGLE_SEARCH_CONSOLE_ENABLED
+    value: "true"
+    availability: [RUNTIME]
