@@ -56,6 +56,7 @@ export function GoogleTagManager({ containerId }: { containerId?: string }) {
       window.localStorage.removeItem(CONSENT_KEY);
       pushConsent("update", "denied");
       setConsent(null);
+      window.dispatchEvent(new Event("vv:consent-change"));
     }
 
     window.addEventListener("vv:consent-reset", resetConsent);
@@ -69,6 +70,7 @@ export function GoogleTagManager({ containerId }: { containerId?: string }) {
     setConsent(choice);
     pushConsent("update", choice === "accepted" ? "granted" : "denied");
     if (choice === "accepted") enableGoogleTagManager(containerId!);
+    window.dispatchEvent(new Event("vv:consent-change"));
   }
 
   return (
@@ -78,7 +80,7 @@ export function GoogleTagManager({ containerId }: { containerId?: string }) {
           <div>
             <strong>Helpt u ons de website te verbeteren?</strong>
             <p>
-              Met uw toestemming gebruiken we Google Analytics om op hoofdlijnen te begrijpen hoe de website wordt gebruikt. Advertentiepersonalisatie blijft uitgeschakeld. Lees meer in ons <a href="/privacy">privacybeleid</a>.
+              Met uw toestemming gebruiken we Google Analytics en Metricool om op hoofdlijnen te begrijpen hoe de website wordt gebruikt. Advertentiepersonalisatie blijft uitgeschakeld. Lees meer in ons <a href="/privacy">privacybeleid</a>.
             </p>
           </div>
           <div className={styles.actions}>

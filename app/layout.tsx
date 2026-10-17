@@ -12,6 +12,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FloatingContactDock } from "@/components/FloatingContactDock";
 import { GoogleMerchantBadge } from "@/components/GoogleMerchantBadge";
 import { GoogleTagManager } from "@/components/GoogleTagManager";
+import { MetricoolTracker } from "@/components/MetricoolTracker";
 import { MobileActionBar } from "@/components/MobileActionBar";
 import { PublicAnalytics } from "@/components/PublicAnalytics";
 import { seoConfiguration, privateRobots } from "@/lib/seo/business";
@@ -20,6 +21,9 @@ import {AlertPrivacyBoundary} from "@/components/stock-alerts/AlertPrivacyBounda
 const { origin: siteUrl, indexable: isProductionSite } = seoConfiguration();
 const tagManagerContainerId = process.env.VVOS_ENV === "production" && isProductionSite
   ? process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID
+  : undefined;
+const metricoolHash = process.env.VVOS_ENV === "production" && isProductionSite
+  ? process.env.NEXT_PUBLIC_METRICOOL_HASH
   : undefined;
 
 export const metadata: Metadata = {
@@ -35,5 +39,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><AlertPrivacyBoundary><PublicAnalytics /><GoogleTagManager containerId={tagManagerContainerId} /><FloatingContactDock /><MobileActionBar /><GoogleMerchantBadge /></AlertPrivacyBoundary></body></html>;
+  return <html lang="nl"><body><AuthProvider>{children}</AuthProvider><AlertPrivacyBoundary><PublicAnalytics /><GoogleTagManager containerId={tagManagerContainerId} /><MetricoolTracker hash={metricoolHash} /><FloatingContactDock /><MobileActionBar /><GoogleMerchantBadge /></AlertPrivacyBoundary></body></html>;
 }

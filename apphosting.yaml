@@ -19,6 +19,9 @@ env:
   - variable: NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID
     value: GTM-P2882R3H
     availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_METRICOOL_HASH
+    value: 1a9fd44f75259f9967fa8c7dd6632954
+    availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_WHATSAPP_NUMBER
     value: "31646585468"
     availability: [BUILD, RUNTIME]
