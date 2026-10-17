@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const vehicles = await listPublicVehicles(100);
+    const vehicles = await listPublicVehicles();
     const results = matchVehicles(vehicles, parsed.data).map(({ vehicle, reasons, cautions }) => ({
       id: vehicle.id,
       slug: vehicle.slug,

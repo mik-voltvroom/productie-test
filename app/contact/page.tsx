@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Header } from "@/components/Header";
@@ -8,16 +9,16 @@ import { contactContext, contactVehicle, todayInGroningen } from "@/lib/contact/
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Contact & route | Volt & Vroom Groningen",
   description: "Neem contact op met Volt & Vroom aan de Euvelgunnerweg 50 in Groningen voor persoonlijk advies over hybride en elektrische occasions.",
   alternates: { canonical: "/contact" },
-};
+});
 
 export default async function ContactPage({ searchParams }: {
   searchParams: Promise<{ vehicleId?: string | string[]; intent?: string | string[] }>;
 }) {
-  const vehicles = (await listPublicVehicles(100)).map(contactVehicle);
+  const vehicles = (await listPublicVehicles()).map(contactVehicle);
   const context = contactContext(vehicles, await searchParams);
   return <>
     <Header />

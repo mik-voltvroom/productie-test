@@ -74,8 +74,8 @@ describe("publieke Volt & Vroom website", () => {
     const homepage = read("app/page.tsx");
     const repository = read("lib/repositories/public-vehicle-repository.ts");
     const publication = read("lib/vehicle/publication.ts");
-    expect(homepage).toContain("listPublicVehicles(100)");
-    expect(homepage).toContain("const vehicles = await listPublicVehicles(100)");
+    expect(homepage).toContain("listPublicVehicles()");
+    expect(homepage).toContain("const vehicles = await listPublicVehicles()");
     expect(homepage).toContain("<InventoryBrowser vehicles={vehicles} showFilters={false}");
     expect(homepage).not.toContain(".slice(0, 6)");
     expect(repository).toContain('vehicle.status === "available"');
@@ -190,7 +190,7 @@ describe("publieke Volt & Vroom website", () => {
     expect(match).toContain("Stap {stepIndex + 1} van {steps.length}");
     expect(match).toContain("We vragen pas om contactgegevens");
     expect(read("app/api/vehicle-finder/route.ts")).toContain("vehicleFinderAnswersSchema.safeParse");
-    expect(read("app/api/vehicle-finder/route.ts")).toContain("listPublicVehicles(100)");
+    expect(read("app/api/vehicle-finder/route.ts")).toContain("listPublicVehicles()");
   });
 
   it("publiceert de Icons-visie en koppelt die aan de actuele Icons-voorraad", () => {
@@ -202,7 +202,7 @@ describe("publieke Volt & Vroom website", () => {
 
     expect(icons).toContain("Onze visie");
     expect(icons).toContain("Bijzonder is pas waardevol wanneer het verhaal klopt");
-    expect(icons).toContain("listPublicVehicles(100)");
+    expect(icons).toContain("listPublicVehicles()");
     expect(icons).toContain("filter(isIconVehicle)");
     expect(icons).toContain('/voorraad?collectie=icons');
     expect(inventory).toContain('collectie === "icons"');
@@ -226,8 +226,10 @@ describe("publieke Volt & Vroom website", () => {
     expect(sitemap).toContain('"/keuzehulp"');
     expect(sitemap).toContain('"/vv-verified"');
     expect(sitemap).toContain('"/contact"');
-    expect(read("app/robots.ts")).toContain('disallow: ["/dashboard/", "/api/", "/login"]');
-    expect(read("app/page.tsx")).toContain('"@type": "AutoDealer"');
+    expect(read("app/robots.ts")).toContain('disallow: ["/api/"]');
+    expect(read("app/login/page.tsx")).toContain("robots: privateRobots");
+    expect(read("app/dashboard/layout.tsx")).toContain("robots: privateRobots");
+    expect(read("app/page.tsx")).toContain("dealerIdentity()");
   });
 
   it("gebruikt het actuele VV-nummer voor bellen, WhatsApp en structured data", () => {

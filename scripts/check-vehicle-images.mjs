@@ -1,5 +1,6 @@
 // Read-only public diagnostic. No Firebase credentials or inventory writes.
 import { createHash } from 'node:crypto';
+import { carEntities } from './seo-schema.mjs';
 const page = new URL(process.env.VEHICLE_URL || process.argv[2] || '');
 const siteHosts = new Set(['www.voltvroom.nl', 'voltvroom.nl']);
 const imageHosts = new Set([...siteHosts, 'media-eigenwebsiteincrementeel.export.dv.nl', 'firebasestorage.googleapis.com', 'storage.googleapis.com']);
@@ -26,8 +27,9 @@ if (html.length > 8000000) throw new Error('Page too large');
 const schemas = [...html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)].flatMap(match => {
   const value = JSON.parse(match[1]); return Array.isArray(value) ? value : [value];
 });
-const car = schemas.find(item => item['@type'] === 'Car');
-if (!car) throw new Error('No public Car structured data');
+const cars = carEntities(schemas);
+if (cars.length !== 1) throw new Error('Expected exactly one public Car entity');
+const car = cars[0];
 const images = Array.isArray(car.image) ? car.image : car.image ? [car.image] : [];
 if (images.length > 200) throw new Error('Unexpected image count');
 console.log(JSON.stringify({ page: page.pathname, pageStatus: response.status, images: images.length, descriptionCharacters: String(car.description || '').length }));

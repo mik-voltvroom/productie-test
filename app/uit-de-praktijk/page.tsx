@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -5,11 +6,11 @@ import { SocialVideoHub } from "@/components/SocialVideoHub";
 import { listPublishedSocialVideos } from "@/lib/social-video/repository";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Uit de praktijk | Volt & Vroom",
   description: "Video's over hybride, elektrisch, VV Verified, CarCheck en onze auto's uit de praktijk.",
   alternates: { canonical: "/uit-de-praktijk" },
-};
+});
 
 export default async function UitDePraktijkPage() {
   const videos = await listPublishedSocialVideos({ limit: 50 }).catch(() => []);

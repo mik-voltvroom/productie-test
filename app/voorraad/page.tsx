@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { InventoryBrowser } from "@/components/InventoryBrowser";
@@ -6,15 +7,15 @@ import styles from "./voorraad.module.css";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Alle occasions | Volt & Vroom Groningen",
   description: "Bekijk alle hybride, elektrische en bijzondere occasions van Volt & Vroom in Groningen. Filter op merk, model, aandrijving, bouwjaar, prijs en categorie.",
   alternates: { canonical: "/voorraad" },
-};
+});
 
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ collectie?: string }> }) {
   const { collectie } = await searchParams;
-  const vehicles = await listPublicVehicles(100);
+  const vehicles = await listPublicVehicles();
   return <div className={styles.page}>
     <Header />
     <main className={styles.main}>

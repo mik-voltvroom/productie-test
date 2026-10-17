@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,11 +9,11 @@ import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository
 import { isIconVehicle } from "@/lib/vehicle/business";
 import styles from "./icons.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Volt & Vroom Icons | Auto’s met karakter en historie",
   description: "Ontdek de visie achter Volt & Vroom Icons en bekijk de actuele selectie youngtimers, klassiekers in spe en bijzondere sportieve auto’s.",
   alternates: { canonical: "/icons" },
-};
+});
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ const principles = [
 ];
 
 export default async function IconsPage() {
-  const iconVehicles = (await listPublicVehicles(100)).filter(isIconVehicle);
+  const iconVehicles = (await listPublicVehicles()).filter(isIconVehicle);
 
   return <>
     <Header />

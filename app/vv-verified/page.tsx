@@ -1,14 +1,15 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { PlacementSocialVideos } from "@/components/PlacementSocialVideos";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const revalidate = 60;
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "VV Verified | Zo controleert Volt & Vroom een occasion",
   description: "Bekijk hoe Volt & Vroom historie, kilometerstand, techniek, hoogvoltaccu, onderhoud en praktijkdata controleert voordat een auto wordt gepubliceerd.",
   alternates: { canonical: "/vv-verified" },
-};
+});
 
 const checks = [
   ["Historie", "Herkomst, onderhoudsdocumentatie en relevante voertuiggegevens worden gecontroleerd en tegenstrijdigheden worden uitgezocht."],

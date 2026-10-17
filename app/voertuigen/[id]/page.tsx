@@ -10,7 +10,7 @@ export default async function MobiloxVehiclePage({ params, searchParams }: {
 }) {
   const { id } = await params;
   if (!/^\d{1,20}$/.test(id)) notFound();
-  const vehicles = await listPublicVehicles(100);
+  const vehicles = await listPublicVehicles();
   // Resolve only website-published vehicles; never expose internal inventory.
   const vehicle = vehicles.find(item => item.id === `hexon-${id}` || item.id === id);
   if (!vehicle?.slug) notFound();

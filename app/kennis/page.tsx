@@ -1,14 +1,15 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { knowledgeArticles } from "@/lib/marketing-content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Kennis over hybride en elektrische occasions | Volt & Vroom",
   description: "Praktische uitleg over elektrische occasions, accugezondheid, laden en de keuze tussen hybride en elektrisch.",
   alternates: { canonical: "/kennis" },
   openGraph: { title: "Volt & Vroom Kennis", description: "Begrijp techniek en gebruik voordat u een occasion kiest.", url: "/kennis", type: "website" },
-};
+});
 
 export default function KennisPage() {
   return <>

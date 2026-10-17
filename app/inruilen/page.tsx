@@ -1,14 +1,15 @@
+import { publicPageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TradeInForm } from "@/components/TradeInForm";
 import styles from "./inruilen.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
   title: "Auto inruilen | Persoonlijke inruilindicatie",
   description: "Vraag in drie duidelijke stappen een persoonlijke inruilindicatie aan bij Volt & Vroom in Groningen.",
   alternates: { canonical: "/inruilen" },
-};
+});
 
 export default async function InruilenPage({
   searchParams,

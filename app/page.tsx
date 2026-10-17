@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { serializeJsonLd, dealerIdentity } from "@/lib/seo/business";
 import { Header } from "@/components/Header";
 import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
 import { InventoryBrowser } from "@/components/InventoryBrowser";
@@ -18,11 +19,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const vehicles = await listPublicVehicles(100);
+  const vehicles = await listPublicVehicles();
   const latestVehicle = vehicles.find(isVvOfferVehicle) ?? vehicles[0];
 
   return <>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "AutoDealer", name: "Volt & Vroom", description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", url: "https://www.voltvroom.nl", telephone: "+31646585468", email: "sales@voltvroom.nl", address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" }, areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd({ "@context": "https://schema.org", ...dealerIdentity(), description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
     <a className="skipLink" href="#inhoud">Ga naar de inhoud</a>
     <Header />
     <main id="inhoud">

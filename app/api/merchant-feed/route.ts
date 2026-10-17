@@ -4,9 +4,13 @@ import { adminDb } from "@/lib/firebase-admin";
 import type { Vehicle } from "@/types";
 import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import { isPublishedToMerchant } from "@/lib/vehicle/publication";
+import { publicInventoryMode } from "@/lib/environment/business";
+import { seoConfiguration } from "@/lib/seo/business";
 
 export async function GET() {
-  const productionDataMode = process.env.VVOS_DATA_MODE === "firebase";
+  let productionDataMode: boolean;
+  try { productionDataMode = publicInventoryMode(process.env) === "firebase"; }
+  catch { return Response.json({ ok: false, error: "Voertuigvoorraad is niet beschikbaar." }, { status: 503 }); }
   if (productionDataMode && !adminDb) {
     return Response.json({ ok: false, error: "Voertuigvoorraad is niet beschikbaar." }, { status: 503 });
   }
@@ -23,7 +27,7 @@ export async function GET() {
     }
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl";
+  const baseUrl = seoConfiguration().origin;
   return new Response(createVehicleFeed(feedVehicles, baseUrl), {
     headers: {
       "content-type": "application/xml; charset=utf-8",

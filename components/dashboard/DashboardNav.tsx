@@ -27,6 +27,7 @@ export function DashboardNav() {
           <Link href="/dashboard/klantportaal">Klantportaal</Link>
           <Link href="/dashboard/automatisering">Automation</Link>
           <Link href="/dashboard/audit">Audit</Link>
+          <Link href="/dashboard/seo">SEO</Link>
         </div>
       </details>
     </nav>

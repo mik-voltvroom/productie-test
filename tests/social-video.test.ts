@@ -97,7 +97,7 @@ describe("VV Stories / Social Video Engine", () => {
   it("ververst dynamische video-plaatsingen zonder nieuwe release", () => {
     expect(read("app/page.tsx")).toMatch(/export const (?:revalidate = 60|dynamic = "force-dynamic")/);
     expect(read("app/vv-verified/page.tsx")).toContain("export const revalidate = 60");
-    expect(read("app/voorraad/[slug]/page.tsx")).toContain("export const revalidate = 60");
+    expect(read("app/voorraad/[slug]/page.tsx")).toContain('export const dynamic = "force-dynamic"');
     expect(read("app/uit-de-praktijk/page.tsx")).toContain('export const dynamic = "force-dynamic"');
   });
 

@@ -1,9 +1,10 @@
 import type { KnowledgeArticle } from "@/lib/marketing-content";
+import { canonicalUrl, serializeJsonLd, dealerIdentity } from "@/lib/seo/business";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export function KnowledgeArticlePage({ article }: { article: KnowledgeArticle }) {
-  const articleUrl = `https://www.voltvroom.nl/kennis/${article.slug}`;
+  const articleUrl = canonicalUrl(`/kennis/${encodeURIComponent(article.slug)}`);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -14,14 +15,14 @@ export function KnowledgeArticlePage({ article }: { article: KnowledgeArticle })
     inLanguage: "nl-NL",
     mainEntityOfPage: articleUrl,
     author: { "@type": "Organization", name: "Volt & Vroom" },
-    publisher: { "@type": "Organization", name: "Volt & Vroom", url: "https://www.voltvroom.nl" },
+    publisher: dealerIdentity(),
   };
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.voltvroom.nl/" },
-      { "@type": "ListItem", position: 2, name: "Kennis", item: "https://www.voltvroom.nl/kennis" },
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl() },
+      { "@type": "ListItem", position: 2, name: "Kennis", item: canonicalUrl("/kennis") },
       { "@type": "ListItem", position: 3, name: article.title, item: articleUrl },
     ],
   };
@@ -29,8 +30,8 @@ export function KnowledgeArticlePage({ article }: { article: KnowledgeArticle })
   return <>
     <Header />
     <main className="knowledgeArticle">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbData) }} />
       <header className="knowledgeArticleHero">
         <div className="container knowledgeArticleHeroInner">
           <nav aria-label="Kruimelpad"><a href="/">Home</a><span>/</span><a href="/kennis">Kennis</a></nav>

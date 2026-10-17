@@ -43,7 +43,7 @@ describe("voertuigkeuzehulp-route", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect(mocks.inventory).toHaveBeenCalledWith(100);
+    expect(mocks.inventory).toHaveBeenCalledWith();
     expect(body.results).toEqual([expect.objectContaining({ id: "HEXON-123", wltpRangeKm: 418, reasons: expect.any(Array) })]);
     expect(JSON.stringify(body)).not.toContain("licensePlate");
     expect(JSON.stringify(body)).not.toContain("vin");

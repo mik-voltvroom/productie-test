@@ -1,4 +1,5 @@
 import type { MarketingLanding } from "@/lib/marketing-content";
+import { canonicalUrl, serializeJsonLd, dealerIdentity } from "@/lib/seo/business";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -9,24 +10,14 @@ export function MarketingLandingPage({ page }: { page: MarketingLanding }) {
     name: page.heading,
     description: page.description,
     areaServed: { "@type": "City", name: "Groningen" },
-    provider: {
-      "@type": "AutoDealer",
-      name: "Volt & Vroom",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Euvelgunnerweg 50",
-        postalCode: "9723 CW",
-        addressLocality: "Groningen",
-        addressCountry: "NL",
-      },
-    },
-    url: `https://www.voltvroom.nl/${page.slug}`,
+    provider: dealerIdentity(),
+    url: canonicalUrl(`/${encodeURIComponent(page.slug)}`),
   };
 
   return <>
     <Header />
     <main className="marketingPage">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
       <section className="marketingHero">
         <div className="container marketingHeroGrid">
           <div>

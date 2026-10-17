@@ -41,8 +41,9 @@ describe("production data boundaries", () => {
     const repository = readFileSync(resolve(process.cwd(), "lib/repositories/public-vehicle-repository.ts"), "utf8");
     const publication = readFileSync(resolve(process.cwd(), "lib/vehicle/publication.ts"), "utf8");
     expect(page).toContain("return [];");
-    expect(page).toContain("getPublicVehicleBySlug(slug)");
-    expect(repository).toContain('process.env.VVOS_DATA_MODE !== "firebase"');
+    expect(page).toContain("cache(getPublicVehicleBySlug)");
+    expect(page).toContain("getVehicle(slug)");
+    expect(repository).toContain('publicInventoryMode(process.env) !== "firebase"');
     expect(repository).toContain('.where("status", "==", "available")');
     expect(repository).toContain("isPublishedOnWebsite(vehicle)");
     expect(publication).toContain('vehicle.publication?.channels.website === true');

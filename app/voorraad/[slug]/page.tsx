@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import cta from "@/components/vehicles/vehicle-cta.module.css";
@@ -14,12 +15,13 @@ import { getPublicVehicleBySlug } from "@/lib/repositories/public-vehicle-reposi
 import { vehicleContactHref } from "@/lib/contact/business";
 import { vehicleSpecifications } from "@/lib/vehicle/specifications";
 import { descriptionBlocks, vehicleDescription } from "@/lib/vehicle/description";
+import { canonicalUrl, serializeJsonLd, vehicleSchema } from "@/lib/seo/business";
+import { vehicleMetadata } from "@/lib/seo/metadata";
 import styles from "./vehicle.module.css";
 
 // VVOS publication data changes at runtime; never serve a prerendered offer.
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
-export const revalidate = 60;
 
 // No demo URLs are enumerated at build time; force-dynamic takes precedence.
 export function generateStaticParams() {
@@ -28,6 +30,8 @@ export function generateStaticParams() {
 
 const eur = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const numberFormat = new Intl.NumberFormat("nl-NL");
+// Request-local only: metadata and body share one publication/price snapshot.
+const getVehicle = cache(getPublicVehicleBySlug);
 
 function driveLabel(driveType?: string, fuelType?: string): string {
   const value = `${driveType ?? ""} ${fuelType ?? ""}`.toLowerCase();
@@ -44,24 +48,14 @@ function publicDescription(description: string | undefined, vehicleName: string)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const vehicle = await getPublicVehicleBySlug((await params).slug);
+  const vehicle = await getVehicle((await params).slug);
   if (!vehicle) return { title: "Auto niet beschikbaar | Volt & Vroom", robots: { index: false, follow: true } };
-  const name = `${vehicle.brand} ${vehicle.model}`;
-  const title = `${name}${vehicle.year ? ` ${vehicle.year}` : ""} | Volt & Vroom`;
-  const facts = [vehicle.trim, vehicle.mileageKm !== undefined ? `${numberFormat.format(vehicle.mileageKm)} km` : "", vehicle.priceCents > 0 ? eur.format(centsToEuros(vehicle.priceCents)) : "Prijs op aanvraag"].filter(Boolean).join(" · ");
-  const description = `${name}: ${facts}. Bekijk deze occasion bij Volt & Vroom in Groningen en plan een proefrit.`;
-  const url = `/voorraad/${encodeURIComponent(vehicle.slug)}`;
-  const images = vehicle.images[0] ? [{ url: vehicle.images[0], alt: name }] : [];
-  return {
-    title, description, alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", images },
-    twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map(image => image.url) },
-  };
+  return vehicleMetadata(vehicle);
 }
 
 export default async function VehiclePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const vehicle = await getPublicVehicleBySlug(slug);
+  const vehicle = await getVehicle(slug);
   if (!vehicle) notFound();
 
   const publicDriveType = driveLabel(vehicle.driveType, vehicle.fuelType);
@@ -80,24 +74,16 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   const tradeInHref = `/inruilen?vehicleId=${encodeURIComponent(vehicle.id)}&vehicleLabel=${encodeURIComponent(vehicleName + " " + vehicle.trim)}`;
 
   const contactHref = vehicleContactHref(vehicle.id, "proefrit");
-  const vehicleUrl = `${(process.env.NEXT_PUBLIC_SITE_URL || "https://www.voltvroom.nl").replace(/\/$/, "")}/voorraad/${encodeURIComponent(vehicle.slug)}`;
-  const structuredData = {
-    "@context": "https://schema.org", "@type": "Car", name: `${vehicleName} ${vehicle.trim}`,
-    url: vehicleUrl, sku: vehicle.id, brand: { "@type": "Brand", name: vehicle.brand }, model: vehicle.model,
-    image: vehicle.images, description,
-    ...(vehicle.year ? { vehicleModelDate: String(vehicle.year) } : {}),
-    ...(vehicle.mileageKm !== undefined ? { mileageFromOdometer: { "@type": "QuantitativeValue", value: vehicle.mileageKm, unitCode: "KMT" } } : {}),
-    ...(vehicle.priceCents > 0 ? { offers: { "@type": "Offer", url: vehicleUrl,
-      price: priceEur.toFixed(2), priceCurrency: "EUR",
-      availability: isReserved ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-      seller: { "@type": "AutoDealer", name: "Volt & Vroom", telephone: "+31646585468",
-        address: { "@type": "PostalAddress", streetAddress: "Euvelgunnerweg 50", postalCode: "9723 CW", addressLocality: "Groningen", addressCountry: "NL" } },
-    } } : {}),
-  };
+  const structuredData = vehicleSchema(vehicle, description);
+  const breadcrumbData = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Voorraad", item: canonicalUrl("/voorraad") },
+    { "@type": "ListItem", position: 2, name: vehicleName, item: structuredData.url },
+  ] };
 
   return <div className={styles.page}>
     <Header />
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbData) }} />
     <main className={styles.shell}>
       <div className={styles.breadcrumb}><Link href="/voorraad">← Terug naar voorraad</Link><span>Volt & Vroom Selectie · Groningen</span></div>
       <section className={styles.hero}>

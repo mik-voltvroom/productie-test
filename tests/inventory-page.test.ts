@@ -67,7 +67,7 @@ describe("publieke voorraadpagina", () => {
     const inventoryBrowser = read("components/InventoryBrowser.tsx");
 
     expect(inventoryPage).toContain('@/lib/repositories/public-vehicle-repository');
-    expect(inventoryPage).toContain("listPublicVehicles(100)");
+    expect(inventoryPage).toContain("listPublicVehicles()");
     expect(inventoryPage).toContain("<InventoryBrowser vehicles={vehicles}");
     expect(inventoryBrowser).toContain("vehicle.images[0]");
     expect(inventoryBrowser).toContain("centsToEuros(vehicle.priceCents)");
@@ -89,7 +89,7 @@ describe("publieke voorraadpagina", () => {
     const inventoryBrowser = read("components/InventoryBrowser.tsx");
     const styles = read("app/voorraad/voorraad.module.css");
 
-    expect(homepage).toContain("const vehicles = await listPublicVehicles(100)");
+    expect(homepage).toContain("const vehicles = await listPublicVehicles()");
     expect(homepage).toContain('<InventoryBrowser vehicles={vehicles} showFilters={false} surface="homepage"');
     expect(homepage).not.toContain(".slice(0, 6)");
     expect(inventoryBrowser).toContain("showFilters = true");

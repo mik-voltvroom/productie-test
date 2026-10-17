@@ -84,8 +84,8 @@ jobs:
               items = ET.fromstring(xml).findall('.//item')
               if not items:
                   raise ValueError('Feed has no vehicles; check whether empty inventory is intended')
-              if len(items) > 100:
-                  raise ValueError('Feed exceeds current 100-vehicle landing lookup; review pagination')
+              if len(items) > 1000:
+                  raise ValueError('Feed exceeds this monitor run budget; split the monitoring batches')
               failures = []
               for item in items:
                   fields = {node.tag.rsplit('}', 1)[-1]: (node.text or '').strip() for node in item}
@@ -102,7 +102,8 @@ jobs:
                           raise ValueError('Store attribution was lost')
                       parser = Schemas()
                       parser.feed(html)
-                      cars = [x for x in parser.items if isinstance(x, dict) and x.get('@type') == 'Car']
+                      from scripts.seo_schema import car_entities
+                      cars = car_entities(parser.items)
                       if len(cars) != 1:
                           raise ValueError('Expected one server-rendered Car schema')
                       car = cars[0]
