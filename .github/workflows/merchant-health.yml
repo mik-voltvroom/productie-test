@@ -25,9 +25,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Checkout schema helpers
+        uses: actions/checkout@v5
       - name: Check live feed, landing pages and offers
         # Retry the complete snapshot once to tolerate a deployment/import in progress.
-        # No checkout, npm installation, build, credentials or third-party action needed.
+        # Uses the checked-out schema parser; no npm installation or credentials.
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         shell: python
         run: |
           import json

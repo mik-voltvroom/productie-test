@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorizeApi } from "@/lib/auth/api";
+import { hasPermission } from "@/lib/auth/permissions";
 import { adminDb } from "@/lib/firebase-admin";
 import { normalizeVehicleDocument } from "@/lib/vehicle/money";
 import type { Vehicle } from "@/types";
@@ -14,6 +15,7 @@ function newestFirst(left: Vehicle, right: Vehicle): number {
 export async function GET(request: Request): Promise<Response> {
   const authorization = await authorizeApi(request, "vehicles.read");
   if (authorization.response) return authorization.response;
+  if (!authorization.actor) return NextResponse.json({ ok: false }, { status: 401 });
   if (!adminDb) {
     return NextResponse.json({ ok: false, error: "VVOS database niet beschikbaar." }, { status: 503 });
   }
@@ -24,7 +26,11 @@ export async function GET(request: Request): Promise<Response> {
 
     for (const document of snapshot.docs) {
       try {
-        vehicles.push(normalizeVehicleDocument(document.id, document.data()));
+        const vehicle = normalizeVehicleDocument(document.id, document.data());
+        if (!hasPermission(authorization.actor.role, "finance.read") && !hasPermission(authorization.actor.role, "vehicles.internal.write")) {
+          const { costs: _costs, commercial: _commercial, ...operational } = vehicle;
+          vehicles.push(operational);
+        } else vehicles.push(vehicle);
       } catch (error) {
         console.error(
           "VVOS inventory document skipped",

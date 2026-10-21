@@ -1,3 +1,4 @@
+import { isLocalDemoAuthBypassAllowed } from "@/lib/auth/config";
 import { NextResponse } from "next/server";
 import { financeInvoices, inventoryFunding, kpiSnapshots } from "@/lib/finance/sample-data";
 import { invoiceOpenAmount } from "@/lib/finance/business";
@@ -6,6 +7,7 @@ import { authorizeApi } from "@/lib/auth/api";
 export async function GET(request: Request) {
   const auth = await authorizeApi(request, "finance.read");
   if (auth.response) return auth.response;
+  if (!isLocalDemoAuthBypassAllowed()) return NextResponse.json({ ok: false, mode: "unavailable", error: "Administratie niet aangesloten; geen financiële transactie uitgevoerd." }, { status: 503 });
   const current = kpiSnapshots.at(-1);
   return NextResponse.json({
     current,

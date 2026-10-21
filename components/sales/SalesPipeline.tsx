@@ -21,6 +21,7 @@ export function SalesPipeline() {
   const [loading, setLoading] = useState(true);
 
   const [loadError, setLoadError] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -66,18 +67,22 @@ export function SalesPipeline() {
 
   async function move(lead: Lead, status: LeadStatus) {
     const next = { ...lead, status };
-    setLeads((current) => current.map((item) => (item.id === lead.id ? next : item)));
-    await saveLead(next);
+    try {
+      await saveLead(next, ["status"]);
+      setLeads((current) => current.map((item) => (item.id === lead.id ? next : item)));
+      setSaveError("");
+    } catch { setSaveError("Status niet opgeslagen. Probeer opnieuw."); }
   }
 
   if (loading) return <div className="panel">CRM laden…</div>;
 
   return (
     <>
+      {saveError ? <p className="panel" role="alert">{saveError}</p> : null}
       {loadError ? <p className="panel" role="alert">Leads konden niet worden ververst. De getoonde lijst is mogelijk niet actueel. Controleer uw verbinding; VVOS probeert het elke 30 seconden opnieuw.</p> : null}
       {leads.some(lead => (lead.status ?? "new") === "new" && notificationWarning(lead)) ? <p className="panel" role="alert">Er zijn nieuwe websiteaanvragen zonder bevestigde Chat-melding. Open de onderstaande leads en volg ze rechtstreeks op; laat klanten hun aanvraag niet opnieuw versturen.</p> : null}
       <div className="salesSummary">
-        <div className="metric"><span>Hot leads</span><strong>{hot}</strong></div>
+        <div className="metric"><span>Hot leads (indicatie)</span><strong>{hot}</strong></div>
         <div className="metric"><span>Open pipeline</span><strong>{leads.filter((lead) => !["won", "lost"].includes(lead.status ?? "new")).length}</strong></div>
         <div className="metric"><span>Afspraken</span><strong>{leads.filter((lead) => lead.status === "appointment").length}</strong></div>
       </div>
@@ -111,4 +116,3 @@ export function SalesPipeline() {
     </>
   );
 }
-

@@ -4,6 +4,7 @@ import type { VvosPermission } from "@/lib/auth/permissions";
 import { hasPermission } from "@/lib/auth/permissions";
 import type { VvosRole } from "@/lib/auth/session";
 import { isLocalDemoAuthBypassAllowed } from "@/lib/auth/config";
+import { isTrustedRequestOrigin } from "@/lib/auth/request-origin";
 
 export interface ApiActor {
   uid: string;
@@ -22,7 +23,9 @@ function readCookie(request: Request, name: string): string | null {
   const header = request.headers.get("cookie") ?? "";
   for (const part of header.split(";")) {
     const [key, ...value] = part.trim().split("=");
-    if (key === name) return decodeURIComponent(value.join("="));
+    if (key === name) {
+      try { return decodeURIComponent(value.join("=")); } catch { return null; }
+    }
   }
   return null;
 }
@@ -49,9 +52,15 @@ export async function authorizeApi(
 
   try {
     const claims = await adminAuth.verifySessionCookie(sessionCookie, true);
+    if (typeof claims.role !== "string" || !roles.has(claims.role.toLowerCase() as VvosRole)) {
+      return { actor: null, response: NextResponse.json({ ok: false, error: "Geen geldige medewerkersrol." }, { status: 403 }) };
+    }
     const role = roleFromClaim(claims.role);
     if (!hasPermission(role, permission)) {
       return { actor: null, response: NextResponse.json({ ok: false, error: "Onvoldoende rechten." }, { status: 403 }) };
+    }
+    if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && !isTrustedRequestOrigin(request)) {
+      return { actor: null, response: NextResponse.json({ ok: false, error: "Ongeldige herkomst." }, { status: 403 }) };
     }
     return {
       actor: {

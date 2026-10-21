@@ -1,6 +1,11 @@
-export const dynamic = "force-dynamic";
-
 import { notFound } from "next/navigation";
-import { CustomerPortal } from "@/components/deals/CustomerPortal";
-import { sampleDeals,sampleDocuments,samplePayments,sampleTasks } from "@/lib/deal/sample-data";
-export default async function Page({params}:{params:Promise<{token:string}>}){if(process.env.VVOS_DATA_MODE === "firebase" || process.env.VVOS_ENV === "production") notFound(); const {token}=await params; const deal=sampleDeals.find(d=>d.portalToken===token); if(!deal) notFound(); return <CustomerPortal deal={deal} tasks={sampleTasks.filter(t=>t.dealId===deal.id)} payments={samplePayments.filter(p=>p.dealId===deal.id)} documents={sampleDocuments.filter(d=>d.dealId===deal.id)}/>}
+import { readPortal } from "@/lib/repositories/portal-repository";
+export const dynamic = "force-dynamic";
+const labels: Record<string, string> = { draft: "In voorbereiding", reserved: "Gereserveerd", signed: "Overeenkomst bevestigd", ready: "Gereed", delivered: "Afgeleverd", cancelled: "Geannuleerd" };
+export default async function Page({ params }: { params: Promise<{ token: string }> }) {
+  let portal;
+  try { portal = await readPortal((await params).token); }
+  catch { return <main className="container"><h1>Klantportaal tijdelijk niet beschikbaar</h1><p>Neem contact op met Volt &amp; Vroom voor de actuele dossierstatus.</p></main>; }
+  if (!portal) notFound();
+  return <main className="container"><h1>Uw verkoopdossier</h1><section className="panel"><p>Referentie: {portal.reference}</p><p>Status: {labels[portal.status] || "Neem contact op voor de actuele status"}</p><p>Geplande aflevering: {portal.plannedDeliveryAt ? new Date(portal.plannedDeliveryAt).toLocaleString("nl-NL", { timeZone: "Europe/Amsterdam" }) : "Nog niet gepland"}.</p><p>Deze persoonlijke toegang verloopt op {new Date(portal.expiresAt).toLocaleString("nl-NL", { timeZone: "Europe/Amsterdam" })}.</p></section></main>;
+}

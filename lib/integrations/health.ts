@@ -1,3 +1,4 @@
+import { isFirebaseAdminConfigured } from "@/lib/config";
 export type IntegrationHealthState = "healthy" | "degraded" | "unconfigured" | "configured";
 
 export interface IntegrationHealth {
@@ -27,7 +28,7 @@ async function timedCheck(url: string, init?: RequestInit): Promise<{ ok: boolea
 export async function getIntegrationHealth(runRemoteChecks = false): Promise<IntegrationHealth[]> {
   const checkedAt = new Date().toISOString();
   const definitions = [
-    { key: "firebase", label: "Firebase", configured: Boolean(process.env.FIREBASE_ADMIN_PROJECT_ID && process.env.FIREBASE_ADMIN_CLIENT_EMAIL && process.env.FIREBASE_ADMIN_PRIVATE_KEY) },
+    { key: "firebase", label: "Firebase", configured: isFirebaseAdminConfigured },
     { key: "rdw", label: "RDW voertuigdata", configured: Boolean(process.env.RDW_API_BASE_URL), url: process.env.RDW_HEALTH_URL },
     { key: "mobilox", label: "Mobilox / Hexon voorraadfeed", configured: Boolean(process.env.HEXON_SYNC_USERNAME && process.env.HEXON_SYNC_PASSWORD) },
     { key: "merchant", label: "Google Merchant Center", configured: Boolean(process.env.GOOGLE_MERCHANT_ID && process.env.GOOGLE_MERCHANT_DATASOURCE) },
@@ -39,7 +40,7 @@ export async function getIntegrationHealth(runRemoteChecks = false): Promise<Int
   return Promise.all(definitions.map(async (item): Promise<IntegrationHealth> => {
     if (!item.configured) return { key: item.key, label: item.label, configured: false, state: "unconfigured", checkedAt, message: "Nog niet geconfigureerd." };
     if (item.key === "mobilox") return { key: item.key, label: item.label, configured: true, state: "configured", checkedAt, message: "Ontvanger geconfigureerd op /api/hexon/inventory. Dit bevestigt geen recente aanlevering; controleer de Mobilox-events." };
-    if (!runRemoteChecks || !item.url) return { key: item.key, label: item.label, configured: true, state: "healthy", checkedAt, message: "Configuratie aanwezig; remote controle niet uitgevoerd." };
+    if (!runRemoteChecks || !item.url) return { key: item.key, label: item.label, configured: true, state: "configured", checkedAt, message: "Configuratie aanwezig; gezondheid niet gecontroleerd." };
     const result = await timedCheck(item.url);
     return {
       key: item.key,

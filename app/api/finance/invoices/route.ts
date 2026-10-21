@@ -1,3 +1,4 @@
+import { isLocalDemoAuthBypassAllowed } from "@/lib/auth/config";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { financeInvoices } from "@/lib/finance/sample-data";
@@ -24,13 +25,15 @@ const invoiceSchema = z.object({
 export async function GET(request: Request) {
   const auth = await authorizeApi(request, "finance.read");
   if (auth.response) return auth.response;
+  if (!isLocalDemoAuthBypassAllowed()) return NextResponse.json({ ok: false, mode: "unavailable", error: "Administratie niet aangesloten; geen financiële transactie uitgevoerd." }, { status: 503 });
   return NextResponse.json({ items: financeInvoices, count: financeInvoices.length, mode: "demo" });
 }
 
 export async function POST(request: Request) {
   const auth = await authorizeApi(request, "finance.write");
   if (auth.response) return auth.response;
-  const parsed = invoiceSchema.safeParse(await request.json());
+  if (!isLocalDemoAuthBypassAllowed()) return NextResponse.json({ ok: false, mode: "unavailable", error: "Administratie niet aangesloten; geen financiële transactie uitgevoerd." }, { status: 503 });
+  const parsed = invoiceSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ongeldige factuur", issues: parsed.error.flatten() }, { status: 400 });
   const totals = invoiceTotals(parsed.data.lines.map((line, index) => ({ id: `line-${index + 1}`, ...line })));
   const invoice = {

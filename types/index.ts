@@ -231,7 +231,7 @@ export interface TradeIn {
   id: string;
   leadId: string;
   licensePlate: string;
-  mileageKm: number;
+  mileageKm?: number;
   brand?: string;
   model?: string;
   year?: number;
@@ -535,4 +535,3 @@ export interface LedgerEntry {
   id: string; bookedAt: string; type: LedgerEntryType; description: string; debitAccount: string; creditAccount: string; amountCents: number;
   vatCode?: string; invoiceId?: string; vehicleId?: string; workOrderId?: string; immutable: boolean;
 }
-

@@ -1,4 +1,5 @@
 "use client";
+import { useLeadSubmission } from "@/lib/contact/use-submission";
 
 import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
@@ -87,6 +88,7 @@ function profileMessage(answers: VehicleFinderAnswers) {
 }
 
 function SearchRequestForm({ answers }: { answers: VehicleFinderAnswers }) {
+  const submitLead = useLeadSubmission();
   const [state, setState] = useState<LeadState>("idle");
   const [message, setMessage] = useState("");
 
@@ -103,7 +105,7 @@ function SearchRequestForm({ answers }: { answers: VehicleFinderAnswers }) {
       return;
     }
 
-    const response = await fetch("/api/leads", {
+    const response = await submitLead("/api/leads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

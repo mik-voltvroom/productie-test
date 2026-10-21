@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { canonicalUrl, seoConfiguration, serializeJsonLd } from "@/lib/seo/business";
+import { publicInventoryMode } from "@/lib/environment/business";
 
 const production = { VVOS_ENV: "production", VVOS_DATA_MODE: "firebase", NEXT_PUBLIC_SITE_URL: "https://www.voltvroom.nl" };
 describe("SEO environment and canonical policy", () => {
+  it("never selects demo inventory from absent or hosted configuration", () => {
+    expect(publicInventoryMode({})).toBe("firebase");
+    expect(publicInventoryMode({ VVOS_ENV: "local", VVOS_DATA_MODE: "demo" })).toBe("demo");
+    expect(() => publicInventoryMode({ VVOS_ENV: "staging", VVOS_DATA_MODE: "demo" })).toThrow();
+    expect(() => publicInventoryMode({ VVOS_ENV: "local", VVOS_DATA_MODE: "demo", K_SERVICE: "hosted" })).toThrow();
+  });
   it.each([
     [production, true], [{ ...production, NEXT_PUBLIC_SITE_URL: "https://voltvroom.nl/" }, true],
     [{ ...production, VVOS_ENV: "staging" }, false], [{ ...production, VVOS_ENV: "preview" }, false],

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import cta from "@/components/vehicles/vehicle-cta.module.css";
 import { VehicleGallery } from "@/components/vehicles/VehicleGallery";
+import { PublicCarCheck } from "@/components/carcheck/PublicCarCheck";
 import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
 import { Header } from "@/components/Header";
 import { LeaseCalculator } from "@/components/financial-lease/LeaseCalculator";
@@ -86,6 +87,7 @@ export default async function VehiclePage({ params, searchParams }: {
     { "@type": "ListItem", position: 2, name: vehicleName, item: structuredData.url },
   ] };
 
+  const carCheck = await PublicCarCheck({ vehicleId: vehicle.id });
   return <div className={styles.page}>
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
@@ -121,6 +123,7 @@ export default async function VehiclePage({ params, searchParams }: {
                 ? <ul className={styles.highlightGrid} key={index}>{block.lines.map((line, item) => <li key={item}>{line}</li>)}</ul>
                 : <p className={index === 1 ? styles.storyLead : styles.storyParagraph} key={index}>{block.lines[0]}</p>)}
           </article>
+          {carCheck}
           {highlights.length > 0 && <details className={styles.allHighlights}><summary>Opties en uitrusting ({highlights.length})</summary><ul className={styles.highlightGrid}>{highlights.map(item => <li key={item}>{item}</li>)}</ul></details>}
           {generated && <details className={styles.allHighlights}><summary>Aanvullende Mobilox-gegevens</summary><p className={styles.storyParagraph}>{generated}</p></details>}
         </div>

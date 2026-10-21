@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { PortalAccess } from "@/components/deals/PortalAccess";
 import type { Deal, DealDocument, DeliveryTask, FinanceApplication, PaymentRecord } from "@/types";
 import { canDeliver, dealProgress, openBalanceCents } from "@/lib/deal/business";
 import { centsToEuros } from "@/lib/money";
@@ -26,7 +27,7 @@ export function DealWorkspace({ deal, initialTasks, payments, documents, finance
     }
     setTasks(previous => previous.map(task => task.id === id ? result.task! : task));
   }
-  return <div className="dealWorkspace">
+  return <div className="dealWorkspace"><PortalAccess dealId={deal.id}/>
     <section className="dealHero panel">
       <div><span className="eyebrow">{deal.id}</span><h1>{deal.customer.name}</h1><p className="muted">Voertuig {deal.vehicleId} · levering {deal.plannedDeliveryAt ? new Date(deal.plannedDeliveryAt).toLocaleString("nl-NL") : "nog niet gepland"}</p></div>
       <div className={`dealReadiness ${ready?"ready":"pending"}`}><strong>{progress}%</strong><span>{ready?"Klaar voor aflevering":"In voorbereiding"}</span></div>

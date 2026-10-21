@@ -1,4 +1,5 @@
 "use client";
+import { useLeadSubmission } from "@/lib/contact/use-submission";
 
 import { FormEvent, useId, useRef, useState } from "react";
 import { contactInterests, daypartLabels, leadSubmissionSchema, type ContactVehicle } from "@/lib/contact/business";
@@ -20,6 +21,7 @@ export function ContactForm({ vehicles, initialVehicleId = "", initialInterest =
   const [interest, setInterest] = useState(initialInterest);
   const [vehicleId, setVehicleId] = useState(initialVehicleId);
   const [notice, setNotice] = useState(vehicleNotice);
+  const submitLead = useLeadSubmission();
   const inFlight = useRef(false);
   const formId = useId();
   const isTestDrive = interest === "Proefrit plannen";
@@ -71,7 +73,7 @@ export function ContactForm({ vehicles, initialVehicleId = "", initialInterest =
     setErrors({});
     setFeedback("");
     try {
-      const response = await fetch("/api/leads", {
+      const response = await submitLead("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed.data),
