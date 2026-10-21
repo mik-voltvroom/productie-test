@@ -1,0 +1,53 @@
+name: VVOS CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging, 'agent/**', 'hardening/**', 'rc/**', 'release/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      VVOS_ENV: staging
+      NEXT_PUBLIC_SITE_URL: https://staging.voltvroom.nl
+      VVOS_DATA_MODE: firebase
+      VVOS_REQUIRE_AUTH: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Java for Firebase emulators
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Pin npm
+        run: npm install --global npm@10.9.4
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Repository and brand gates
+        run: npm run repo:guard && npm run agent:audit && npm run brand:audit
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      - name: Firestore Rules emulator tests
+        run: npm run test:rules
+      - name: Production build
+        run: npm run build

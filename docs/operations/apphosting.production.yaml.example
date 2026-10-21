@@ -1,0 +1,72 @@
+# Documentation only. Copy this file to apphosting.yaml in the private
+# production repository. Never activate it from the staging repository.
+runConfig:
+  minInstances: 1
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: VVOS_ENV
+    value: production
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://www.voltvroom.nl
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_WHATSAPP_NUMBER
+    value: "31611669111"
+    availability: [BUILD, RUNTIME]
+  - variable: VVOS_REQUIRE_AUTH
+    value: "true"
+    availability: [BUILD, RUNTIME]
+  - variable: VVOS_DATA_MODE
+    value: firebase
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_VVOS_DATA_MODE
+    value: firebase
+    availability: [BUILD, RUNTIME]
+
+  # Replace every placeholder in the private production repository with the
+  # public client configuration of the production Firebase Web App.
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: replace-with-production-api-key
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: replace-with-production-auth-domain
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: replace-with-production-project-id
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: replace-with-production-storage-bucket
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: replace-with-production-sender-id
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: replace-with-production-app-id
+    availability: [BUILD, RUNTIME]
+
+  # Create independent production values in Secret Manager. Never reuse staging.
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
+    availability: [RUNTIME]
+  - variable: VWE_WEBHOOK_SECRET
+    secret: VWE_WEBHOOK_SECRET
+    availability: [RUNTIME]
+  - variable: HEXON_SYNC_USERNAME
+    secret: HEXON_SYNC_USERNAME
+    availability: [RUNTIME]
+  - variable: HEXON_SYNC_PASSWORD
+    secret: HEXON_SYNC_PASSWORD
+    availability: [RUNTIME]
+  - variable: PORTAL_TOKEN_SECRET
+    secret: PORTAL_TOKEN_SECRET
+    availability: [RUNTIME]
+  - variable: AUDIT_HASH_SALT
+    secret: AUDIT_HASH_SALT
+    availability: [RUNTIME]
+
+# Add provider credentials only after the associated integration has passed
+# its production test. Store every server-side credential in Secret Manager.

@@ -1,0 +1,9 @@
+.socialVideoEditor{margin-top:14px;border-top:1px solid var(--vv-border);padding-top:12px}
+.socialVideoEditor summary{min-height:40px;display:flex;align-items:center;width:max-content;cursor:pointer;color:var(--vv-ink);font-size:.76rem;font-weight:700}
+.socialVideoEditForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px;padding:16px;border:1px solid var(--vv-border);border-radius:12px;background:var(--vv-soft)}
+.socialVideoEditForm label{display:grid;gap:6px;color:var(--vv-graphite);font-size:.75rem}
+.socialVideoEditForm input,.socialVideoEditForm select{min-height:42px;padding:0 12px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:var(--vv-ink);font:inherit}
+.socialVideoEditForm .span2{grid-column:1/-1}
+.socialVideoEditForm .socialVideoPlacementField{background:#fff}
+.socialVideoEditForm>.button{width:max-content;min-width:150px}
+@media(max-width:720px){.socialVideoEditForm{grid-template-columns:1fr}.socialVideoEditForm .span2{grid-column:auto}}

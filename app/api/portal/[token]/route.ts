@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { sampleDeals,sampleDocuments,samplePayments,sampleTasks } from "@/lib/deal/sample-data";
+export async function GET(_:Request,{params}:{params:Promise<{token:string}>}){if(process.env.VVOS_DATA_MODE === "firebase") return NextResponse.json({error:"Klantportaal is nog niet beschikbaar."},{status:503}); const {token}=await params; const deal=sampleDeals.find(d=>d.portalToken===token); if(!deal) return NextResponse.json({error:"Portaal niet gevonden"},{status:404}); return NextResponse.json({deal,tasks:sampleTasks.filter(t=>t.dealId===deal.id),payments:samplePayments.filter(p=>p.dealId===deal.id),documents:sampleDocuments.filter(d=>d.dealId===deal.id)});}

@@ -1,44 +1,100 @@
-"use client";
+import Image from "next/image";
+import type { Metadata } from "next";
+import { serializeJsonLd, dealerIdentity } from "@/lib/seo/business";
+import { Header } from "@/components/Header";
+import { HomepageSocialFeed } from "@/components/HomepageSocialFeed";
+import { InventoryBrowser } from "@/components/InventoryBrowser";
+import { SiteFooter } from "@/components/SiteFooter";
+import { TrustSignals } from "@/components/TrustSignals";
+import { VehicleHighlights } from "@/components/vehicles/VehicleHighlights";
+import { eur } from "@/lib/format";
+import { centsToEuros } from "@/lib/money";
+import { listPublicVehicles } from "@/lib/repositories/public-vehicle-repository";
+import { isVvOfferVehicle } from "@/lib/vehicle/business";
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+// De homepage toont dezelfde live Firestore-voorraad als /voorraad.
+// Forceer dynamische rendering zodat een tijdens de build lege voorraad niet
+// als statische homepage in de App Hosting-cache blijft hangen.
+export const dynamic = "force-dynamic";
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-const mobiloxPhotos = [
-  "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80",
-];
+export default async function HomePage() {
+  const vehicles = await listPublicVehicles();
+  const latestVehicle = vehicles.find(isVvOfferVehicle) ?? vehicles[0];
 
-type StudioPhoto = { id: string; url: string; name: string; publication: "Intern" | "Goedgekeurd" | "Gepubliceerd"; advertisementReady: boolean };
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd({ "@context": "https://schema.org", ...dealerIdentity(), description: "Onafhankelijke specialist voor zorgvuldig geselecteerde hybride en elektrische occasions.", areaServed: ["Groningen", "Drenthe", "Friesland"] }) }} />
+    <a className="skipLink" href="#inhoud">Ga naar de inhoud</a>
+    <Header />
+    <main id="inhoud">
+      <section className="heroShell heroShellRefresh homepageHero" aria-labelledby="hero-title">
+        <div className="container hero heroRefresh">
+          <div className="heroCopy">
+            <p className="eyebrow">Volt &amp; Vroom · Groningen</p>
+            <h1 id="hero-title"><em>Slim rijden.</em><br />Meer genieten.</h1>
+            <p className="heroDescriptor">Hybride en elektrisch, helder uitgelegd.</p>
+            <p className="heroEvidence">Met inzicht in prijs, historie, techniek en dagelijks gebruik.</p>
+            <div className="actions heroActions">
+              <a className="button heroPrimaryButton" href="/voorraad" data-vv-event="inventory_click">Bekijk onze auto&apos;s <span aria-hidden="true">→</span></a>
+              <a className="button secondary" href="/keuzehulp" data-vv-event="match_started">Vind mijn ideale auto</a>
+            </div>
+          </div>
+          <div className="heroVisual heroVisualRefresh">
+            {latestVehicle ? <a className="latestHeroVehicle" href={`/voorraad/${latestVehicle.slug}`} aria-label={`Bekijk ${latestVehicle.brand} ${latestVehicle.model}`}>
+              <div className="latestHeroMedia">
+                {latestVehicle.images[0]
+                  ? <Image src={latestVehicle.images[0]} alt={`${latestVehicle.brand} ${latestVehicle.model} ${latestVehicle.trim}`} width={1920} height={1280} priority sizes="(max-width: 900px) calc(100vw - 32px), (max-width: 1220px) calc((100vw - 104px) / 2), 558px" unoptimized={!latestVehicle.images[0].startsWith("https://media-eigenwebsiteincrementeel.export.dv.nl/")} />
+                  : <div className="latestHeroFallback"><span>V&amp;V</span></div>}
+              </div>
+              <div className="latestHeroInfo">
+                <div><span>{latestVehicle.driveType === "electric" ? "Elektrisch" : latestVehicle.driveType === "plug-in-hybrid" ? "Plug-in hybride" : latestVehicle.driveType === "full-hybrid" ? "Hybride" : latestVehicle.fuelType}</span><h2>{latestVehicle.brand} {latestVehicle.model}</h2><VehicleHighlights trim={latestVehicle.trim} compact /></div>
+                <strong>{latestVehicle.priceCents > 0 ? eur.format(centsToEuros(latestVehicle.priceCents)) : "Prijs op aanvraag"}</strong>
+              </div>
+            </a> : <div className="heroEmpty"><span>Volt &amp; Vroom</span><p>Nieuw aanbod in voorbereiding.</p></div>}
+          </div>
+        </div>
+      </section>
 
-export default function HomePage() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const photosRef = useRef<StudioPhoto[]>([]);
-  const [sessionStarted, setSessionStarted] = useState(false);
-  const [studioPhotos, setStudioPhotos] = useState<StudioPhoto[]>([]);
+      <TrustSignals />
 
-  useEffect(() => () => photosRef.current.forEach(photo => URL.revokeObjectURL(photo.url)), []);
-  useEffect(() => { photosRef.current = studioPhotos; }, [studioPhotos]);
+      <div id="uitgelicht">
+      <section id="voorraad" className="section container">
+        <div className="sectionHeading inventoryHeading"><div><p className="eyebrow">Actueel aanbod</p><h2>Actueel aanbod, zorgvuldig geselecteerd.</h2></div><a className="textButton" href="/voorraad">Bekijk alle auto’s <span aria-hidden="true">→</span></a></div>
+        {vehicles.length > 0
+          ? <InventoryBrowser vehicles={vehicles} showFilters={false} surface="homepage" />
+          : <div className="inventoryPlaceholder"><div><span>Voorraad in voorbereiding</span><h3>Wilt u als eerste weten welke auto’s beschikbaar komen?</h3><p>Vertel ons wat u zoekt. Wij nemen persoonlijk contact op zodra een passende auto beschikbaar is.</p></div><a className="button" href="#advies">Deel uw zoekopdracht <span aria-hidden="true">→</span></a></div>}
+      </section>
+      </div>
 
-  function upload(event: ChangeEvent<HTMLInputElement>) {
-    const selected = Array.from(event.target.files ?? []).filter(file => file.type.startsWith("image/"));
-    setStudioPhotos(current => [...current, ...selected.map(file => ({ id: crypto.randomUUID(), url: URL.createObjectURL(file), name: file.name, publication: "Intern" as const, advertisementReady: false }))]);
-    event.target.value = "";
-  }
+      <HomepageSocialFeed />
 
-  function move(id: string, direction: -1 | 1) {
-    setStudioPhotos(current => {
-      const index = current.findIndex(photo => photo.id === id);
-      const target = index + direction;
-      if (index < 0 || target < 0 || target >= current.length) return current;
-      const next = [...current]; [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  }
 
-  return <main className="page-shell"><section className="media-panel">
-    <header className="panel-header"><div><p className="eyebrow">VVOS / VOERTUIG / MEDIA</p><h1>Fotobeheer</h1></div><div className="icon-badge" aria-hidden="true">▧</div></header>
-    <section className="module module-external" aria-labelledby="mobilox-title"><div className="module-head"><div className="module-title"><span aria-hidden="true">▧</span><h2 id="mobilox-title">Mobilox Foto&apos;s</h2></div><span className="tag">Externe bron</span></div><p className="muted">Bestaande voertuigfoto&apos;s vanuit de Mobilox-koppeling. Deze blijven ongewijzigd en hebben een eigen bronvolgorde.</p><div className="thumb-row">{mobiloxPhotos.map((photo, index) => <div key={photo} className="thumb-card"><img src={photo} alt={`Mobilox foto ${index + 1}`} /></div>)}</div></section>
-    <section className="module module-local" aria-labelledby="studio-title"><div className="module-head"><div className="module-title"><span aria-hidden="true">◌</span><h2 id="studio-title">VV 360° Studio</h2></div><span className="tag success">Eigen media</span></div><p className="muted">Eigen uploads, 360°-sessies, bewerking en publicatiestatus blijven volledig gescheiden van Mobilox.</p><input ref={inputRef} className="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={upload} /><div className="action-grid"><button className="action-card" type="button" onClick={() => inputRef.current?.click()}><span aria-hidden="true">↥</span>Foto&apos;s uploaden</button><button className="action-card" type="button" disabled={sessionStarted} onClick={() => setSessionStarted(true)}><span aria-hidden="true">◉</span>{sessionStarted ? "Fotosessie actief" : "Fotosessie starten"}</button></div><div className="session-row"><span className="muted small">360°-sessie</span><span className="tag">{sessionStarted ? "Actief" : "Niet gestart"}</span></div>{studioPhotos.length ? <div className="studio-grid">{studioPhotos.map((photo, index) => <article className="studio-photo" key={photo.id}><img src={photo.url} alt={`VV 360° Studio foto ${index + 1}`} /><div className="photo-meta"><span>#{index + 1}</span><select value={photo.publication} aria-label={`Publicatiestatus ${photo.name}`} onChange={event => setStudioPhotos(current => current.map(item => item.id === photo.id ? { ...item, publication: event.target.value as StudioPhoto["publication"] } : item))}><option>Intern</option><option>Goedgekeurd</option><option>Gepubliceerd</option></select></div><label><input type="checkbox" checked={photo.advertisementReady} onChange={event => setStudioPhotos(current => current.map(item => item.id === photo.id ? { ...item, advertisementReady: event.target.checked } : item))} /> Bron voor advertentiefoto</label><div className="photo-actions"><button type="button" disabled={index === 0} onClick={() => move(photo.id, -1)}>Eerder</button><button type="button" disabled={index === studioPhotos.length - 1} onClick={() => move(photo.id, 1)}>Later</button></div></article>)}</div> : <p className="empty">Nog geen eigen Studiomedia.</p>}</section>
-    <p className="caption">Testopstelling: beide modules delen het voertuig-ID, maar niet opslag, volgorde, bewerking of publicatiestatus.</p>
-  </section></main>;
+
+      <section className="choiceSection" aria-labelledby="keuze-title"><div className="container choiceGrid">
+        <div className="choiceCopy"><p className="eyebrow">Hulp bij kiezen</p><h2 id="keuze-title">Welke auto past bij uw gebruik?</h2><p className="lead">Hybride of elektrisch? Ontdek wat past bij uw ritten en laadmogelijkheden.</p><a className="textButton" href="/keuzehulp">Start de keuzehulp <span aria-hidden="true">→</span></a></div>
+        <div className="choiceCards"><article><Image className="choiceIcon" src="/brand/icons/hybride-3d.webp" alt="" width={48} height={48} /><div><h3>Hybride</h3><p>Elektrisch ondersteund, vertrouwd op benzine.</p><a href="/hybride">Lees over hybride <span aria-hidden="true">→</span></a></div></article><article><Image className="choiceIcon" src="/brand/icons/elektrisch-3d.webp" alt="" width={48} height={48} /><div><h3>Elektrisch</h3><p>Volledig elektrisch, stil en direct.</p><a href="/elektrisch">Lees over elektrisch <span aria-hidden="true">→</span></a></div></article><article className="iconsChoice"><Image className="choiceIcon categoryIconsEmblem" src="/brand/icons/icons-3d.webp" alt="" width={48} height={48} /><div><h3>Icons</h3><p>Bijzondere auto’s met karakter.</p><a href="/icons">Ontdek Icons <span aria-hidden="true">→</span></a></div></article></div>
+      </div></section>
+
+
+      <section className="section container" aria-labelledby="over-volt-vroom">
+        <div className="sectionHeading splitHeading">
+          <div><p className="eyebrow">Over Volt &amp; Vroom</p><h2 id="over-volt-vroom">Persoonlijk begeleiden. Helder adviseren.</h2></div>
+          <p className="sectionIntro">Een auto is meer dan een voertuig. Het is een investering in uw vrijheid en mobiliteit.</p>
+        </div>
+        <div className="sectionIntro">
+          <p>Als familiebedrijf in Groningen combineren we jarenlange ervaring in de autobranche met persoonlijke aandacht. We richten ons vooral op jonge, volledig onderhouden en compleet uitgevoerde auto’s.</p>
+          <p>Ons compacte team begeleidt u bij iedere stap: van het vinden van een passende auto en ondersteuning bij financiering tot de overschrijving. U kunt rekenen op vriendelijke, heldere communicatie en korte lijnen.</p>
+          <p>Onze visie is veilige en betrouwbare mobiliteit binnen hybride en elektrisch rijden. Onze missie vatten we samen in één belofte: slim rijden, meer genieten.</p>
+        </div>
+      </section>
+
+
+      <section id="advies" className="section contactSection homepageContact"><div className="container">
+        <div className="contactCopy"><p className="eyebrow">Persoonlijk advies</p><h2>Vertel ons hoe u rijdt.</h2><p className="lead">U hoeft nog niet precies te weten welke auto u zoekt. Vertel hoe u rijdt; wij helpen u gericht verder.</p><div className="contactFacts"><a href="tel:+31646585468"><span>Bel direct</span><strong>0646585468</strong></a><a href="mailto:sales@voltvroom.nl"><span>Stuur een e-mail</span><strong>sales@voltvroom.nl</strong></a><a className="routePlannerLink" href="https://www.google.com/maps/dir/?api=1&destination=Euvelgunnerweg%2050%2C%209723%20CW%20Groningen&travelmode=driving" target="_blank" rel="noopener noreferrer" aria-label="Plan uw route naar Volt & Vroom via Google Maps"><span>Plan uw bezoek</span><strong>Euvelgunnerweg 50, Groningen ↗</strong></a></div></div>
+        <a className="button" href="/contact">Neem contact op <span aria-hidden="true">→</span></a>
+      </div></section>
+    </main>
+    <SiteFooter />
+  </>;
 }
+

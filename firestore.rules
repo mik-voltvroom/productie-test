@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function hasRole(role) { return signedIn() && request.auth.token.role == role; }
+    function staff() { return signedIn() && request.auth.token.role in ['owner','admin','sales','marketing','workshop']; }
+    function commercialVehicleStatus(data) { return data.status in ['reserved', 'sold']; }
+    function hasCommercialVehicleFields(data) {
+      return data.keys().hasAny(['reservedDealId', 'reservedAt', 'soldDealId', 'soldAt']);
+    }
+    function commercialVehicleFieldsChanged() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['reservedDealId', 'reservedAt', 'soldDealId', 'soldAt']);
+    }
+    function safeVehicleCreate() {
+      return !commercialVehicleStatus(request.resource.data)
+        && !hasCommercialVehicleFields(request.resource.data);
+    }
+    function safeVehicleUpdate() {
+      return !commercialVehicleStatus(resource.data)
+        && !commercialVehicleStatus(request.resource.data)
+        && !commercialVehicleFieldsChanged();
+    }
+    function validCents(value) { return value is int && value >= 0; }
+    function validVehicleCosts(costs) {
+      return costs.keys().hasAll([
+          'purchasePriceCents', 'transportCents', 'preparationCents', 'maintenanceCents',
+          'warrantyReserveCents', 'advertisingCents', 'financingCents', 'otherCents'
+        ])
+        && !costs.keys().hasAny([
+          'purchasePriceEur', 'transportEur', 'preparationEur', 'maintenanceEur',
+          'warrantyReserveEur', 'advertisingEur', 'financingEur', 'otherEur'
+        ])
+        && validCents(costs.purchasePriceCents)
+        && validCents(costs.transportCents)
+        && validCents(costs.preparationCents)
+        && validCents(costs.maintenanceCents)
+        && validCents(costs.warrantyReserveCents)
+        && validCents(costs.advertisingCents)
+        && validCents(costs.financingCents)
+        && validCents(costs.otherCents);
+    }
+    function validVehicleCommercial(commercial) {
+      return commercial.keys().hasAll([
+          'targetMarginCents', 'maxStockDays', 'viewCount', 'leadCount', 'priceHistory'
+        ])
+        && validCents(commercial.targetMarginCents)
+        && validCents(commercial.maxStockDays)
+        && validCents(commercial.viewCount)
+        && validCents(commercial.leadCount)
+        && commercial.priceHistory is list
+        && (!commercial.keys().hasAny(['soldPriceCents']) || validCents(commercial.soldPriceCents));
+    }
+    function validVehicleMoney(data) {
+      return validCents(data.priceCents)
+        && !data.keys().hasAny(['priceEur', 'monthlyPriceEur', 'annualSavingEur'])
+        && (!data.keys().hasAny(['monthlyPriceCents']) || validCents(data.monthlyPriceCents))
+        && (!data.keys().hasAny(['annualSavingCents']) || validCents(data.annualSavingCents))
+        && (!data.keys().hasAny(['costs']) || validVehicleCosts(data.costs))
+        && (!data.keys().hasAny(['commercial']) || validVehicleCommercial(data.commercial));
+    }
+
+    match /vehicles/{vehicleId} {
+      // Public pages use the server projection; raw source/internal media stay staff-only.
+      allow read: if staff();
+      // Mobilox imports and authorized internal/deal APIs use Admin transactions.
+      allow create, update, delete: if false;
+    }
+    match /leads/{leadId} {
+      allow create, read, update: if staff();
+      allow delete: if hasRole('owner') || hasRole('admin');
+    }
+    match /customers/{customerId} { allow read, write: if staff(); }
+    match /tasks/{taskId} { allow read, write: if staff(); }
+    // Commercial Core writes go through server-authorized repositories only.
+    match /deals/{dealId} { allow read, write: if false; }
+    match /dealSnapshots/{snapshotId} { allow read, write: if false; }
+    match /deliveryTasks/{taskId} { allow read, write: if false; }
+    match /payments/{paymentId} { allow read, write: if false; }
+    match /dealDocuments/{documentId} { allow read, write: if false; }
+    match /financeApplications/{applicationId} { allow read, write: if false; }
+    match /audit_logs/{logId} { allow read: if hasRole('owner') || hasRole('admin'); allow write: if false; }
+
+    // Social Video is deliberately server-only. Public access goes through the
+    // allow-listed Next.js API; VVOS mutations use Firebase Admin after API auth.
+    match /socialVideos/{videoId} { allow read, write: if false; }
+    // Internal certificates are accessed exclusively through authorized VVOS APIs.
+    match /sohCertificates/{reportId} { allow read, write: if false; }
+    match /vehicleSohReports/{vehicleId} { allow read, write: if false; }
+    match /stockAlertSubscriptions/{recordId} { allow read, write: if false; }
+    match /stockAlertTokens/{recordId} { allow read, write: if false; }
+    match /stockAlertCandidates/{recordId} { allow read, write: if false; }
+    match /stockAlertJobs/{recordId} { allow read, write: if false; }
+    match /stockAlertAttempts/{recordId} { allow read, write: if false; }
+    match /stockAlertDeliveries/{recordId} { allow read, write: if false; }
+    match /stockAlertAudit/{recordId} { allow read, write: if false; }
+    match /stockAlertRateLimits/{recordId} { allow read, write: if false; }
+    match /stockAlertControl/{recordId} { allow read, write: if false; }
+    match /stockAlertWebhooks/{recordId} { allow read, write: if false; }
+  }
+}

@@ -1,0 +1,4 @@
+@media print {
+  body.sohCertificatePrintMode { margin:0!important; background:white!important; }
+  body.sohCertificatePrintMode > :not(:has(.sohCertificateSheet)) { display:none!important; }
+}

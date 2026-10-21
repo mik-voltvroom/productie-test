@@ -1,22 +1,57 @@
 {
-  "name": "vvos-productie-test",
-  "version": "0.1.0",
+  "name": "volt-vroom-operating-system",
+  "version": "1.0.0-rc.2-otap",
   "private": true,
+  "packageManager": "npm@10.9.4",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run repo:guard && npm run agent:audit && npm run brand:audit && npm run typecheck && npm run test && npm run build",
+    "check:ci": "npm run check",
+    "repo:guard": "node scripts/repo-guard.mjs",
+    "brand:audit": "node scripts/brand-audit.mjs",
+    "seed:demo": "node scripts/seed-demo.mjs",
+    "clean": "rm -rf .next",
+    "agent:audit": "node scripts/agent-audit.mjs",
+    "test": "vitest run --configLoader runner",
+    "test:rules": "firebase emulators:exec --only firestore --project vvos-rules-test \"vitest run --configLoader runner --config vitest.rules.config.ts\"",
+    "test:watch": "vitest --configLoader runner",
+    "readiness": "node scripts/production-readiness.mjs",
+    "validate:env": "node scripts/validate-vv-environment.mjs",
+    "deploy:firestore:production": "node scripts/deploy-firestore-production.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "firebase": "^12.0.0",
+    "firebase-admin": "^13.0.0",
+    "fast-xml-parser": "^5.10.1",
     "next": "15.5.27",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "qrcode.react": "^4.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.25.0",
+    "google-auth-library": "10.9.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.8.0"
-  }
+    "firebase-tools": "15.32.1",
+    "jsdom": "30.1.2",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.1"
+  },
+  "overrides": {
+    "@fastify/busboy": "^3.2.2",
+    "@grpc/grpc-js": "^1.14.5",
+    "postcss": "^8.5.18",
+    "sharp": "0.35.5",
+    "uuid@<11.1.1": "11.1.1"
+  },
+  "description": "VVOS - het digitale bedrijfsplatform van Volt & Vroom voor website, voorraad, CRM, sales, aflevering, werkplaats en finance."
 }

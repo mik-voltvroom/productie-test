@@ -1,0 +1,222 @@
+.page {
+  min-height: 100vh;
+  padding: 32px 20px 72px;
+  background: #eef2f5;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(210mm, 100%);
+  margin: 0 auto 20px;
+}
+
+.toolbar div { display: flex; gap: 10px; }
+.toolbar p { margin: 0; color: #687280; font-size: .9rem; }
+
+.sheet {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #fff;
+  color: #0d1117;
+  box-shadow: 0 24px 70px rgba(13, 17, 23, .14);
+}
+
+.decorativeOverlay {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.brandBar {
+  position: relative;
+  z-index: 3;
+  height: 31mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12mm 2mm;
+}
+
+.brandLockup { width: 88mm; height: auto; }
+.brandBar > strong {
+  font-family: var(--font-inter), Inter, sans-serif;
+  margin: 0 1mm 5mm 0;
+  font-size: 10pt;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+  height: 155mm;
+  overflow: hidden;
+  background: #e6f2ff;
+}
+
+.vehicleImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 56%;
+}
+
+.missingImage {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #687280;
+  font-size: 13pt;
+}
+
+.priceBlock {
+  position: absolute;
+  z-index: 4;
+  top: 39mm;
+  right: 12mm;
+  width: 84mm;
+  padding: 4mm 1mm 3mm;
+  text-align: right;
+}
+
+.priceBlock strong {
+  display: block;
+  font-family: "Manrope Variable", Manrope, sans-serif;
+  font-size: 40pt;
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.055em;
+  white-space: nowrap;
+}
+
+.priceBlock i {
+  display: block;
+  width: 57mm;
+  height: 1.1mm;
+  margin: 5mm 0 0 auto;
+  background: #168bff;
+}
+
+.facts {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  height: 40mm;
+  margin: 0 11mm;
+  padding: 8mm 0 7mm;
+  border-bottom: .35mm solid #0d1117;
+}
+
+.fact {
+  min-width: 0;
+  padding: 0 5mm;
+  border-left: .25mm solid #aeb9c5;
+}
+
+.fact:first-child { padding-left: 0; border-left: 0; }
+.fact:last-child { padding-right: 0; }
+.fact img {
+  width: 9mm;
+  height: 9mm;
+  object-fit: contain;
+  margin-bottom: 2mm;
+  filter: brightness(0) saturate(100%) invert(43%) sepia(99%) saturate(2165%) hue-rotate(195deg) brightness(104%) contrast(101%);
+}
+.fact span {
+  display: block;
+  color: #384453;
+  font-size: 6.7pt;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.fact strong {
+  display: block;
+  margin-top: 1.5mm;
+  font-family: "Manrope Variable", Manrope, sans-serif;
+  font-size: 13pt;
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 52mm 1fr;
+  height: 71mm;
+  margin: 0 11mm;
+  padding-top: 7mm;
+}
+
+.qrBlock {
+  padding-right: 8mm;
+  border-right: .25mm solid #aeb9c5;
+}
+
+.qrBlock svg { display: block; width: 38mm; height: 38mm; padding: 3mm; border: .25mm solid #d9e7f4; border-radius: 2mm; background: #fff; }
+.qrBlock p { margin: 2mm 0 0; max-width: 42mm; color: #384453; font-size: 7.2pt; line-height: 1.2; letter-spacing: .05em; text-transform: uppercase; }
+.vehicleTitle { display: flex; min-width: 0; flex-direction: column; padding-left: 10mm; }
+.vehicleTitle h1 {
+  max-width: none;
+  margin: 0;
+  color: #0d1117;
+  font-family: "Manrope Variable", Manrope, sans-serif;
+  font-size: 26pt;
+  font-weight: 800;
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-transform: uppercase;
+}
+.vehicleTitle > p { margin: 2mm 0 0; color: #384453; font-size: 13pt; line-height: 1.2; letter-spacing: .1em; }
+.address {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8mm;
+  margin-top: auto;
+  padding: 3mm 0 2mm;
+  color: #384453;
+  font-size: 7.8pt;
+}
+.address span,.address strong { display: flex; align-items: center; gap: 2mm; white-space: nowrap; }
+.address img { width: 6mm; height: 6mm; object-fit: contain; }
+.address strong { padding-left: 8mm; border-left: .25mm solid #aeb9c5; color: #168bff; font-size: 8.5pt; }
+.vehicleTitle small { display: block; padding-bottom: 2mm; color: #7f8ca0; font-size: 5.8pt; line-height: 1.2; }
+
+@media (max-width: 860px) {
+  .page { overflow-x: auto; padding-inline: 12px; }
+  .toolbar { min-width: 210mm; }
+}
+
+@page { size: A4 portrait; margin: 0; }
+
+@media print {
+  .page { min-height: 0; padding: 0; background: #fff; }
+  .toolbar { display: none !important; }
+  .sheet {
+    position: absolute;
+    inset: 0;
+    width: 210mm;
+    height: 297mm;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

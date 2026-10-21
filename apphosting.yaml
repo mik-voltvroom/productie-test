@@ -1,0 +1,95 @@
+# Volt & Vroom production App Hosting template.
+# Production Firebase project: voltvroom-productie (project number 307144619135).
+# Do not point this file at voltvroom-staging.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 3
+  concurrency: 40
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: VVOS_ENV
+    value: production
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://www.voltvroom.nl
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID
+    value: GTM-P2882R3H
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_METRICOOL_HASH
+    value: 1a9fd44f75259f9967fa8c7dd6632954
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_WHATSAPP_NUMBER
+    value: "31646585468"
+    availability: [BUILD, RUNTIME]
+  - variable: VVOS_REQUIRE_AUTH
+    value: "true"
+    availability: [BUILD, RUNTIME]
+  - variable: VVOS_DATA_MODE
+    value: firebase
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_VVOS_DATA_MODE
+    value: firebase
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyDvx0u8kkLB3sZOENaWuIMslHIjMDsd2YI
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: voltvroom-productie.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: voltvroom-productie
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: voltvroom-productie.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "307144619135"
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:307144619135:web:643a1685197419a969fb4a
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: G-D7XGSRR9K3
+    availability: [BUILD, RUNTIME]
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
+    availability: [RUNTIME]
+  - variable: VWE_WEBHOOK_SECRET
+    secret: VWE_WEBHOOK_SECRET
+    availability: [RUNTIME]
+  - variable: HEXON_SYNC_USERNAME
+    secret: HEXON_SYNC_USERNAME
+    availability: [RUNTIME]
+  - variable: HEXON_SYNC_PASSWORD
+    secret: HEXON_SYNC_PASSWORD
+    availability: [RUNTIME]
+  - variable: PORTAL_TOKEN_SECRET
+    secret: PORTAL_TOKEN_SECRET
+    availability: [RUNTIME]
+  - variable: AUDIT_HASH_SALT
+    secret: AUDIT_HASH_SALT
+    availability: [RUNTIME]
+  - variable: INSTAGRAM_ACCESS_TOKEN
+    secret: INSTAGRAM_ACCESS_TOKEN
+    availability: [RUNTIME]
+  - variable: YOUTUBE_CHANNEL_ID
+    value: UCLfb6AjYG8bfWNe8wLytV7w
+    availability: [RUNTIME]
+  - variable: NEXT_PUBLIC_INSTAGRAM_PROFILE_URL
+    value: https://www.instagram.com/voltenvroom/
+    availability: [BUILD, RUNTIME]
+  - variable: GOOGLE_CHAT_WEBHOOK_URL
+    secret: GOOGLE_CHAT_WEBHOOK_URL
+    availability: [RUNTIME]
+
+  - variable: HEXON_IMAGE_HOST_ALLOWLIST
+    value: media-eigenwebsiteincrementeel.export.dv.nl
+    availability: [RUNTIME]
+
+  - variable: GOOGLE_SEARCH_CONSOLE_ENABLED
+    value: "true"
+    availability: [RUNTIME]

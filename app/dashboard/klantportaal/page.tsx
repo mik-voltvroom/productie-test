@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { sampleDeals } from "@/lib/deal/sample-data";
+export default function Page(){return <main className="dashboardPage container"><div className="pageTitle"><div><span className="eyebrow">Self-service</span><h1>Klantportalen</h1><p className="muted">Veilige persoonlijke links voor documenten, betaling en aflevering.</p></div></div><div className="recordGrid">{sampleDeals.map(d=><article className="panel" key={d.id}><h3>{d.customer.name}</h3><p>{d.id}</p><Link className="button wide" target="_blank" href={`/portal/${d.portalToken}`}>Open portaal ↗</Link></article>)}</div></main>}

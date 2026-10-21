@@ -1,26 +1,40 @@
-# VVOS Media Test
+# VVOS — Volt & Vroom Operating System
 
-Prototype repository for separate vehicle media modules and VV 360° Studio experiments.
+VVOS is het geïntegreerde bedrijfsplatform van Volt & Vroom voor de publieke website, voorraad, CRM, sales, aflevering, werkplaats en finance.
 
-## Goal
-- test a split media model for Mobilox vs. VV 360° Studio
-- validate UI structure without touching production data
-- prototype a premium studio background workflow and a consistent default background
+## Repositoryrol
 
-## Default architecture
-- one vehicle ID
-- separate media collections for `mobilox_media` and `vv360_media`
-- original Mobilox files remain unchanged
-- VV 360° Studio gets its own status, publication flow and AI-cleanup pipeline
-- default background selection: `VV Studio White`
+Dit is de **staging-codebase**. De actieve `apphosting.yaml` wijst uitsluitend naar staging. Production gebruikt een afzonderlijke private repository, een eigen Firebase-project en onafhankelijke secrets. Deze repository bevat bewust geen automatische production-deploy.
 
-## Local run
+## Lokaal starten
+
 ```bash
-npm install
+cp .env.example .env.local
+npm ci
 npm run dev
 ```
 
-## Build
+## Kwaliteitscontrole
+
 ```bash
-npm run build
+npm run check
 ```
+
+Deze gate controleert legacy merk-/secretsporen, repository-integriteit, TypeScript, regressietests en de production build.
+
+## Routing
+
+- Publiek: `/`, `/voorraad/*`, lead capture, merchant feed, healthcheck en tokenportaal.
+- Intern: `/dashboard/*` en interne API’s; bij `VVOS_REQUIRE_AUTH=true` is een geverifieerde sessie vereist.
+- Service hooks: cron en VWE zijn zonder browsersessie bereikbaar, maar falen gesloten en vereisen hun eigen secret.
+
+## Operations
+
+- [Architectuur en staging→production-gaps](docs/operations/STAGING_ARCHITECTURE.md)
+- [Deployment- en rollback-runbook](docs/operations/DEPLOYMENT_RUNBOOK.md)
+- [Secret matrix](docs/operations/SECRET_MATRIX.md)
+- [Production checklist](docs/operations/PRODUCTION_CHECKLIST.md)
+- [Draaiboek openbare website livegang](docs/operations/PUBLIC_SITE_GO_LIVE.md)
+- [Securitybeleid](SECURITY.md)
+
+Versie: `1.0.0-rc.2-otap`.

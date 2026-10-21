@@ -1,0 +1,2 @@
+import { SalesPipeline } from "@/components/sales/SalesPipeline";
+export default function LeadsPage(){return <main className="container dashboardPage"><div className="pageTitle"><div><p className="eyebrow">Sales automation</p><h1>Lead cockpit</h1><p className="muted">Prioriteer koopintentie, bewaak reactiesnelheid en stuur iedere lead naar een concrete volgende stap.</p></div></div><SalesPipeline/></main>}

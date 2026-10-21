@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function staff() { return request.auth != null && request.auth.token.role in ['owner','admin','sales','marketing','workshop']; }
+
+    // Legacy URLs keep working during the verified Mobilox reimport.
+    // New public photos remain hosted by Mobilox; client uploads are retired.
+    match /vehicles/{vehicleId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
