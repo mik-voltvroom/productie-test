@@ -16,7 +16,8 @@ export const usesGoogleRuntimeIdentity = Boolean(
 
 export const isFirebaseAdminConfigured = hasFirebaseAdminServiceAccount || usesGoogleRuntimeIdentity;
 
-export const integrationMode = process.env.NEXT_PUBLIC_VVOS_DATA_MODE === "firebase"
-  || process.env.VVOS_DATA_MODE === "firebase"
-  ? "firebase"
-  : "demo";
+// Next replaces public variables at build time. Missing configuration must never
+// silently select browser-local business records.
+export const integrationMode = process.env.NEXT_PUBLIC_VVOS_DATA_MODE === "demo"
+  && process.env.NEXT_PUBLIC_VVOS_ENV === "local"
+  ? "demo" : "firebase";

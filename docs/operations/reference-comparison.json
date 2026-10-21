@@ -1,0 +1,626 @@
+[
+  {
+    "file": ".env.example",
+    "comparison": "changed"
+  },
+  {
+    "file": ".firebaserc.example",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": ".github/workflows/ci.yml",
+    "comparison": "changed"
+  },
+  {
+    "file": "AGENTS.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/audit/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/auth/logout/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/auth/session/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/communications/send/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/cron/sync/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/deals/[id]/status/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/deals/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/finance/dashboard/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/finance/invoices/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/finance/reconcile/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/health/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/integrations/health/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/integrations/status/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/leads/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/merchant-feed/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/merchant-sync/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/payments/create/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/portal/[token]/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/rdw/vehicle/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/sales/score/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/vwe/import/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/warranty/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/api/workorders/route.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/afleveringen/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/afspraken/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/audit/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/automatisering/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/deals/[id]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/facturen/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/finance/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/garantie/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/integraties/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/kasstromen/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/klantportaal/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/layout.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/leads/[id]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/leads/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/management/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/offertes/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "comparison": "changed"
+  },
+  {
+    "file": "app/dashboard/voorraad/[id]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/voorraad/nieuw/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/voorraad/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/voorraadfinanciering/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/werkorders/[id]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/dashboard/werkplaats/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/globals.css",
+    "comparison": "changed"
+  },
+  {
+    "file": "app/layout.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/page.tsx",
+    "comparison": "changed"
+  },
+  {
+    "file": "app/portal/[token]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "app/voorraad/[slug]/page.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "apphosting.production.yaml",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "apphosting.staging.yaml",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "apphosting.yaml",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "components/auth/AuthProvider.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/auth/LoginForm.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/dashboard/DashboardNav.tsx",
+    "comparison": "changed"
+  },
+  {
+    "file": "components/dashboard/IntegrationsPanel.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/dashboard/MarginPanel.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/dashboard/VehicleForm.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/deals/CustomerPortal.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/deals/DealWorkspace.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/deals/DeliveryBoard.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/finance/CashflowCenter.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/finance/FinanceDashboard.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/finance/FundingCenter.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/finance/InvoiceCenter.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/finance/ManagementControl.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/Header.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/intelligence/MorningIntelligence.tsx",
+    "comparison": "v1.1 only"
+  },
+  {
+    "file": "components/sales/LeadWorkspace.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/sales/SalesCollections.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/sales/SalesPipeline.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/VehicleCard.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/workshop/WarrantyBoard.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/workshop/WorkOrderWorkspace.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "components/workshop/WorkshopBoard.tsx",
+    "comparison": "identical"
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/AGENT_RUN_001.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/AGENT_RUN_002.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/AGENT_RUN_003.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/ARCHITECTURE.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_02.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_03.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_04.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_05.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_06.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_07.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/BUILD_LAYER_08.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/DATA_MODEL.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/operations/ACCOUNT_OWNERSHIP.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/BRANCH_POLICY.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/DEPLOYMENT_RUNBOOK.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/PRODUCTION_CHECKLIST.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/operations/RELEASE_CANDIDATE_CHECKLIST.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "docs/operations/ROLLBACK_RUNBOOK.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/SECRET_MATRIX.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/STAGING_PRODUCTION_SETUP.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/operations/TOMORROW_CHECKLIST.md",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "docs/WORKFLOWS.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "firebase.json",
+    "comparison": "identical"
+  },
+  {
+    "file": "firestore.indexes.json",
+    "comparison": "identical"
+  },
+  {
+    "file": "firestore.rules",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/audit/audit-log.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/auth/api.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/auth/permissions.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/auth/session.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/business.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/config.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/deal/business.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/deal/sample-data.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/demo-store.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/finance/business.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/finance/sample-data.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/firebase-admin.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/firebase-client.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/format.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/integrations/health.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/integrations/storage.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/intelligence/engine.ts",
+    "comparison": "v1.1 only"
+  },
+  {
+    "file": "lib/intelligence/types.ts",
+    "comparison": "v1.1 only"
+  },
+  {
+    "file": "lib/merchant.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/repositories/lead-repository.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/repositories/server-collection.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/repositories/vehicle-repository.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/sales-engine.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/sample-data.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/workshop/business.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "lib/workshop/sample-data.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "middleware.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "next-env.d.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "next.config.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "package-lock.json",
+    "comparison": "identical"
+  },
+  {
+    "file": "package.json",
+    "comparison": "changed"
+  },
+  {
+    "file": "README.md",
+    "comparison": "changed"
+  },
+  {
+    "file": "ROADMAP.md",
+    "comparison": "identical"
+  },
+  {
+    "file": "scripts/agent-audit.mjs",
+    "comparison": "identical"
+  },
+  {
+    "file": "scripts/production-readiness.mjs",
+    "comparison": "identical"
+  },
+  {
+    "file": "scripts/seed-demo.mjs",
+    "comparison": "identical"
+  },
+  {
+    "file": "scripts/validate-vv-environment.mjs",
+    "comparison": "rc2 only"
+  },
+  {
+    "file": "SECURITY.md",
+    "comparison": "changed"
+  },
+  {
+    "file": "storage.rules",
+    "comparison": "identical"
+  },
+  {
+    "file": "tests/business.test.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "tests/finance.test.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "tests/intelligence.test.ts",
+    "comparison": "v1.1 only"
+  },
+  {
+    "file": "tsconfig.json",
+    "comparison": "identical"
+  },
+  {
+    "file": "tsconfig.tsbuildinfo",
+    "comparison": "v1.1 only"
+  },
+  {
+    "file": "types/auth.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "types/index.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "vitest.config.ts",
+    "comparison": "identical"
+  },
+  {
+    "file": "VVOS_SHA256SUMS.txt",
+    "comparison": "rc2 only"
+  }
+]

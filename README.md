@@ -4,7 +4,7 @@ VVOS is het geïntegreerde bedrijfsplatform van Volt & Vroom voor de publieke we
 
 ## Repositoryrol
 
-Dit is de **staging-codebase**. De actieve `apphosting.yaml` wijst uitsluitend naar staging. Production gebruikt een afzonderlijke private repository, een eigen Firebase-project en onafhankelijke secrets. Deze repository bevat bewust geen automatische production-deploy.
+Dit is `mik-voltvroom/productie`. De actieve `apphosting.yaml` wijst naar `voltvroom-productie`. Staging heeft een afzonderlijke repository en Firebase-project. Gebruik expliciete projectnamen; een lokale build is geen deployment. Merge of publicatie vereist afzonderlijke toestemming.
 
 ## Lokaal starten
 
@@ -25,7 +25,7 @@ Deze gate controleert legacy merk-/secretsporen, repository-integriteit, TypeScr
 ## Routing
 
 - Publiek: `/`, `/voorraad/*`, lead capture, merchant feed, healthcheck en tokenportaal.
-- Intern: `/dashboard/*` en interne API’s; bij `VVOS_REQUIRE_AUTH=true` is een geverifieerde sessie vereist.
+- Intern: `/dashboard/*` en interne API’s vereisen een geverifieerde sessie. Alleen de expliciete combinatie `VVOS_ENV=local`, `VVOS_DATA_MODE=demo`, `VVOS_REQUIRE_AUTH=false` kan lokaal zonder sessie werken. Browserdemo vereist daarnaast `NEXT_PUBLIC_VVOS_ENV=local` en `NEXT_PUBLIC_VVOS_DATA_MODE=demo`.
 - Service hooks: cron en VWE zijn zonder browsersessie bereikbaar, maar falen gesloten en vereisen hun eigen secret.
 
 ## Operations

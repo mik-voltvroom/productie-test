@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { CarCheckPanel } from "@/components/carcheck/CarCheckPanel";
 import Link from "next/link";
 import type { Vehicle } from "@/types";
 import { emptyCosts } from "@/lib/business";
@@ -41,6 +42,7 @@ export function VehicleForm({ initial }: { initial?: Vehicle }) {
         <p className="helper">Open de showroomkaart om te printen of als PDF op te slaan. Sla aangepaste interne gegevens eerst op.</p>
         <Link className="button secondary" href={`/dashboard/voorraad/${encodeURIComponent(vehicle.id)}/showroomkaart`}>Showroomkaart openen / printen</Link>
       </VehicleDossierSection>
+      <VehicleDossierSection title="CarCheck"><CarCheckPanel vehicle={vehicle}/></VehicleDossierSection>
       <VehicleDossierSection title="SOH-rapport">
         <VehicleSohPanel vehicle={vehicle} pendingVehicleChanges={rangeDirty || busy} />
       </VehicleDossierSection>

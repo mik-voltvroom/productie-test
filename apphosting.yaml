@@ -10,6 +10,9 @@ runConfig:
   memoryMiB: 512
 
 env:
+  - variable: NEXT_PUBLIC_VVOS_ENV
+    value: production
+    availability: [BUILD, RUNTIME]
   - variable: VVOS_ENV
     value: production
     availability: [BUILD, RUNTIME]

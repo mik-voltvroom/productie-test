@@ -27,5 +27,10 @@ export function publicInventoryMode(env: SiteEnvironment): "firebase" | "demo" {
   if (env.VVOS_ENV === "production" && env.VVOS_DATA_MODE !== "firebase") {
     throw new Error("Production public inventory requires Firebase mode");
   }
-  return env.VVOS_DATA_MODE === "firebase" ? "firebase" : "demo";
+  if (env.VVOS_ENV === "local" && env.VVOS_DATA_MODE === "demo"
+    && !env.K_SERVICE && !env.GOOGLE_CLOUD_PROJECT && !env.GCLOUD_PROJECT) return "demo";
+  if (env.VVOS_DATA_MODE && env.VVOS_DATA_MODE !== "firebase") {
+    throw new Error("Demo inventory is restricted to an explicit local environment");
+  }
+  return "firebase";
 }

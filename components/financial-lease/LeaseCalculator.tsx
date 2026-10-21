@@ -1,4 +1,5 @@
 "use client";
+import { useLeadSubmission } from "@/lib/contact/use-submission";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { calculateLease, defaultSelection, leaseTerms, type LeaseSelection } from "@/lib/financial-lease/business";
@@ -37,6 +38,7 @@ export function LeaseCalculator({
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
+  const submitLead = useLeadSubmission();
   const inFlight = useRef(false);
   const formHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -65,7 +67,7 @@ export function LeaseCalculator({
     setState("sending");
     setError("");
     try {
-      const response = await fetch("/api/leads", {
+      const response = await submitLead("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

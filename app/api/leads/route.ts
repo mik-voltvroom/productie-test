@@ -8,6 +8,7 @@ import { scoreLead, responseDeadline } from "@/lib/sales-engine";
 import { consumePublicLeadQuota } from "@/lib/security/public-rate-limit";
 import { notificationOutcome } from "@/lib/communications/business";
 import { sendLeadNotification } from "@/lib/communications/lead-notification";
+import { createLeadOnce, replayedLead, SubmissionConflict } from "@/lib/repositories/lead-submission";
 
 export async function POST(request: Request) {
   if (!productionDataEnabled()) {
@@ -36,6 +37,18 @@ export async function POST(request: Request) {
   }
 
   const { website: _honeypot, ...leadInput } = parsed.data;
+  const submissionKey = request.headers.get("idempotency-key");
+  if (submissionKey && !/^[0-9a-f-]{36}$/i.test(submissionKey)) {
+    return Response.json({ ok: false, error: "Ongeldige aanvraagcode." }, { status: 400 });
+  }
+  if (submissionKey) {
+    try {
+      const replay = await replayedLead(submissionKey, payload);
+      if (replay) return Response.json({ ok: true, mode: "firebase", id: replay, replayed: true });
+    } catch (error) {
+      return Response.json({ ok: false, error: error instanceof SubmissionConflict ? error.message : "Aanvraagopslag tijdelijk niet beschikbaar." }, { status: error instanceof SubmissionConflict ? 409 : 503 });
+    }
+  }
   let vehicleTitle: string | undefined;
   if (leadInput.type !== "financial_lease" && leadInput.vehicleId) {
     try {
@@ -102,15 +115,23 @@ export async function POST(request: Request) {
   const sales = scoreLead({ ...leadInput, ...contactFields, ...leaseFields });
   let lead;
   try {
-    lead = await createServerDocument("leads", id, {
+    const record = {
       ...Object.fromEntries(Object.entries({ ...leadInput, ...contactFields, ...leaseFields }).filter(([, value]) => value !== undefined)),
       notification: { status: "pending", updatedAt: now },
       status: "new",
       sales: { ...sales, responseDueAt: responseDeadline(sales.score) },
       createdAt: now,
       updatedAt: now,
-    });
-  } catch {
+    };
+    if (submissionKey) {
+      const result = await createLeadOnce(submissionKey, payload, id, record);
+      if (!result.created) return Response.json({ ok: true, mode: "firebase", id: result.id, replayed: true }, { status: 200 });
+      lead = { ...record, id };
+    } else {
+      lead = await createServerDocument("leads", id, record);
+    }
+  } catch (error) {
+    if (error instanceof SubmissionConflict) return Response.json({ ok: false, error: error.message }, { status: 409 });
     return Response.json({ ok: false, error: "Uw aanvraag kon niet worden opgeslagen. Probeer later opnieuw." }, { status: 503 });
   }
 
@@ -144,4 +165,3 @@ export async function POST(request: Request) {
     ? { ok: true, mode: "firebase", id: lead.id }
     : { ok: true, mode: "firebase", lead: publicLead }, { status: 201 });
 }
-

@@ -17,7 +17,7 @@
     "clean": "rm -rf .next",
     "agent:audit": "node scripts/agent-audit.mjs",
     "test": "vitest run --configLoader runner",
-    "test:rules": "firebase emulators:exec --only firestore --project vvos-rules-test \"vitest run --configLoader runner --config vitest.rules.config.ts\"",
+    "test:rules": "firebase emulators:exec --only firestore,storage --project vvos-rules-test \"vitest run --configLoader runner --config vitest.rules.config.ts\"",
     "test:watch": "vitest --configLoader runner",
     "readiness": "node scripts/production-readiness.mjs",
     "validate:env": "node scripts/validate-vv-environment.mjs",

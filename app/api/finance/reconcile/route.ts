@@ -1,3 +1,4 @@
+import { isLocalDemoAuthBypassAllowed } from "@/lib/auth/config";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { bankTransactions, financeInvoices } from "@/lib/finance/sample-data";
@@ -10,7 +11,8 @@ const schema = z.object({ transactionId: z.string(), invoiceId: z.string() });
 export async function POST(request: Request) {
   const auth = await authorizeApi(request, "finance.write");
   if (auth.response) return auth.response;
-  const parsed = schema.safeParse(await request.json());
+  if (!isLocalDemoAuthBypassAllowed()) return NextResponse.json({ ok: false, mode: "unavailable", error: "Administratie niet aangesloten; geen financiële transactie uitgevoerd." }, { status: 503 });
+  const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ongeldige matching" }, { status: 400 });
   const transaction = bankTransactions.find((item) => item.id === parsed.data.transactionId);
   const invoice = financeInvoices.find((item) => item.id === parsed.data.invoiceId);

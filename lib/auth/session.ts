@@ -38,6 +38,7 @@ export async function getVerifiedSession(): Promise<VvosSessionUser | null> {
 
   try {
     const claims = await adminAuth.verifySessionCookie(sessionCookie, true);
+    if (typeof claims.role !== "string" || !allowedRoles.has(claims.role.toLowerCase() as VvosRole)) return null;
     return {
       uid: claims.uid,
       email: typeof claims.email === "string" ? claims.email : null,

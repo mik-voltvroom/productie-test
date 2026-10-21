@@ -1,3 +1,4 @@
+import { isLocalDemoAuthBypassAllowed } from "@/lib/auth/config";
 import { FieldValue } from "firebase-admin/firestore";
 import type { Deal, DealDocument, DeliveryTask, FinanceApplication, PaymentRecord, Vehicle } from "@/types";
 import { adminDb } from "@/lib/firebase-admin";
@@ -16,7 +17,7 @@ export class DeliveryTaskNotFoundError extends Error {}
 export class InvalidDeliveryTaskTransitionError extends Error {}
 
 function firebaseMode(): boolean {
-  return process.env.VVOS_DATA_MODE === "firebase";
+  return !isLocalDemoAuthBypassAllowed();
 }
 
 function requireDb() {

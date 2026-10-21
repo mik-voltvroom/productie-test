@@ -17,6 +17,8 @@ gha-creds-*.json
 
 # Firebase local/emulator artifacts
 .firebase/
+.local-config/
+.emulators/
 firestore-debug.log
 ui-debug.log
 

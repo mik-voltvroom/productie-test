@@ -41,7 +41,7 @@ describe("Firestore Rules commercial boundaries", () => {
     await environment.cleanup();
   });
 
-  it("keeps raw vehicles staff-only, including published inventory", async () => {
+  it("keeps raw vehicles server-only, including published inventory", async () => {
     await seed("vehicles/available", { status: "available", make: "Volvo" });
     await seed("vehicles/reserved", { status: "reserved", reservedDealId: "deal-1" });
 
@@ -50,7 +50,7 @@ describe("Firestore Rules commercial boundaries", () => {
 
     await assertFails(getDoc(doc(publicDb, "vehicles/available")));
     await assertFails(getDoc(doc(publicDb, "vehicles/reserved")));
-    await assertSucceeds(getDoc(doc(salesDb, "vehicles/reserved")));
+    await assertFails(getDoc(doc(salesDb, "vehicles/reserved")));
   });
 
   it("denies every direct vehicle mutation, including privileged clients", async () => {
@@ -77,6 +77,8 @@ describe("Firestore Rules commercial boundaries", () => {
       "socialVideos",
       "sohCertificates",
       "vehicleSohReports",
+      "vehicles", "customers", "tasks", "leads", "leadActivities", "appointments", "quotes", "tradeIns", "leadSubmissions",
+      "carCheckReports", "carCheckEvidence", "vehicleCarChecks", "customerPortalTokens", "dealPortalAccess",
       "seoState",
       "stockAlertSubscriptions", "stockAlertTokens", "stockAlertCandidates", "stockAlertJobs",
       "stockAlertAttempts", "stockAlertDeliveries", "stockAlertAudit", "stockAlertRateLimits", "stockAlertControl", "stockAlertWebhooks",

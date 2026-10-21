@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "voltvroom-staging",
     "staging": "voltvroom-staging",
     "production": "voltvroom-productie"
   }

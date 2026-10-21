@@ -15,7 +15,7 @@ describe("publieke Volt & Vroom website", () => {
 
   it("biedt een complete adviesroute met privacytoestemming en anti-spamveld", () => {
     const form = read("components/ContactForm.tsx");
-    expect(form).toContain('fetch("/api/leads"');
+    expect(form).toContain('submitLead("/api/leads"');
     expect(form).toContain('name="consent"');
     expect(form).toContain('name="website"');
     expect(form).toContain('href="/privacy"');
@@ -184,7 +184,7 @@ describe("publieke Volt & Vroom website", () => {
     expect(read("components/SegmentPage.tsx")).toContain("Veelgestelde vragen");
     const match = read("components/MatchForm.tsx");
     expect(match).toContain('fetch("/api/vehicle-finder"');
-    expect(match).toContain('fetch("/api/leads"');
+    expect(match).toContain('submitLead("/api/leads"');
     expect(match).toContain('name="consent"');
     expect(match).toContain('name="website"');
     expect(match).toContain("Stap {stepIndex + 1} van {steps.length}");
