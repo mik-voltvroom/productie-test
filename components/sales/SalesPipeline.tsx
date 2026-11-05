@@ -68,6 +68,18 @@ export function SalesPipeline() {
     [leads],
   );
 
+  const teamMetrics = useMemo(() => salesTeam.map(member => {
+    const assigned = leads.filter(lead => lead.owner === member.name);
+    const open = assigned.filter(lead => !["won", "lost"].includes(lead.status ?? "new"));
+    const overdue = open.filter(lead => {
+      const date = lead.nextActionAt ?? ((lead.status ?? "new") === "new" ? lead.sales?.responseDueAt : undefined);
+      return Boolean(date && Number.isFinite(Date.parse(date)) && Date.parse(date) < Date.now());
+    }).length;
+    const won = assigned.filter(lead => lead.status === "won").length;
+    const lost = assigned.filter(lead => lead.status === "lost").length;
+    return { ...member, open: open.length, overdue, won, closed: won + lost };
+  }), [leads]);
+
   const filteredLeads = useMemo(() => leads.filter(lead => ownerFilter === "all" || (ownerFilter === "unassigned" ? !lead.owner : lead.owner === ownerFilter)), [leads, ownerFilter]);
 
   async function assign(lead: Lead, owner: string) {
@@ -100,6 +112,20 @@ export function SalesPipeline() {
         <div className="metric"><span>Open pipeline</span><strong>{leads.filter((lead) => !["won", "lost"].includes(lead.status ?? "new")).length}</strong></div>
         <div className="metric"><span>Afspraken</span><strong>{leads.filter((lead) => lead.status === "appointment").length}</strong></div>
       </div>
+      <section className="teamOverview" aria-label="Verkoopresultaten per medewerker">
+        {teamMetrics.map(member => (
+          <article className="teamOverviewCard" key={member.id}>
+            <header><strong>{member.name}</strong><button type="button" className="teamFilterButton" aria-pressed={ownerFilter === member.name} onClick={() => setOwnerFilter(current => current === member.name ? "all" : member.name)}>{ownerFilter === member.name ? "Toon iedereen" : "Bekijk leads"}</button></header>
+            <div className="teamOverviewMetrics">
+              <div><span>Open leads</span><strong>{member.open}</strong></div>
+              <div><span>Actie te laat</span><strong>{member.overdue}</strong></div>
+              <div><span>Conversie afgerond</span><strong>{member.closed ? Math.round(member.won / member.closed * 100) + "%" : "–"}</strong></div>
+              <div><span>Eerste reactietijd</span><strong title="Nog geen betrouwbaar geregistreerd eerste antwoord">Niet gemeten</strong></div>
+            </div>
+            <small>Conversie = gewonnen / (gewonnen + verloren). {member.closed} afgesloten leads.</small>
+          </article>
+        ))}
+      </section>
       <div className="pipelineToolbar"><strong>Verkooppipeline <span className="muted">· alle zes fasen</span></strong><label>Medewerker<select aria-label="Filter op medewerker" value={ownerFilter} onChange={event => setOwnerFilter(event.target.value)}><option value="all">Iedereen</option><option value="unassigned">Niet toegewezen</option>{salesTeam.map(member => <option value={member.name} key={member.id}>{member.name}</option>)}</select></label></div>
       <div className="kanban" aria-label="Verkooppipeline met zes fasen">
         {columns.map((column) => (
