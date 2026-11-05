@@ -1,0 +1,33 @@
+name: Zod 4 compatibility verification
+on:
+  push:
+    branches: [security/zod4-lockfile-isolated]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      VVOS_ENV: staging
+      NEXT_PUBLIC_SITE_URL: https://staging.voltvroom.nl
+      VVOS_DATA_MODE: firebase
+      VVOS_REQUIRE_AUTH: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Match npm version
+        run: npm install --global npm@10.9.4
+      - name: Locked install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
