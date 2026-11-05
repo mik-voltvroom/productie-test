@@ -158,3 +158,20 @@ footer { padding:42px 0; border-top:1px solid var(--border); background:var(--pa
 @media(max-width:1050px){.kanban{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.kanban{grid-template-columns:repeat(2,minmax(0,1fr))}.pipelineToolbar{align-items:flex-start;flex-direction:column}.pipelineToolbar label{width:100%}.pipelineToolbar select{flex:1}}
 @media(max-width:400px){.kanban{grid-template-columns:1fr}}
+
+/* Compact sales staff performance, immediately above funnel. */
+.teamOverview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0 20px}
+.teamOverviewCard{min-width:0;padding:17px 18px;border:1px solid var(--border);background:var(--paper);border-radius:var(--radius)}
+.teamOverviewCard header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.teamOverviewCard header strong{font-family:var(--font-manrope),Manrope,sans-serif;font-size:1.06rem}
+.teamFilterButton{width:auto;min-height:34px;border:1px solid var(--border);border-radius:9px;background:var(--soft);padding:6px 10px;color:var(--ink);font-size:.78rem;cursor:pointer}
+.teamFilterButton[aria-pressed="true"]{background:var(--ice);border-color:var(--ice-strong)}
+.teamOverviewMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.teamOverviewMetrics>div{min-width:0;display:grid;gap:5px;border-right:1px solid var(--border);padding-right:9px}
+.teamOverviewMetrics>div:last-child{border-right:0}
+.teamOverviewMetrics span{font-size:.7rem;color:var(--graphite)}
+.teamOverviewMetrics strong{font-family:var(--font-manrope),Manrope,sans-serif;font-size:1.2rem;overflow-wrap:anywhere}
+.teamOverviewMetrics div:last-child strong{font-family:inherit;font-size:.78rem;font-weight:650}
+.teamOverviewCard>small{display:block;margin-top:12px;color:var(--graphite);font-size:.72rem}
+@media(max-width:1100px){.teamOverview{grid-template-columns:1fr}}
+@media(max-width:500px){.teamOverviewMetrics{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}.teamOverviewMetrics>div:nth-child(2){border-right:0}}
