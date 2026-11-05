@@ -7,6 +7,8 @@ import { listLeads, saveLead } from "@/lib/repositories/lead-repository";
 import { notificationWarning } from "@/lib/communications/business";
 import { responseDeadline, scoreLead } from "@/lib/sales-engine";
 
+import { salesTeam } from "@/lib/sales-team";
+
 const columns: { id: LeadStatus; label: string }[] = [
   { id: "new", label: "Nieuw" },
   { id: "contacted", label: "Contact" },
@@ -19,6 +21,7 @@ const columns: { id: LeadStatus; label: string }[] = [
 export function SalesPipeline() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownerFilter, setOwnerFilter] = useState("all");
 
   const [loadError, setLoadError] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -65,6 +68,17 @@ export function SalesPipeline() {
     [leads],
   );
 
+  const filteredLeads = useMemo(() => leads.filter(lead => ownerFilter === "all" || (ownerFilter === "unassigned" ? !lead.owner : lead.owner === ownerFilter)), [leads, ownerFilter]);
+
+  async function assign(lead: Lead, owner: string) {
+    const next = { ...lead, owner };
+    try {
+      await saveLead(next, ["owner"]);
+      setLeads(current => current.map(item => item.id === lead.id ? next : item));
+      setSaveError("");
+    } catch { setSaveError("Medewerker niet opgeslagen. Probeer opnieuw."); }
+  }
+
   async function move(lead: Lead, status: LeadStatus) {
     const next = { ...lead, status };
     try {
@@ -86,11 +100,12 @@ export function SalesPipeline() {
         <div className="metric"><span>Open pipeline</span><strong>{leads.filter((lead) => !["won", "lost"].includes(lead.status ?? "new")).length}</strong></div>
         <div className="metric"><span>Afspraken</span><strong>{leads.filter((lead) => lead.status === "appointment").length}</strong></div>
       </div>
-      <div className="kanban">
+      <div className="pipelineToolbar"><strong>Verkooppipeline <span className="muted">· alle zes fasen</span></strong><label>Medewerker<select aria-label="Filter op medewerker" value={ownerFilter} onChange={event => setOwnerFilter(event.target.value)}><option value="all">Iedereen</option><option value="unassigned">Niet toegewezen</option>{salesTeam.map(member => <option value={member.name} key={member.id}>{member.name}</option>)}</select></label></div>
+      <div className="kanban" aria-label="Verkooppipeline met zes fasen">
         {columns.map((column) => (
           <section className="kanbanColumn" key={column.id}>
-            <header><strong>{column.label}</strong><span>{leads.filter((lead) => (lead.status ?? "new") === column.id).length}</span></header>
-            {leads
+            <header><strong>{column.label}</strong><span>{filteredLeads.filter((lead) => (lead.status ?? "new") === column.id).length}</span></header>
+            {filteredLeads
               .filter((lead) => (lead.status ?? "new") === column.id)
               .map((lead) => (
                 <article className="leadCard" key={lead.id}>
@@ -100,8 +115,9 @@ export function SalesPipeline() {
                   </div>
                   <h3><Link href={`/dashboard/leads/${lead.id}`}>{lead.name}</Link></h3>
                   {notificationWarning(lead) ? <p role="status">{notificationWarning(lead)}</p> : null}
-                  <p>{lead.message}</p>
-                  <small>{lead.phone || lead.email}</small>
+                  {lead.message ? <p className="leadCardMessage" title={lead.message}>{lead.message}</p> : null}
+                  <small className="leadCardContact">{lead.phone || lead.email || "Geen contactgegevens"}</small>
+                  <label>Medewerker<select aria-label={`Medewerker voor ${lead.name}`} value={lead.owner ?? ""} onChange={event => void assign(lead, event.target.value)}><option value="">Niet toegewezen</option>{salesTeam.map(member => <option key={member.id} value={member.name}>{member.name}</option>)}{lead.owner && !salesTeam.some(member => member.name === lead.owner) ? <option value={lead.owner}>{lead.owner}</option> : null}</select></label>
                   <label>
                     Fase
                     <select value={lead.status ?? "new"} onChange={(event) => move(lead, event.target.value as LeadStatus)}>
@@ -110,6 +126,7 @@ export function SalesPipeline() {
                   </label>
                 </article>
               ))}
+            {filteredLeads.every(lead => (lead.status ?? "new") !== column.id) ? <p className="kanbanEmpty">Geen leads in deze fase</p> : null}
           </section>
         ))}
       </div>
