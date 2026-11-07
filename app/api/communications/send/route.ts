@@ -7,7 +7,7 @@ const schema = z.object({
   channel: z.enum(["email", "whatsapp"]),
   to: z.string().min(3),
   template: z.string().min(1),
-  variables: z.record(z.string()).optional(),
+  variables: z.record(z.string(), z.string()).optional(),
 });
 
 export async function POST(request: Request) {
